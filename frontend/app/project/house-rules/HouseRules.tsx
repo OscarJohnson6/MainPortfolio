@@ -29,7 +29,7 @@ import {
 
 // shopLogic.ts: shop item generation
 import { generateShopItems } from './logic/shopLogic';
-import { ARTIFACT_DEFS, getArtifactEffect, artifactStacks, effectiveArtifactStacks, ALL_ARTIFACT_IDS } from './data/artifacts';
+import { ARTIFACT_DEFS, getArtifactEffect, artifactEffectAtStacks, artifactStacks, effectiveArtifactStacks, ALL_ARTIFACT_IDS } from './data/artifacts';
 import { getAllArcadeWords } from '@/app/project/arcade/games/wordData';
 import type { LetterTile } from './logic/letterEngine';
 import { createLetterDeck, letterHandValue, findWordInSequence, letterDealerAI } from './logic/letterEngine';
@@ -53,7 +53,7 @@ import {
 // Phase screen components (TitleScreen, ResultView, ShopView, etc.) are
 // rendered inline in HouseRules.tsx until each phase is fully wired.
 import type { DumpsterResult } from './components';
-import { ActiveRunSave } from './logic/saveSystem';
+import type { ActiveRunSave } from './logic/saveSystem';
 
 const WORD_SET: Set<string> = new Set(getAllArcadeWords().map(w => w.toUpperCase()));
 
@@ -285,6 +285,81 @@ const ACTIVE_RUN_KEY = 'house-rules-active-run';
 const GOLD = '#c9a84c';
 const DIM  = '#7a6a4a';
 
+// Events should remain occasional interruptions, even when a streak makes a
+// contextual event eligible. The base chance still lives in data/events.ts;
+// this multiplier lets the orchestrator tune overall pacing in one place.
+const EVENT_CHANCE_MULTIPLIER = 0.75;
+const STREAK_EVENT_CHANCE = 0.28;
+
+function isPostActThreeEvent(id: EventId): boolean {
+  const def = EVENT_DEFS[id] as { title?: string; name?: string } | undefined;
+  const searchableName = `${String(id)} ${def?.title ?? ''} ${def?.name ?? ''}`;
+
+  // surprise_boss is the current Closing House-style encounter. Matching the
+  // display name as well keeps the gate intact if the event id is renamed.
+  return id === 'surprise_boss' || /closing[\s_-]+house/i.test(searchableName);
+}
+
+interface GameHeaderProps {
+  money: number;
+  nickname: string;
+  onOpenMenu: () => void;
+  lives: number;
+  heartBreakIdx: number;
+  actIdx: number;
+  tableIdx: number;
+  isBoss: boolean;
+  dealerName: string;
+  dealerRank: DealerRank;
+  ledgerTotal: number;
+}
+
+function GameHeader({
+  money,
+  nickname,
+  onOpenMenu,
+  lives,
+  heartBreakIdx,
+  actIdx,
+  tableIdx,
+  isBoss,
+  dealerName,
+  dealerRank,
+  ledgerTotal,
+}: GameHeaderProps) {
+  return (
+    <>
+      <div style={{ width: '100%', padding: '9px 16px', display: 'flex',
+        justifyContent: 'space-between', alignItems: 'center',
+        borderBottom: '1px solid rgba(201,168,76,.1)', background: 'rgba(0,0,0,.2)' }}>
+        <span style={{ color: GOLD, fontFamily: "'Cinzel',serif", fontSize: '13px', fontWeight: 600 }}>
+          ${money}
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontFamily: "'Cinzel',serif", fontSize: '11px', color: DIM, letterSpacing: '.1em' }}>
+            {nickname}
+          </span>
+          <button onClick={onOpenMenu} title="Menu"
+            style={{ background: 'none', border: '1px solid rgba(255,255,255,.1)', borderRadius: '4px',
+              cursor: 'pointer', color: '#5a4e38', fontSize: '13px', padding: '2px 7px', lineHeight: 1,
+              transition: 'color .14s ease' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#c9a84c')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#5a4e38')}>
+            ≡
+          </button>
+          <FullscreenBtn />
+        </div>
+        <HeartDisplay lives={lives} breakIdx={heartBreakIdx} />
+      </div>
+      <div style={{ width: '100%', padding: '6px 16px 8px',
+        borderBottom: '1px solid rgba(255,255,255,.04)', background: 'rgba(0,0,0,.1)' }}>
+        <RunTracker actIdx={actIdx} tableIdx={tableIdx} isBoss={isBoss}
+          dealerName={dealerName} dealerRank={dealerRank} ledgerTotal={ledgerTotal} />
+      </div>
+    </>
+  );
+}
+
 export function HouseRulesGame() {
   // Run state
   const [phase, setPhase]         = useState<GamePhase>('title');
@@ -360,8 +435,6 @@ export function HouseRulesGame() {
   // ── Achievement counters ──────────────────────────────────────────
   const [perfectClearCount, setPerfectClearCount]   = useState(0);
   const [perfectClearStreak, setPerfectClearStreak] = useState(0);
-  const [winStreakCount, setWinStreakCount]           = useState(0);
-  const [lossStreakCount, setLossStreakCount]         = useState(0);
   const [tablesWonThisAct, setTablesWonThisAct]     = useState(0);
   const [bustsThisTable, setBustsThisTable]          = useState(0);
   const [edgeWorkCount, setEdgeWorkCount]            = useState(0);
@@ -468,12 +541,26 @@ export function HouseRulesGame() {
   // Refs
   const dealTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const achievementTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const unlockedAchievementNames = useRef<Set<string>>(new Set());
   const saveImportRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => () => {
     dealTimers.current.forEach(clearTimeout);
     if (toastTimer.current) clearTimeout(toastTimer.current);
+    achievementTimers.current.forEach(clearTimeout);
+    achievementTimers.current.clear();
   }, []);
+
+  // Keep the synchronous dedupe guard aligned with loaded profile/run data.
+  // The ref also prevents two unlock checks in the same render from queuing
+  // duplicate popups before React commits the state update.
+  useEffect(() => {
+    unlockedAchievementNames.current = new Set([
+      ...(playerData?.achievements ?? []),
+      ...runAchievements,
+    ]);
+  }, [playerData, runAchievements]);
 
   // Load history and unfinished-run metadata on mount
   useEffect(() => {
@@ -726,6 +813,9 @@ export function HouseRulesGame() {
         pitBossPhase, pitBannedRank, pitBannedFaceRank, closingTime,
         goldenChips, goldenRaidActive, goldenGate, goldenOpIndex, goldenRaidDefeated,
         runAchievements,
+        activeEvent, seenEvents, pendingNav, dumpsterPulls, mirrorEntries, mirrorLastCard,
+        goldenIdolActive, goldenIdolTables, nightShiftDraws,
+        offerArtifactId, offerWins, offerTablesLeft, jestersInDeck, totalDeckSize,
         letterDeck, playerLetters, dealerLetters, letterPullOptions, letterShowdownPile,
         letterReserve, dealerReserveLetter,
         bannedLetter, minWordLength,
@@ -831,6 +921,20 @@ export function HouseRulesGame() {
     setGoldenOpIndex(s.goldenOpIndex ?? 0);
     setGoldenRaidDefeated(!!s.goldenRaidDefeated);
     setRunAchievements(s.runAchievements ?? []);
+    setActiveEvent(s.activeEvent ?? null);
+    setSeenEvents(s.seenEvents ?? []);
+    setPendingNav(s.pendingNav ?? null);
+    setDumpsterPulls(s.dumpsterPulls ?? []);
+    setMirrorEntries(s.mirrorEntries ?? 0);
+    setMirrorLastCard(s.mirrorLastCard);
+    setGoldenIdolActive(!!s.goldenIdolActive);
+    setGoldenIdolTables(s.goldenIdolTables ?? 0);
+    setNightShiftDraws(s.nightShiftDraws ?? 0);
+    setOfferArtifactId(s.offerArtifactId ?? null);
+    setOfferWins(s.offerWins ?? 0);
+    setOfferTablesLeft(s.offerTablesLeft ?? 0);
+    setJestersInDeck(!!s.jestersInDeck);
+    setTotalDeckSize(s.totalDeckSize ?? 52);
 
     setLetterDeck(s.letterDeck ?? []);
     setPlayerLetters(s.playerLetters ?? []);
@@ -888,12 +992,16 @@ export function HouseRulesGame() {
   }
 
   function unlockAchievement(name: string, detail?: string) {
-    if (runAchievements.includes(name)) return;
+    if (unlockedAchievementNames.current.has(name)) return;
+    unlockedAchievementNames.current.add(name);
     setRunAchievements(prev => prev.includes(name) ? prev : [...prev, name]);
     const popId = `a${Date.now()}${Math.random()}`;
     setAchievementPops(prev => [...prev, { id: popId, name, detail }]);
-    setTimeout(() => setAchievementPops(prev => prev.filter(p => p.id !== popId)), 3600);
-    addTrigger(`Achievement: ${name}`, '#facc15');
+    const timer = setTimeout(() => {
+      setAchievementPops(prev => prev.filter(p => p.id !== popId));
+      achievementTimers.current.delete(popId);
+    }, 3600);
+    achievementTimers.current.set(popId, timer);
     if (detail) logEvent(`Achievement: ${name} — ${detail}`, undefined, '#facc15');
   }
 
@@ -958,7 +1066,7 @@ export function HouseRulesGame() {
   }
 
   function refreshShopAvailability(items: ShopItem[], currentMoney: number) {
-    return items.map(i => ({ ...i, available: currentMoney >= i.cost }));
+    return items.map(i => ({ ...i, available: currentMoney >= i.cost })) as ShopItem[];
   }
 
   function crackPiggyBank() {
@@ -986,16 +1094,25 @@ export function HouseRulesGame() {
 
 
   function clearFightArtifactStatuses(arts: OwnedArtifact[]): OwnedArtifact[] {
-    return arts.map(art => {
-      const status = art.status;
-      if (!status) return art;
-      const { lockedForFight, forcedStacks, disabledUntilTableEnd, lockedUntilTurn, ...rest } = status;
-      const cleanStatus = Object.keys(rest).length > 0 ? rest : undefined;
-      return { ...art, status: cleanStatus };
+    return arts.map((art): OwnedArtifact => {
+      if (!art.status) return art;
+
+      const cleanStatus = { ...art.status };
+      delete cleanStatus.lockedForFight;
+      delete cleanStatus.forcedStacks;
+      delete cleanStatus.disabledUntilTableEnd;
+      delete cleanStatus.lockedUntilTurn;
+
+      return {
+        ...art,
+        status: Object.keys(cleanStatus).length > 0 ? cleanStatus : undefined,
+      };
     });
   }
 
-  function lockOnePitBossArtifact(arts: OwnedArtifact[]): { arts: OwnedArtifact[]; lockedName: string | null } {
+  function lockOnePitBossArtifact(
+    arts: OwnedArtifact[],
+  ): { arts: OwnedArtifact[]; lockedName: string | null } {
     const candidates = arts
       .filter(a => effectiveArtifactStacks(a) > 0 && !a.status?.lockedForFight && a.status?.forcedStacks == null)
       .sort((a, b) => (b.stacks - a.stacks) || ARTIFACT_DEFS[a.id].name.localeCompare(ARTIFACT_DEFS[b.id].name));
@@ -1003,7 +1120,7 @@ export function HouseRulesGame() {
     const picked = candidates[0];
     if (!picked) return { arts, lockedName: null };
 
-    const nextArts = arts.map(art => {
+    const nextArts = arts.map((art): OwnedArtifact => {
       if (art.id !== picked.id) return art;
       if (art.stacks >= 4) {
         return { ...art, status: { ...(art.status ?? {}), forcedStacks: 1 } };
@@ -1103,7 +1220,11 @@ export function HouseRulesGame() {
     setQueenSavesLeft(0); setTcUsesLeft(0); setRedraws(0);
     setJackActive(false); setJackPeeks([]);
     const tc = getArtifactEffect('third_choice', arts);
-    if (tc) setTcUsesLeft(arts.find(a=>a.id==='third_choice')?.stacks === 3 ? 999 : arts.find(a=>a.id==='third_choice')?.stacks ?? 0);
+    if (tc) {
+      const thirdChoice = arts.find(a => a.id === 'third_choice');
+      const tcStacks = thirdChoice ? effectiveArtifactStacks(thirdChoice) : 0;
+      setTcUsesLeft(tcStacks >= 3 ? 999 : tc.pullCountUses ?? 0);
+    }
     const sw = getArtifactEffect('second_wind', arts);
     if (sw) setRedraws(sw.redraws ?? 0);
     setActIdx(ai); setTableIdx(ti); setIsBoss(boss);
@@ -1282,9 +1403,10 @@ export function HouseRulesGame() {
       snap.dealerFrozen ? [] : (snap.dealerReserveLetter ? [snap.dealerReserveLetter, ...snap.ltDealerPreviewPool] : snap.ltDealerPreviewPool),
       snap.dealerFrozen ? [] : snap.dk,
       snap.playerVal,
-      !!snap.playerWord,
+      snap.playerWord?.length ?? 0,
       snap.tgt,
       WORD_SET,
+      minWordLength,
     );
 
     if (snap.dealerReserveLetter) setDealerReserveLetter(null);
@@ -1430,7 +1552,7 @@ export function HouseRulesGame() {
 
       const hsEff2 = getArtifactEffect('high_stakes', snap.arts);
       const penalty = Math.min(snap.curMoney, hsEff2?.bustPenalty ?? 0);
-      let curMoney = snap.curMoney - penalty;
+      const curMoney = snap.curMoney - penalty;
       if (penalty > 0) log.push({ label: 'High Stakes penalty', amount: -penalty, color: '#f87171' });
       const br = calcBustResult(snap.curLives, curMoney, snap.arts, snap.curSc);
       setLives(br.newLives); setMoney(br.newMoney); setScUsedCount(br.newScUsed);
@@ -1446,7 +1568,7 @@ export function HouseRulesGame() {
     addRunEntry(win ? 'win' : 'lose', pVal, dVal, earn, snap.ai, snap.ti, snap.boss, snap.arts);
     setPhase('result');
   }
-  function beginTable(ai: number, ti: number, boss: boolean, arts = artifacts, requestedPitPhase: 1 | 2 = 1, targetOverride?: number, opts: { skipPitLock?: boolean; keepDealer?: boolean; pitNumberBan?: Card['rank'] | null; pitFaceBan?: Card['rank'] | null } = {}) {
+  function beginTable(ai: number, ti: number, boss: boolean, arts = artifacts, requestedPitPhase: 1 | 2 = 1, targetOverride?: number, opts: { skipPitLock?: boolean; keepDealer?: boolean; pitNumberBan?: Card['rank'] | null; pitFaceBan?: Card['rank'] | null; deckSize?: 52 | 104 } = {}) {
     const act = getCardAct(ai);
     const tData = boss ? act.boss : act.tables[ti];
     const isPitBossFight = boss && tData.rule === 'pit_boss';
@@ -1461,7 +1583,10 @@ export function HouseRulesGame() {
       }
       setArtifacts(activeArts);
     }
-    const dk = shuffle([...createFullDeck(), ...createFullDeck()]);
+    const deckSize = opts.deckSize ?? totalDeckSize;
+    const dk = shuffle(deckSize >= 104
+      ? [...createFullDeck(), ...createFullDeck()]
+      : createFullDeck());
 
     // Queen saves for this table
     const qmEff = getArtifactEffect('queens_mercy', activeArts);
@@ -2860,6 +2985,14 @@ export function HouseRulesGame() {
     return current;
   }
 
+  function grantArtifactRewards(ids: ArtifactId[]) {
+    if (ids.length === 0) return;
+    setArtifacts(current => ids.reduce(
+      (next, id) => applyRewardToArtifacts(next, id),
+      current,
+    ));
+  }
+
   function pickReward(id: ArtifactId | null) {
     let nextArts = applyRewardToArtifacts(artifacts, id);
     if (isBoss && houseRule === 'pit_boss' && result === 'win') nextArts = clearFightArtifactStatuses(nextArts);
@@ -2919,13 +3052,10 @@ export function HouseRulesGame() {
   // ─── goNext ──────────────────────────────────────────────────────
   // ─── tryFireEvent ────────────────────────────────────────────────
   function unlockRunAchievement(name: string) {
-    setRunAchievements(prev => {
-      if (prev.includes(name)) return prev;
-      const next = [...prev, name];
-      const def = ACHIEVEMENT_DEFS.find((a: any) => a.name === name);
-      if (def) setAchievementPops((p: any[]) => [...p, { id: `${Date.now()}`, name, color: '#c9a84c' }]);
-      return next;
-    });
+    const def = ACHIEVEMENT_DEFS.find((achievement: { name: string }) => achievement.name === name) as
+      | { description?: string }
+      | undefined;
+    unlockAchievement(name, def?.description);
   }
 
   function checkAndUnlockAchievements(conditions: Partial<Record<string,boolean>>) {
@@ -2936,17 +3066,26 @@ export function HouseRulesGame() {
 
   function tryFireEvent(nav: {ai:number;ti:number;boss:boolean;arts:OwnedArtifact[]}): boolean {
     if (nav.boss) return false;
-    const pool = buildEventPool(nav.ai, seenEvents, winStreakCount, lossStreakCount);
+    let eventWinStreak = 0;
+    let eventLossStreak = 0;
+    for (let i = runLog.length - 1; i >= 0 && runLog[i].result === 'win'; i--) eventWinStreak++;
+    for (let i = runLog.length - 1; i >= 0 && ['lose', 'bust'].includes(runLog[i].result); i--) eventLossStreak++;
+
+    const pool = buildEventPool(nav.ai, seenEvents, eventWinStreak, eventLossStreak)
+      .filter((id: EventId) => nav.ai >= ACTS.length || !isPostActThreeEvent(id));
     if (pool.length === 0) return false;
     const roll = Math.random();
     // Streak-triggered events fire at higher probability
-    const streakEvent = lossStreakCount >= 2 || winStreakCount >= 3;
-    if (roll > (streakEvent ? 0.35 : EVENT_BASE_CHANCE)) return false;
+    const streakEvent = eventLossStreak >= 2 || eventWinStreak >= 3;
+    const eventChance = streakEvent
+      ? STREAK_EVENT_CHANCE
+      : EVENT_BASE_CHANCE * EVENT_CHANCE_MULTIPLIER;
+    if (roll >= eventChance) return false;
 
     const streakPool = pool.filter((id: EventId) => {
       const t = EVENT_DEFS[id]?.trigger;
-      if (lossStreakCount >= 2 && t === 'cold_streak') return true;
-      if (winStreakCount >= 3 && t === 'win_streak') return true;
+      if (eventLossStreak >= 2 && t === 'cold_streak') return true;
+      if (eventWinStreak >= 3 && t === 'win_streak') return true;
       return false;
     });
     const normalPool = pool.filter((id: EventId) =>
@@ -2980,11 +3119,11 @@ export function HouseRulesGame() {
     } else if (roll < 0.80) {
       result = { type: 'artifact', label: 'Random artifact (Tier I)', color: '#60a5fa' };
       const pool = generateRewardPool(artifacts);
-      if (pool.length > 0) applyRewardToArtifacts(pool[0]);
+      if (pool.length > 0) grantArtifactRewards([pool[0]]);
     } else if (roll < 0.90) {
       result = { type: 'artifact_cursed', label: 'Cursed artifact (Tier I)', color: '#a855f7' };
       const pool = generateRewardPool(artifacts);
-      if (pool.length > 0) applyRewardToArtifacts(pool[0]);
+      if (pool.length > 0) grantArtifactRewards([pool[0]]);
     } else if (roll < 0.95) {
       result = { type: 'lose_life', label: '⚠ Lose 1 life', color: '#ef4444' };
       setLives((l: number) => Math.max(0, l - 1));
@@ -3000,12 +3139,14 @@ export function HouseRulesGame() {
 
   function resolveEventChoice(eventId: EventId, choiceId: string) {
     const nav = pendingNav;
+    let deckSizeOverride: 52 | 104 | undefined;
     const done = () => {
       setActiveEvent(null); setPendingNav(null);
       setDumpsterPulls([]); setMirrorEntries(0); setMirrorLastCard(undefined);
       if (nav) {
-        const begin = gameMode === 'alphabet' ? beginLetterTable : beginTable;
-        begin(nav.ai, nav.ti, nav.boss, nav.arts);
+        if (gameMode === 'alphabet') beginLetterTable(nav.ai, nav.ti, nav.boss, nav.arts);
+        else beginTable(nav.ai, nav.ti, nav.boss, nav.arts, 1, undefined,
+          deckSizeOverride ? { deckSize: deckSizeOverride } : {});
       }
     };
 
@@ -3052,7 +3193,7 @@ export function HouseRulesGame() {
           addTrigger(`Tumble: ${ARTIFACT_DEFS[old.id]?.name} → ${ARTIFACT_DEFS[newId]?.name}`, '#f59e0b');
         } else if (choiceId === 'gooped') {
           const pool = generateRewardPool(artifacts);
-          if (pool.length > 0) { applyRewardToArtifacts(pool[0]); addTrigger('Gooped artifact (cursed)', '#a855f7'); }
+          if (pool.length > 0) { grantArtifactRewards([pool[0]]); addTrigger('Gooped artifact (cursed)', '#a855f7'); }
         } else if (choiceId === 'steal') {
           setMoney((m: number) => m + 15);
           setNightShiftDraws(2); // borrow field: reduces draws for 2 tables
@@ -3068,7 +3209,7 @@ export function HouseRulesGame() {
           const idx = Math.floor(Math.random() * artifacts.length);
           setArtifacts((prev: OwnedArtifact[]) => prev.filter((_: any, i: number) => i !== idx));
           const pool = generateRewardPool(artifacts);
-          if (pool.length > 0) { applyRewardToArtifacts(pool[0]); applyRewardToArtifacts(pool[0]); }
+          if (pool.length > 0) grantArtifactRewards([pool[0], pool[0]]);
           addTrigger('Night Shift trade: artifact → 2 new artifacts', '#67e8f9');
         } else {
           if (artifacts.length > 0) setArtifacts((prev: OwnedArtifact[]) => prev.map((a: OwnedArtifact, i: number) => i === 0 ? { ...a, status: { ...(a.status ?? {}), disabledUntilTableEnd: true } } : a));
@@ -3089,8 +3230,7 @@ export function HouseRulesGame() {
           setMoney((m: number) => m - 30);
           const pool = generateRewardPool(artifacts);
           if (pool.length >= 2) {
-            applyRewardToArtifacts(pool[0]); applyRewardToArtifacts(pool[0]);
-            applyRewardToArtifacts(pool[1]); applyRewardToArtifacts(pool[1]); applyRewardToArtifacts(pool[1]);
+            grantArtifactRewards([pool[0], pool[0], pool[1], pool[1], pool[1]]);
           }
           addTrigger('Blacksmith: Tier II + Tier III forged', '#60a5fa');
         }
@@ -3118,11 +3258,11 @@ export function HouseRulesGame() {
         break;
       case 'hallway_of_offers':
         if (choiceId === 'money') { setMoney((m: number) => m + 20); addTrigger('+$20', '#c9a84c'); }
-        else if (choiceId === 'artifact') { const p = generateRewardPool(artifacts); if (p.length>0) applyRewardToArtifacts(p[0]); addTrigger('Artifact upgrade', '#60a5fa'); }
+        else if (choiceId === 'artifact') { const p = generateRewardPool(artifacts); if (p.length>0) grantArtifactRewards([p[0]]); addTrigger('Artifact upgrade', '#60a5fa'); }
         else if (choiceId === 'unknown') {
           const r = Math.random();
-          if (r < 0.4) { setMoney((m: number) => m + 10); const p = generateRewardPool(artifacts); if (p.length>0) { applyRewardToArtifacts(p[0]); applyRewardToArtifacts(p[0]); applyRewardToArtifacts(p[0]); } addTrigger('Unknown: Tier IV!', '#c9a84c'); checkAndUnlockAchievements({ legendary: true }); }
-          else if (r < 0.7) { setLives((l: number) => Math.min(l+1,maxLives)); addTrigger('Unknown: life restored', '#22c55e'); }
+          if (r < 0.4) { setMoney((m: number) => m + 10); const p = generateRewardPool(artifacts); if (p.length>0) grantArtifactRewards([p[0], p[0], p[0]]); addTrigger('Unknown: high-tier artifact!', '#c9a84c'); checkAndUnlockAchievements({ legendary: true }); }
+          else if (r < 0.7) { setLives((l: number) => Math.min(l + 1, 2)); addTrigger('Unknown: life restored', '#22c55e'); }
           else if (r < 0.9) { addTrigger('Unknown: artifact cursed', '#ef4444'); }
           else { addTrigger('Unknown: nothing', '#4a4035'); }
         }
@@ -3140,7 +3280,11 @@ export function HouseRulesGame() {
         else if (choiceId === 'peek_remove') { setMoney((m: number) => m - 10); addTrigger('Peeked and removed one card from deck', '#67e8f9'); }
         break;
       case 'second_deck':
-        if (choiceId === 'merge') { setTotalDeckSize(104); addTrigger('Second deck merged — 104 cards', '#60a5fa'); }
+        if (choiceId === 'merge') {
+          deckSizeOverride = 104;
+          setTotalDeckSize(104);
+          addTrigger('Second deck merged — 104 cards', '#60a5fa');
+        }
         break;
     }
     done();
@@ -3329,7 +3473,25 @@ export function HouseRulesGame() {
     setGoldenGate(1);
     setGoldenOpIndex(0);
     setGoldenRaidDefeated(false);
+    setActiveEvent(null);
+    setSeenEvents([]);
+    setPendingNav(null);
+    setDumpsterPulls([]);
+    setMirrorEntries(0);
+    setMirrorLastCard(undefined);
+    setGoldenIdolActive(false);
+    setGoldenIdolTables(0);
+    setNightShiftDraws(0);
+    setOfferArtifactId(null);
+    setOfferWins(0);
+    setOfferTablesLeft(0);
+    setJestersInDeck(false);
+    setTotalDeckSize(52);
     setRunAchievements([]);
+    setAchievementPops([]);
+    achievementTimers.current.forEach(clearTimeout);
+    achievementTimers.current.clear();
+    unlockedAchievementNames.current = new Set(playerData?.achievements ?? []);
     setHouseLedger({ total: 0, history: [] });
     setDealerArtifacts([]);
     setDealerName('Table Dealer');
@@ -3349,7 +3511,7 @@ export function HouseRulesGame() {
     if (selectedGameMode === 'alphabet') {
       beginLetterTable(0, 0, false, startArts);
     } else {
-      beginTable(0, 0, false, startArts);
+      beginTable(0, 0, false, startArts, 1, undefined, { deckSize: 52 });
     }
   }
 
@@ -3381,8 +3543,8 @@ export function HouseRulesGame() {
   const AchievementToastLayer = achievementPops.length ? (
     <div style={{ position: 'fixed', top: '18px', right: '18px', zIndex: 500,
       display: 'flex', flexDirection: 'column', gap: '8px', pointerEvents: 'none', maxWidth: '300px' }}>
-      {achievementPops.map((pop, index) => (
-        <div key={`${pop.id}-${index}`} className="achievementToast" style={{
+      {achievementPops.map(pop => (
+        <div key={pop.id} className="achievementToast" style={{
           padding: '10px 12px', borderRadius: '10px',
           background: 'linear-gradient(135deg, rgba(201,168,76,.22), rgba(0,0,0,.82))',
           border: '1px solid rgba(201,168,76,.42)', boxShadow: '0 10px 30px rgba(0,0,0,.45)',
@@ -3432,40 +3594,6 @@ export function HouseRulesGame() {
       whiteSpace: 'nowrap', pointerEvents: 'none', animation: 'fadeUp .22s ease',
     }}>{toast}</div>
   ) : null;
-
-  // ─── Header (used in table + dealer phases) ───────────────────────
-  function Header() {
-    return (
-      <>
-        <div style={{ width: '100%', padding: '9px 16px', display: 'flex',
-          justifyContent: 'space-between', alignItems: 'center',
-          borderBottom: '1px solid rgba(201,168,76,.1)', background: 'rgba(0,0,0,.2)' }}>
-          <span style={{ color: GOLD, fontFamily: "'Cinzel',serif", fontSize: '13px', fontWeight: 600 }}>
-            ${money}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontFamily: "'Cinzel',serif", fontSize: '11px', color: DIM, letterSpacing: '.1em' }}>
-              {nickname}
-            </span>
-            <button onClick={() => setShowMenu(true)} title="Menu"
-              style={{ background: 'none', border: '1px solid rgba(255,255,255,.1)', borderRadius: '4px',
-                cursor: 'pointer', color: '#5a4e38', fontSize: '13px', padding: '2px 7px', lineHeight: 1,
-                transition: 'color .14s ease' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#c9a84c')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#5a4e38')}>
-              ≡
-            </button>
-            <FullscreenBtn />
-          </div>
-          <HeartDisplay lives={lives} breakIdx={heartBreakIdx} />
-        </div>
-        <div style={{ width: '100%', padding: '6px 16px 8px',
-          borderBottom: '1px solid rgba(255,255,255,.04)', background: 'rgba(0,0,0,.1)' }}>
-          <RunTracker actIdx={actIdx} tableIdx={tableIdx} isBoss={isBoss} dealerName={dealerName} dealerRank={dealerRank} ledgerTotal={houseLedger.total} />
-        </div>
-      </>
-    );
-  }
 
   // ─────────────────────────────────────────────────────────────────
   // RENDER
@@ -3656,7 +3784,9 @@ export function HouseRulesGame() {
         {SCOverlay}{Toast}{QuickMenu}{AchievementToastLayer}
         <TriggerLayer triggers={triggers} />
         <div className="hr-wrap">
-          <Header />
+          <GameHeader money={money} nickname={nickname} onOpenMenu={() => setShowMenu(true)}
+            lives={lives} heartBreakIdx={heartBreakIdx} actIdx={actIdx} tableIdx={tableIdx}
+            isBoss={isBoss} dealerName={dealerName} dealerRank={dealerRank} ledgerTotal={houseLedger.total} />
           {/* Run tracker for letter acts */}
           <div style={{ width: '100%', padding: '6px 16px 8px', borderBottom: '1px solid rgba(255,255,255,.04)', background: 'rgba(0,0,0,.1)' }}>
             <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap', fontSize: '11px', fontFamily: "'Cinzel',serif", letterSpacing: '.1em' }}>
@@ -3749,7 +3879,7 @@ export function HouseRulesGame() {
                         </span>
                         {previewWord && !redactPending && (
                           <span style={{ fontSize: '10px', color: '#ef4444', fontFamily: "'Cinzel',serif" }}>
-                            ⚠ could form "{previewWord.word}"
+                            ⚠ could form &quot;{previewWord.word}&quot;
                           </span>
                         )}
                       </div>
@@ -3797,7 +3927,7 @@ export function HouseRulesGame() {
                   <div style={{ marginTop: '8px', padding: '6px 14px', display: 'inline-block',
                     background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.4)', borderRadius: '6px' }}>
                     <span style={{ fontSize: '12px', color: '#ef4444', fontFamily: "'Cinzel',serif", letterSpacing: '.08em' }}>
-                      ⚠ THE CENSOR — "{bannedLetter}" is BANNED
+                      ⚠ THE CENSOR — &quot;{bannedLetter}&quot; is BANNED
                     </span>
                   </div>
                 )}
@@ -3946,7 +4076,9 @@ export function HouseRulesGame() {
         <TriggerLayer triggers={triggers} />
 
         <div className="hr-wrap">
-          <Header />
+          <GameHeader money={money} nickname={nickname} onOpenMenu={() => setShowMenu(true)}
+            lives={lives} heartBreakIdx={heartBreakIdx} actIdx={actIdx} tableIdx={tableIdx}
+            isBoss={isBoss} dealerName={dealerName} dealerRank={dealerRank} ledgerTotal={houseLedger.total} />
           <div className="hr-body">
             <div className="hr-main">
 
@@ -4109,7 +4241,7 @@ export function HouseRulesGame() {
                 } else if (c.rank === 'K') {
                   tip = <>King — shifted the target<br/><span style={{color:'#7a6a5a',fontSize:'10px'}}>Use Crown Law artifact to increase the shift</span></>;
                 } else if (c.rank === 'Q') {
-                  tip = <>Queen — activates bust save<br/><span style={{color:'#7a6a5a',fontSize:'10px'}}>Requires Queen's Mercy artifact to take effect</span></>;
+                  tip = <>Queen — activates bust save<br/><span style={{color:'#7a6a5a',fontSize:'10px'}}>Requires Queen&apos;s Mercy artifact to take effect</span></>;
                 } else if (c.rank === 'J') {
                   tip = <>Jack — gives a bonus pull option next draw</>;
                 } else if (isOdd) {
@@ -4126,11 +4258,11 @@ export function HouseRulesGame() {
               {!playerHand.length && <span style={{ color: '#4a4035', fontSize: '13px', display: 'flex', alignItems: 'center', paddingTop: '18px', fontStyle: 'italic' }}>Pull to build your hand…</span>}
             </div>
             <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-              {queenSavesLeft > 0 && <div style={{ fontSize: '11px', color: '#a855f7' }}>♛ Queen's Mercy: {queenSavesLeft} save{queenSavesLeft > 1 ? 's' : ''} ready</div>}
+              {queenSavesLeft > 0 && <div style={{ fontSize: '11px', color: '#a855f7' }}>♛ Queen&apos;s Mercy: {queenSavesLeft} save{queenSavesLeft > 1 ? 's' : ''} ready</div>}
               {jackActive && <div style={{ fontSize: '11px', color: '#94a3b8' }}>⚜ Jack — next pull shows 3 cards</div>}
               {jackPeeks.length > 0 && (
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>⦿ Jack's Tell:</span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>⦿ Jack&apos;s Tell:</span>
                   {jackPeeks.map(c => <span key={c.id} style={{ fontSize: '11px', color: '#94a3b8' }}>{c.rank}{c.suit}</span>)}
                 </div>
               )}
@@ -4236,7 +4368,7 @@ export function HouseRulesGame() {
                         {' · '}<span style={{ color: '#a855f7' }}>{saveReady ? 'bust save' : qmEff ? 'save set' : 'royal'}</span>
                       </>
                     );
-                    labelSub  = qmEff ? <span style={{ color: '#7a5580' }}>Queen's Mercy</span> : <>&nbsp;</>;
+                    labelSub  = qmEff ? <span style={{ color: '#7a5580' }}>Queen&apos;s Mercy</span> : <>&nbsp;</>;
                     labelColor = '#a855f7';
                   } else if (c.rank === 'K') {
                     const kRange = getArtifactEffect('crown_law', artifacts)?.kingRange ?? 1;
@@ -4508,8 +4640,8 @@ export function HouseRulesGame() {
             const isUpgrade = !!owned;
             const curStacks = owned?.stacks ?? 0;
             const nextStacks = Math.min(curStacks + 1, def.maxStacks);
-            const nextEff = def.stacks[nextStacks - 1];
-            const curEff = owned ? def.stacks[curStacks - 1] : null;
+            const nextEff = artifactEffectAtStacks(id, nextStacks);
+            const curEff = owned ? artifactEffectAtStacks(id, curStacks) : null;
 
             return (
               <button key={id} onClick={() => pickReward(id)}

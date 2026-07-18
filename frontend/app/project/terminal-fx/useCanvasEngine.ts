@@ -388,7 +388,7 @@ export function useCanvasEngine(
         const h = engine.height();
 
         if (rgba.length === w * h * 4) {
-          ctx.putImageData(
+          ctx!.putImageData(
             new ImageData(new Uint8ClampedArray(rgba), w, h),
             0,
             0,

@@ -53,6 +53,8 @@ export interface EventDef {
   weight?: number;
   /** This event cannot appear twice in the same run. */
   unique?: boolean;
+  /** Keep authored events out of the live pool until their runtime/UI handler is complete. */
+  enabled?: boolean;
   choices: EventChoiceDef[];
 }
 
@@ -143,7 +145,9 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     flavor: '"I believe we had an appointment."',
     body: 'The act boss is walking toward you — now, before the tables are cleared. Three options before it reaches you.',
     trigger: 'random',
-    minAct: 0,
+    // Act indexes are zero-based. This encounter is reserved for endless mode
+    // so it cannot replace one of the three authored campaign bosses.
+    minAct: 3,
     weight: 1,
     unique: false,
     choices: [
@@ -164,6 +168,8 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: 'A figure in motley offers to deal themselves into your game. Accept and the Jester shuffles into your draw pile — a card that lets you choose any face card effect at value 9.',
     trigger: 'random',
     weight: 2,
+    unique: true,
+    enabled: false, // requires a Jester rank/effect in Card and PlayingCard
     choices: [
       { id: 'accept',  label: 'Accept the deal',   description: 'The Jester (value 9, choose any face card effect) is shuffled into your deck for the rest of the run.' },
       { id: 'decline', label: 'Decline',           description: 'They bow and disappear.' },
@@ -178,6 +184,8 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     trigger: 'random',
     minAct: 1,
     weight: 1,
+    unique: true,
+    enabled: false, // requires artifact selection and contract-resolution UI
     choices: [
       { id: 'accept',  label: 'Sign the contract', description: 'Choose which artifact to stake. Win 3 tables without it and choose: upgrade it to Tier IV, receive a random Tier III artifact, or restore 1 life.',
         condition: 'has_artifact' },
@@ -192,6 +200,7 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: 'A shadow counter in a back corridor. Three items, all discounted 40%. Two of them are cursed — and you cannot tell which until you buy.',
     trigger: 'random',
     weight: 2,
+    enabled: false, // requires the dedicated cursed-shop view
     choices: [
       { id: 'inspect', label: 'Pay $5 to identify curses', description: 'The seller marks which items are cursed. You can then buy freely.' },
       { id: 'browse',  label: 'Browse blind',             description: 'Shop without the $5 reveal. What you see is what you get.' },
@@ -221,6 +230,7 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: 'A second shuffled deck sits on an empty table. Merging it into the current deck doubles card availability — including face cards.',
     trigger: 'random',
     weight: 1,
+    unique: true,
     choices: [
       { id: 'merge',   label: 'Merge the decks',   description: 'Deck grows to 104 cards. All cards become twice as likely. Face card doubling artifacts interact with this.' },
       { id: 'leave',   label: 'Leave it',           description: 'Ignore the extra deck.' },
@@ -234,6 +244,7 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: 'A corridor lined with mirrors, each showing a different version of your hand. You can copy a card from your current hand into your draw pile — but it costs a life.',
     trigger: 'random',
     weight: 1,
+    enabled: false, // requires card selection and persistent deck mutation
     choices: [
       { id: 'enter',   label: 'Step in — copy a card, lose 1 life', description: 'Choose a card from your current hand. A copy is added to your draw pile. If you have a life-restore effect, a second mirror appears.',
         danger: true,
@@ -265,6 +276,7 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: "After two straight losses, someone approaches with a briefcase. They offer a way out — but nothing from a briefcase comes free.",
     trigger: 'cold_streak',
     weight: 2,
+    unique: true,
     choices: [
       { id: 'accept',  label: 'Take the $20',       description: 'Gain $20 now. One random artifact is temporarily suppressed for the next table as collateral.' },
       { id: 'decline', label: 'Pass',               description: 'Turn it down.' },
@@ -278,6 +290,8 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: "After three straight wins, someone slides a contract across the table. Stake one artifact for three tables. Win all three and get it back with a bonus reward.",
     trigger: 'win_streak',
     weight: 1,
+    unique: true,
+    enabled: false, // shares The Offer's unfinished contract flow
     choices: [
       { id: 'accept',  label: 'Sign the contract',  description: 'Stake one artifact. Win the next 3 tables to recover it plus choose Tier IV upgrade, new Tier III, or life restore.',
         condition: 'has_artifact' },
@@ -292,6 +306,7 @@ export const EVENT_DEFS: Record<EventId, EventDef> = {
     body: 'The overnight dealer offers to let you see the top 4 cards of the next table\'s deck.',
     trigger: 'random',
     weight: 2,
+    enabled: false, // requires a next-deck preview/removal view
     choices: [
       { id: 'peek',        label: 'Peek — $6',             description: 'See the top 4 cards of next table\'s deck.',
         condition: 'has_8' },
@@ -312,6 +327,7 @@ export function buildEventPool(
 ): EventId[] {
   const pool: EventId[] = [];
   for (const [id, def] of Object.entries(EVENT_DEFS) as [EventId, EventDef][]) {
+    if (def.enabled === false) continue;
     if (def.unique && seenEvents.includes(id)) continue;
     if (def.minAct != null && actIdx < def.minAct) continue;
     if (def.maxAct != null && actIdx > def.maxAct) continue;
@@ -331,4 +347,4 @@ export function pickRandomEvent(pool: EventId[]): EventId | null {
 }
 
 /** Base probability of an event firing between tables. */
-export const EVENT_BASE_CHANCE = 0.22; // ~22% per table transition
+export const EVENT_BASE_CHANCE = 0.17; // ~17% per eligible table transition

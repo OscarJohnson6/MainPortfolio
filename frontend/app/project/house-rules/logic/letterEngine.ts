@@ -100,7 +100,6 @@ export function getWordStatus(
   minLength = 3,
 ): WordClearStatus {
   if (!wordSet) {
-    const val = letterHandValue(hand);
     return { word: null, wordStart: -1, wordEnd: -1,
       isWordClear: false, isPerfectClear: false, isWordBonus: false };
   }
@@ -126,9 +125,10 @@ export function letterDealerAI(
   previewPool: LetterTile[],  // visible to player; drawn first, in order
   deck: LetterTile[],         // fallback if pool exhausted
   playerValue: number,
-  playerHasWord: boolean,
+  playerWordLength: number,
   target: number,
   wordSet: Set<string>,
+  minWordLength = 3,
 ): { steps: LetterTile[][], finalHand: LetterTile[] } {
   let dHand = [...dealerHand];
   const drawSequence = [...previewPool, ...deck];
@@ -137,15 +137,15 @@ export function letterDealerAI(
 
   for (let i = 0; i < 10; i++) {
     const dVal    = letterHandValue(dHand);
-    const dResult = findWordInSequence(dHand.map(t => t.letter), wordSet);
+    const dResult = findWordInSequence(dHand.map(t => t.letter), wordSet, minWordLength);
     const dWord   = dResult?.word ?? null;
 
     // Important: a dealer over target with no word has busted.
     // Previously the dealer could keep drawing far past the target until the pool was empty.
     if (dVal > target && !dWord) break;
 
-    const beatsValue = !playerHasWord && dVal >= playerValue && dVal <= target;
-    const contestsWord = playerHasWord && !!dWord;
+    const beatsValue = playerWordLength === 0 && dVal >= playerValue && dVal <= target;
+    const contestsWord = playerWordLength > 0 && (dWord?.length ?? 0) >= playerWordLength;
     if (beatsValue || contestsWord) break;
     if (drawIdx >= drawSequence.length) break;
 

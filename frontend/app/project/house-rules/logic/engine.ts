@@ -1,6 +1,12 @@
 // logic/engine.ts — core game primitives
 import type { Card, Suit, Rank, OwnedArtifact, ArtifactId, BustResult, DealerRank } from '../types';
-import { ARTIFACT_DEFS, ALL_ARTIFACT_IDS, type AiCardTag } from '../data/artifacts';
+import {
+  ARTIFACT_DEFS,
+  ALL_ARTIFACT_IDS,
+  artifactEffectAtStacks,
+  effectiveArtifactStacks,
+  type AiCardTag,
+} from '../data/artifacts';
 
 // ─── Deck ─────────────────────────────────────────────────────────
 
@@ -77,11 +83,7 @@ export function isOddNumberCard(card: Card): boolean {
 }
 
 export function getEffectiveArtifactStacks(artifact: OwnedArtifact): number {
-  if (artifact.status?.lockedForFight || artifact.status?.disabledUntilTableEnd) {
-    // Legendary artifacts are suppressed to I instead of deleted.
-    return artifact.stacks >= 4 ? 1 : 0;
-  }
-  return artifact.status?.forcedStacks ?? artifact.stacks;
+  return effectiveArtifactStacks(artifact);
 }
 
 export function getArtifactStacks(id: ArtifactId, arts: OwnedArtifact[]): number {
@@ -191,7 +193,7 @@ export function scoreDealerCardChoice(input: {
   if (input.card.rank === 'K') {
     const crownStacks = getArtifactStacks('crown_law' as ArtifactId, input.dealerArtifacts);
     if (crownStacks > 0) {
-      const range = (ARTIFACT_DEFS.crown_law.stacks[Math.min(crownStacks, 3) - 1]?.kingRange ?? 2);
+      const range = artifactEffectAtStacks('crown_law', crownStacks)?.kingRange ?? 2;
       if (input.playerValue > input.target - range || simulatedTotal > input.target - range) {
         pressureCredit += 85 + crownStacks * 25;
         reasons.push('King can pressure target');
@@ -248,8 +250,9 @@ export function calcBustResult(
   scUsed: number,
 ): BustResult {
   const ledger = arts.find(a => a.id === 'cursed_ledger');
-  if (ledger) {
-    const eff = ARTIFACT_DEFS.cursed_ledger.stacks[ledger.stacks - 1];
+  const ledgerStacks = ledger ? getEffectiveArtifactStacks(ledger) : 0;
+  if (ledger && ledgerStacks > 0) {
+    const eff = artifactEffectAtStacks('cursed_ledger', ledgerStacks);
     if (eff?.ledgerBustCost === -1) {
       return {
         newLives: curLives, newMoney: 0, newScUsed: scUsed, saved: true,
@@ -270,8 +273,9 @@ export function calcBustResult(
 
   if (newLives <= 0) {
     const sc = arts.find(a => a.id === 'second_chance');
-    if (sc) {
-      const eff = ARTIFACT_DEFS.second_chance.stacks[sc.stacks - 1];
+    const scStacks = sc ? getEffectiveArtifactStacks(sc) : 0;
+    if (sc && scStacks > 0) {
+      const eff = artifactEffectAtStacks('second_chance', scStacks);
       const maxUses = eff?.scUses ?? 1;
       if (scUsed < maxUses) {
         const moneyLost = eff?.scCostsAllMoney ? curMoney : 0;

@@ -451,7 +451,7 @@ export const ALL_ARTIFACT_IDS: ArtifactId[] = Object.keys(ARTIFACT_DEFS) as Arti
 // ─── Helpers ──────────────────────────────────────────────────────
 
 export function effectiveArtifactStacks(art: OwnedArtifact): number {
-  if (art.status?.forcedStacks) return art.status.forcedStacks;
+  if (art.status?.forcedStacks != null) return art.status.forcedStacks;
   if (art.status?.lockedForFight || art.status?.disabledUntilTableEnd) {
     // Tier IV is suppressed to Tier I instead of being erased.
     return art.stacks >= 4 ? 1 : 0;
@@ -468,6 +468,22 @@ export function hasArtifact(id: ArtifactId, arts: OwnedArtifact[]): boolean {
   return artifactStacks(id, arts) > 0;
 }
 
+/**
+ * Resolve the effect for an explicit tier. Legendary Tier IV artifacts do not
+ * need a duplicate fourth definition: when one is absent, they inherit the
+ * highest effect that artifact defines (normally Tier III).
+ */
+export function artifactEffectAtStacks(
+  id: ArtifactId,
+  stacks: number,
+): ArtifactStackDef | null {
+  if (stacks <= 0) return null;
+  const effects = ARTIFACT_DEFS[id].stacks.filter(
+    (effect): effect is ArtifactStackDef => effect != null,
+  );
+  return effects[Math.min(Math.trunc(stacks), effects.length) - 1] ?? null;
+}
+
 export function getArtifactEffect(
   id: ArtifactId,
   arts: OwnedArtifact[],
@@ -475,6 +491,5 @@ export function getArtifactEffect(
   const owned = arts.find(a => a.id === id);
   if (!owned) return null;
   const stacks = effectiveArtifactStacks(owned);
-  if (stacks <= 0) return null;
-  return ARTIFACT_DEFS[id].stacks[Math.min(stacks, ARTIFACT_DEFS[id].stacks.length) - 1] ?? null;
+  return artifactEffectAtStacks(id, stacks);
 }

@@ -92,7 +92,8 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
 ];
 
 export function isAchievementUnlocked(id: string, unlocked: string[]): boolean {
-  return unlocked.includes(id);
+  const def = getAchievementById(id);
+  return unlocked.includes(id) || (!!def && unlocked.includes(def.name));
 }
 
 /** Add name string to unlocked array if not already present. */
@@ -112,10 +113,12 @@ export function checkAchievements(
 ): string[] {
   const newly: string[] = [];
   for (const [id, passes] of Object.entries(conditions)) {
-    if (passes && !already.includes(id)) {
-      const def = getAchievementById(id);
-      if (def) newly.push(def.name);
-    }
+    if (!passes) continue;
+    const def = getAchievementById(id);
+    if (!def) continue;
+    // Existing saves store achievement names. Accept ids too so this helper
+    // remains compatible if persistence is normalized in a future version.
+    if (!already.includes(id) && !already.includes(def.name)) newly.push(def.name);
   }
   return newly;
 }

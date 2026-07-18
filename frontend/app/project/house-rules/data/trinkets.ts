@@ -31,6 +31,7 @@ export interface TrinketDef {
   description: string;
   showdownOnly?: boolean;
   alphabetOnly?: boolean;
+  cardOnly?: boolean;
   cost: number;        // shop price
 }
 
@@ -40,6 +41,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '♥',
     color: '#f472b6',
     description: 'Add an Ace (♥) directly to your hand. Auto-optimized as 1 or 11.',
+    cardOnly: true,
     cost: 4,
   },
   the_ledger: {
@@ -47,6 +49,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '✦',
     color: '#c9a84c',
     description: 'Instantly set your hand total to exactly the target. Can only be used when below target.',
+    cardOnly: true,
     cost: 6,
   },
   gold_coin: {
@@ -75,6 +78,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '◈',
     color: '#94a3b8',
     description: 'See all Pull options this table — ignores the Hidden Hand rule.',
+    cardOnly: true,
     cost: 3,
   },
   mirror_shard: {
@@ -82,6 +86,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '◇',
     color: '#67e8f9',
     description: "Copy the dealer's visible first card into your own hand.",
+    cardOnly: true,
     cost: 4,
   },
   the_eraser: {
@@ -89,6 +94,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '✕',
     color: '#f87171',
     description: 'Remove the last card you played from your hand. Useful if Contrarian Deck went wrong.',
+    cardOnly: true,
     cost: 4,
   },
   second_breath: {
@@ -104,6 +110,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     color: '#ef4444',
     description: '[Showdown] Remove the most recently drawn face-down dealer card.',
     showdownOnly: true,
+    cardOnly: true,
     cost: 3,
   },
   deep_freeze: {
@@ -118,7 +125,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     name: 'Letter Press',
     icon: '⇄',
     color: '#67e8f9',
-    description: '[Alpha] Swap any two adjacent letters in your hand — reorder to find a word in sequence.',
+    description: '[Alpha] Swap the two most recently drawn adjacent letters in your hand.',
     alphabetOnly: true,
     cost: 3,
   },
@@ -142,6 +149,7 @@ export const TRINKET_DEFS: Record<TrinketId, TrinketDef> = {
     icon: '♛',
     color: '#a855f7',
     description: 'Your next Pull is guaranteed to include one face card (J, Q, or K) among the options.',
+    cardOnly: true,
     cost: 4,
   },
 };
@@ -153,6 +161,7 @@ export function getShopTrinkets(runMode: string, gameMode: string = 'card'): Tri
     const def = TRINKET_DEFS[id];
     if (def.showdownOnly && runMode !== 'showdown') return false;
     if (def.alphabetOnly && gameMode !== 'alphabet') return false;
+    if (def.cardOnly && gameMode !== 'card') return false;
     return true;
   });
 }
