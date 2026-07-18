@@ -1,0 +1,1591 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{listings}
+\usepackage{courier}
+
+\tcbuselibrary{skins, breakable}
+
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{sectiongrey}{RGB}{70, 70, 70}
+\definecolor{sectionbrown}{RGB}{120, 80, 40}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{tableheadergrey}{RGB}{230, 230, 230}
+\definecolor{tableheaderbrown}{RGB}{240, 225, 205}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{rowGr}{RGB}{242, 242, 242}
+\definecolor{rowBr}{RGB}{248, 240, 230}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{part7bg}{RGB}{242, 242, 242}
+\definecolor{part8bg}{RGB}{250, 240, 225}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+\definecolor{codebg}{RGB}{245, 245, 250}
+\definecolor{codeborder}{RGB}{100, 100, 140}
+
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+\newcommand{\greysections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongrey}}{}{0em}{}[\color{sectiongrey}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongrey!80!black}}{}{0em}{}%
+}
+\newcommand{\brownsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionbrown}}{}{0em}{}[\color{sectionbrown}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionbrown!80!black}}{}{0em}{}%
+}
+
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\lstdefinestyle{code}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single, rulecolor=\color{codeborder},
+  keywordstyle=\bfseries\color{sectionblue},
+  commentstyle=\itshape\color{sectiongreen},
+  stringstyle=\color{sectionpurple},
+  breaklines=true, showstringspaces=false,
+  numbers=left, numberstyle=\tiny\color{gray},
+  numbersep=6pt, xleftmargin=16pt, tabsize=2
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\hbadness=10000
+\hfuzz=5pt
+
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries Programming Languages \& Frameworks}\\[6pt]
+  {\large Reference, Comparison \& When to Use What}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I -- Why Programming Languages Exist
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART I \textemdash\ Why Programming Languages Exist}}
+\addcontentsline{toc}{subsection}{Languages Are Born to Solve Problems}
+\addcontentsline{toc}{subsection}{The Major Family Tree of Programming Languages}
+\addcontentsline{toc}{subsection}{The Tradeoff Triangle}
+\partbanner{part3bg}{sectionpurple}{Part I \quad Why Programming Languages Exist}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Every programming language was created to solve a specific problem with the languages
+  that came before it. Knowing the ``why'' makes the ``what'' easier to remember.
+\end{center}
+
+\section*{Languages Are Born to Solve Problems}
+
+Programming languages don't appear randomly. Each one was designed to fix a frustration with what existed at the time. Once you see this pattern, you understand why we have dozens of languages instead of just one.
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\centering\arraybackslash}p{1.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Language} & \textbf{Year} & \textbf{Created to fix what problem?} \\
+\midrule
+\rowcolor{rowPu} C       & 1972 & Assembly was tedious and unportable. C gave you ``portable assembly'' that compiled to many machines. \\
+\rowcolor{rowA}  C++     & 1985 & C had no objects, no classes, no abstraction. C++ added object-oriented features without losing C's speed. \\
+\rowcolor{rowPu} Python  & 1991 & Perl, C, and shell scripts were unreadable. Python prioritized readability and rapid scripting. \\
+\rowcolor{rowA}  Java    & 1995 & C++ was complex, leaked memory, and didn't run cross-platform. Java added garbage collection and the JVM (``write once, run anywhere''). \\
+\rowcolor{rowPu} JavaScript & 1995 & Web pages were static. JS made browsers interactive. (Built in 10 days --- it shows.) \\
+\rowcolor{rowA}  PHP     & 1995 & Web pages needed dynamic content. PHP made it trivial to embed code in HTML. \\
+\rowcolor{rowPu} C\#     & 2000 & Microsoft wanted a Java alternative under their control, plus they wanted to fix Java's pain points. \\
+\rowcolor{rowA}  Go      & 2009 & C++ was too complex; Java was too verbose; both compile slowly. Go gave Google fast compilation, simple syntax, and built-in concurrency. \\
+\rowcolor{rowPu} Rust    & 2010 & C/C++ caused memory safety bugs (70\% of CVEs). Rust prevents them at compile time without garbage collection. \\
+\rowcolor{rowA}  Kotlin  & 2011 & Java was verbose and outdated. Kotlin runs on the JVM but has modern syntax (null safety, lambdas, data classes). \\
+\rowcolor{rowPu} TypeScript & 2012 & JavaScript at scale was a nightmare without types. TS adds optional static typing. \\
+\rowcolor{rowA}  Swift   & 2014 & Objective-C was awkward. Swift gave Apple a modern language for iOS/macOS. \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Why Rust uses \texttt{f64} (and \texttt{i32}, \texttt{u8}, etc.):} Rust's type names tell you \emph{exactly} how many bits a value uses. \texttt{f64} = 64-bit floating-point. \texttt{i32} = 32-bit signed integer. \texttt{u8} = 8-bit unsigned integer.\\[4pt]
+This is a deliberate fix to a long-standing C/C++ problem: in C, \texttt{int} can be 16, 32, or 64 bits depending on the platform; \texttt{long} can be 32 or 64 bits. This caused subtle bugs when porting code. Rust's explicit sizing makes the code's behavior identical on every platform --- a 32-bit Raspberry Pi handles \texttt{i64} the same way a 64-bit server does.\\[4pt]
+The default float type in Rust is \texttt{f64} (instead of \texttt{f32}) because modern CPUs handle 64-bit floats nearly as fast as 32-bit ones, and \texttt{f64} has $\sim$15--17 significant decimal digits versus only $\sim$7 for \texttt{f32}. The extra precision prevents rounding errors that bite people in scientific computing, financial calculations, and physics simulations.
+\end{tcolorbox}
+
+\section*{The Major Family Tree of Programming Languages}
+
+Most modern languages descend from a few ``ancestors,'' inheriting features and concepts.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Family} & \textbf{Members \& Shared Traits} \\
+\midrule
+\rowcolor{rowPu} C-family       & C, C++, Java, C\#, JavaScript, Go, Rust, Swift, Kotlin --- curly braces \texttt{\{\}}, semicolons, similar control flow \\
+\rowcolor{rowA}  ML / Functional & ML, OCaml, Haskell, F\#, Elm, Scala (partial), Rust (partial) --- algebraic data types, pattern matching, immutability \\
+\rowcolor{rowPu} Lisp           & Lisp, Scheme, Clojure, Racket, Emacs Lisp --- code-as-data, parentheses everywhere, macros \\
+\rowcolor{rowA}  Smalltalk      & Smalltalk, Ruby, Objective-C --- pure object orientation, dynamic dispatch \\
+\rowcolor{rowPu} ALGOL / Pascal  & ALGOL, Pascal, Ada, Modula --- structured programming with \texttt{begin}/\texttt{end} blocks \\
+\bottomrule
+\end{tabularx}}
+
+\section*{The Tradeoff Triangle}
+
+Every programming language sits somewhere on a tradeoff between three goals. \textbf{You can't maximize all three at once.}
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{The three goals every language balances:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Performance} -- how fast does the code run?
+  \item \textbf{Safety} -- does the language prevent classes of bugs?
+  \item \textbf{Productivity} -- how quickly can a developer write working code?
+\end{itemize}
+\textbf{Examples of the tradeoff in action:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{C}: maximum performance, minimum safety, low productivity.
+  \item \textbf{Python}: low performance, decent safety (runtime errors), maximum productivity.
+  \item \textbf{Rust}: maximum performance, maximum safety, slower productivity (steep learning curve).
+  \item \textbf{Go}: good performance, good safety (GC), high productivity (simple syntax).
+  \item \textbf{Java}: medium performance, good safety, medium productivity (verbose).
+\end{itemize}
+\textbf{The choice of language is the choice of which goal to sacrifice.}
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART II -- Systems Languages
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART II \textemdash\ Systems Languages}}
+\addcontentsline{toc}{subsection}{C: The Foundation}
+\addcontentsline{toc}{subsection}{C++: C with Objects}
+\addcontentsline{toc}{subsection}{Rust: Safety Without GC}
+\addcontentsline{toc}{subsection}{Go: Simplicity at Scale}
+\addcontentsline{toc}{subsection}{Zig: A Modern C}
+\addcontentsline{toc}{subsection}{Comparing the Systems Languages}
+\partbanner{part6bg}{sectionred}{Part II \quad Systems Languages}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Systems languages compile to native machine code, give you control over memory,
+  and run without a virtual machine. They power operating systems, browsers, game engines, and databases.
+\end{center}
+
+\section*{C: The Foundation}
+
+\textbf{Created:} 1972 by Dennis Ritchie at Bell Labs. \textbf{Why:} to write the Unix operating system in something more portable than assembly. C is still the most influential language ever made --- nearly every other language is implemented in it or borrows its syntax.
+
+\begin{lstlisting}[style=code, caption={C: minimal hello world}]
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}
+\end{lstlisting}
+
+\textbf{What C is good for:}
+\begin{itemize}[noitemsep]
+  \item Operating systems (Linux kernel, Windows kernel, macOS internals)
+  \item Embedded systems and microcontrollers (Arduino-style hardware)
+  \item Database engines (PostgreSQL, SQLite, MySQL)
+  \item Language runtimes (Python's CPython, Ruby's MRI, Lua)
+  \item Anything where you need direct memory access and no overhead
+\end{itemize}
+
+\textbf{What C lacks:}
+\begin{itemize}[noitemsep]
+  \item No memory safety --- buffer overflows, use-after-free, dangling pointers all happen silently.
+  \item No built-in strings, dynamic arrays, or hashmaps. You build everything from scratch.
+  \item No package manager (you wire dependencies manually with Makefiles).
+  \item No object-oriented features.
+\end{itemize}
+
+\section*{C++: C with Objects}
+
+\textbf{Created:} 1985 by Bjarne Stroustrup. \textbf{Why:} C was great for performance but lacked object-orientation, generics, and abstraction features needed for large codebases. C++ added them while staying compatible with C.
+
+\begin{lstlisting}[style=code, caption={C++: classes, vectors, smart pointers}]
+#include <iostream>
+#include <vector>
+#include <memory>
+
+class Animal {
+public:
+    virtual void speak() const = 0;  // pure virtual function
+    virtual ~Animal() = default;
+};
+
+class Dog : public Animal {
+public:
+    void speak() const override {
+        std::cout << "Woof!\n";
+    }
+};
+
+int main() {
+    std::vector<std::unique_ptr<Animal>> zoo;
+    zoo.push_back(std::make_unique<Dog>());
+    for (const auto& a : zoo) a->speak();
+}
+\end{lstlisting}
+
+\textbf{What C++ is good for:}
+\begin{itemize}[noitemsep]
+  \item Game engines (Unreal Engine, almost every AAA game)
+  \item Browsers (Chrome's V8, Firefox's Gecko)
+  \item High-frequency trading and quantitative finance
+  \item CAD/3D software, simulation, audio/video processing
+  \item When you need both abstraction \emph{and} top performance
+\end{itemize}
+
+\textbf{The downside:} C++ is famously complex. There are over 60 keywords, multiple inheritance, template metaprogramming, undefined behavior in many corners, and a 1{,}500-page standard. Modern C++ (C++11 and beyond) added \texttt{auto}, lambdas, smart pointers, and \texttt{move} semantics, making it more usable --- but the complexity remains.
+
+\section*{Rust: Safety Without Garbage Collection}
+
+\textbf{Created:} 2010 (1.0 in 2015) at Mozilla. \textbf{Why:} 70\% of security vulnerabilities in C/C++ codebases (Microsoft, Chrome, Android) are memory safety bugs. Rust prevents them at \emph{compile time} without using a garbage collector.
+
+\textbf{Rust's killer feature: the borrow checker.} The compiler enforces that:
+\begin{itemize}[noitemsep]
+  \item Every value has exactly one \textbf{owner}; when the owner goes out of scope, the value is freed (no leaks).
+  \item You can have either \emph{many} immutable references OR \emph{one} mutable reference --- never both.
+  \item References cannot outlive the data they point to (no dangling pointers).
+\end{itemize}
+
+\begin{lstlisting}[style=code, caption={Rust: ownership and the borrow checker}]
+fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;             // OWNERSHIP MOVES; s1 is now invalid
+    // println!("{}", s1);   // COMPILE ERROR: borrow of moved value
+
+    let s3 = String::from("world");
+    let s4 = &s3;            // s4 borrows immutably
+    let s5 = &s3;            // many immutable borrows are OK
+    println!("{} {} {}", s3, s4, s5);  // all valid
+}
+
+// Generic function over any type implementing Display
+fn print_it<T: std::fmt::Display>(item: T) {
+    println!("{}", item);
+}
+\end{lstlisting}
+
+\textbf{What Rust is good for:}
+\begin{itemize}[noitemsep]
+  \item Operating system components (parts of Linux kernel, Windows, Android)
+  \item Web browsers (Servo engine, Firefox CSS engine)
+  \item CLI tools (ripgrep, fd, bat, exa --- all beat their C predecessors)
+  \item WebAssembly (Rust compiles to WASM beautifully)
+  \item Embedded systems where C/C++ used to be the only option
+  \item Cryptocurrency / blockchain (Solana, Polkadot)
+\end{itemize}
+
+\textbf{The downside:} Rust has a famously steep learning curve. The borrow checker rejects code that ``looks fine'' but has subtle ownership issues. Compile times are also slower than Go's. The payoff: code that compiles in Rust is dramatically more reliable than equivalent C++.
+
+\section*{Go: Simplicity at Scale}
+
+\textbf{Created:} 2009 at Google by Rob Pike, Ken Thompson (yes, the C co-creator), and Robert Griesemer. \textbf{Why:} Google's codebase had millions of lines of C++ that took forever to compile. Java was verbose. Python was too slow for backends. Go was designed for fast compilation, simple syntax, and built-in concurrency.
+
+\begin{lstlisting}[style=code, caption={Go: HTTP server with goroutines}]
+package main
+
+import (
+    "fmt"
+    "net/http"
+    "time"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+}
+
+func slowTask(name string) {
+    time.Sleep(1 * time.Second)
+    fmt.Println("Done:", name)
+}
+
+func main() {
+    // Goroutines: lightweight concurrent functions
+    go slowTask("background-1")
+    go slowTask("background-2")
+
+    http.HandleFunc("/", handler)
+    http.ListenAndServe(":8080", nil)  // standard library only
+}
+\end{lstlisting}
+
+\textbf{Why Go is dominant for APIs and backend services:}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\textbf{Go's design choices align perfectly with API/microservice work:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Goroutines} are cheap concurrent threads --- you can launch millions of them. Perfect for handling thousands of simultaneous HTTP requests.
+  \item \textbf{Channels} let goroutines communicate safely without locks.
+  \item \textbf{Single static binary} compiles fast and deploys without runtime dependencies (no JVM, no Python interpreter). Drop a binary in a Docker image and ship.
+  \item \textbf{Standard library} includes a production-ready HTTP server, JSON encoding, crypto, and database drivers --- no framework needed.
+  \item \textbf{Compile time} is shockingly fast (entire codebase in seconds).
+  \item \textbf{Garbage collection} so you don't fight the borrow checker.
+  \item \textbf{Simple, opinionated syntax} (only $\sim$25 keywords) means new team members onboard quickly.
+\end{itemize}
+\textbf{Result:} Docker, Kubernetes, Terraform, Prometheus, Grafana, etcd, CockroachDB, and most of the modern infrastructure stack are written in Go. If you're building a REST API or microservice in 2025, Go is hard to beat.
+\end{tcolorbox}
+
+\textbf{What Go gives up:} no generics until Go 1.18 (2022, late addition); error handling is verbose (\texttt{if err != nil} everywhere); no inheritance; no operator overloading. The community considers these features ``unnecessary complexity.''
+
+\section*{Zig: A Modern C}
+
+\textbf{Created:} 2016 by Andrew Kelley. \textbf{Why:} C is great but missing modern conveniences. Rust is great but has a steep learning curve. Zig aims to be ``a better C'' --- simpler than C++, easier than Rust.
+
+\textbf{Zig's selling points:}
+\begin{itemize}[noitemsep]
+  \item No hidden control flow (no exceptions, no operator overloading)
+  \item No hidden allocations (you pass an allocator explicitly)
+  \item \texttt{comptime} --- compile-time code execution and metaprogramming, replacing C++'s template hell
+  \item Drop-in replacement for C: can call C libraries directly, can compile C code
+\end{itemize}
+
+\textit{Zig is still young (no 1.0 release as of 2026) but used by Bun (the JavaScript runtime) and TigerBeetle (a financial database). Worth watching.}
+
+\section*{Comparing the Systems Languages}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\centering\arraybackslash}p{1.6cm}
+                              >{\centering\arraybackslash}p{1.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Lang} & \textbf{Memory} & \textbf{Compile} & \textbf{Speed} & \textbf{Best for} \\
+\midrule
+\rowcolor{rowRe} C    & manual     & instant    & fastest & OS kernels, embedded, runtimes \\
+\rowcolor{rowA}  C++  & manual + RAII & slow    & fastest & games, browsers, HFT \\
+\rowcolor{rowRe} Rust & ownership  & slow       & fastest & where C/C++ used to go --- with safety \\
+\rowcolor{rowA}  Go   & GC         & very fast  & fast    & APIs, microservices, devops tools \\
+\rowcolor{rowRe} Zig  & manual     & fast       & fastest & ``a better C'' --- new \& promising \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART III -- JVM & .NET Languages
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART III \textemdash\ JVM \& .NET Languages}}
+\addcontentsline{toc}{subsection}{Java: The Enterprise Workhorse}
+\addcontentsline{toc}{subsection}{C\#: Microsoft's Java Response}
+\addcontentsline{toc}{subsection}{Java vs.\ C\# Detailed Comparison}
+\addcontentsline{toc}{subsection}{Kotlin \& Scala (JVM Alternatives)}
+\addcontentsline{toc}{subsection}{F\# (.NET Alternative)}
+\partbanner{partbg}{sectionblue}{Part III \quad JVM \& .NET Languages}
+
+\vspace{8pt}
+
+\section*{Java: The Enterprise Workhorse}
+
+\textbf{Created:} 1995 at Sun Microsystems. \textbf{Why:} C++ was complex, leaked memory, and didn't run cross-platform. Java introduced two revolutionary ideas: \textbf{garbage collection} (no manual memory) and \textbf{the JVM} (compile once to bytecode, run anywhere a JVM exists).
+
+\begin{lstlisting}[style=code, caption={Java: classes and inheritance}]
+public class Animal {
+    private String name;
+    public Animal(String name) { this.name = name; }
+    public String getName() { return name; }
+    public void speak() { System.out.println("Some sound"); }
+}
+
+public class Dog extends Animal {
+    public Dog(String name) { super(name); }
+    @Override
+    public void speak() { System.out.println(getName() + " says: Woof!"); }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal myDog = new Dog("Rex");
+        myDog.speak();  // "Rex says: Woof!"
+    }
+}
+\end{lstlisting}
+
+\textbf{What Java is great for:}
+\begin{itemize}[noitemsep]
+  \item Enterprise backends (banking systems, insurance, government)
+  \item Android apps (Java was the original Android language; now mostly Kotlin)
+  \item Big data infrastructure (Hadoop, Kafka, Elasticsearch, Cassandra)
+  \item Tooling (Jenkins, IntelliJ IDEA, Eclipse)
+\end{itemize}
+
+\textbf{The JVM (Java Virtual Machine) is Java's superpower:} Java code compiles to \emph{bytecode}, which the JVM executes. The JVM is highly optimized (JIT compilation makes long-running Java nearly as fast as C++) and runs on every major OS. Other languages can target the JVM too: Kotlin, Scala, Clojure, Groovy.
+
+\textbf{Java's reputation for verbosity is real:} \texttt{public static void main(String[] args)} just to start a program; \texttt{ArrayList<Integer> list = new ArrayList<Integer>();} until \texttt{var} was introduced in Java 10. But every recent version has been adding modern features: lambdas (Java 8), streams (Java 8), records (Java 14), pattern matching (Java 21).
+
+\section*{C\#: Microsoft's Java Response}
+
+\textbf{Created:} 2000 by Microsoft (Anders Hejlsberg, who also designed TypeScript). \textbf{Why:} Microsoft wanted a language like Java but under their control, integrated with Windows, and free from Java's design constraints. Microsoft's relationship with Sun (Java's owner) had soured, and they needed their own platform: \textbf{.NET}.
+
+\begin{lstlisting}[style=code, caption={C\#: properties, LINQ, and async}]
+public class Person {
+    // Properties - cleaner than Java's getter/setter pairs
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+
+public class Program {
+    public static async Task Main() {
+        var people = new List<Person> {
+            new() { Name = "Alice", Age = 30 },
+            new() { Name = "Bob",   Age = 25 }
+        };
+
+        // LINQ: SQL-like querying built into the language
+        var adults = people.Where(p => p.Age >= 18)
+                           .OrderBy(p => p.Name)
+                           .Select(p => p.Name);
+
+        foreach (var name in adults) Console.WriteLine(name);
+
+        await Task.Delay(1000);  // built-in async/await
+    }
+}
+\end{lstlisting}
+
+\textbf{What C\# is great for:}
+\begin{itemize}[noitemsep]
+  \item Windows desktop applications (WPF, WinUI)
+  \item Game development (Unity --- the most popular game engine, scripted in C\#)
+  \item Enterprise web backends (ASP.NET Core)
+  \item Mobile apps via .NET MAUI / Xamarin
+  \item Cross-platform now: .NET Core (rebranded as just ``.NET'' in 2020) runs on Linux and macOS too
+\end{itemize}
+
+\section*{Java vs.\ C\# Detailed Comparison}
+
+These two languages are remarkably similar by design --- C\# was created \emph{after} Java and learned from Java's mistakes.
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.2cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{Java} & \textbf{C\#} \\
+\midrule
+\rowcolor{rowB}  Runtime         & JVM (Java Virtual Machine)         & CLR (.NET Common Language Runtime) \\
+\rowcolor{rowA}  Bytecode        & Java bytecode (.class files, .jar) & MSIL / CIL (.dll, .exe) \\
+\rowcolor{rowB}  Properties      & getter/setter methods (verbose)    & built-in: \texttt{public string Name \{ get; set; \}} \\
+\rowcolor{rowA}  Type inference  & \texttt{var} (Java 10+; locals only) & \texttt{var} (always supported) \\
+\rowcolor{rowB}  Async / await   & CompletableFuture (Java 8+) or Project Loom virtual threads (Java 21) & \texttt{async}/\texttt{await} keywords (since 2012; cleaner) \\
+\rowcolor{rowA}  LINQ-like queries & Streams API (Java 8+)            & LINQ (since 2007; superior, SQL-like) \\
+\rowcolor{rowB}  Operator overload & Not allowed                       & Allowed \\
+\rowcolor{rowA}  Generics        & Type erasure (lost at runtime)     & Reified (preserved at runtime) \\
+\rowcolor{rowB}  Value types     & Only primitives (int, double); reference types only otherwise & Full \texttt{struct} support for value types \\
+\rowcolor{rowA}  Multiple inheritance & Single class + multiple interfaces & Single class + multiple interfaces \\
+\rowcolor{rowB}  Pointer access  & Never (always references)          & Allowed in \texttt{unsafe} blocks \\
+\rowcolor{rowA}  Pattern matching & Java 21+ (recent addition)        & Strong, since C\# 7+ \\
+\rowcolor{rowB}  Cross-platform  & Yes, since day one (JVM)           & Yes (.NET Core 2016+); was Windows-only before \\
+\rowcolor{rowA}  Build tool      & Maven, Gradle                      & dotnet CLI, MSBuild, NuGet \\
+\rowcolor{rowB}  Web framework   & Spring Boot, Jakarta EE            & ASP.NET Core \\
+\rowcolor{rowA}  Mobile          & Android (Kotlin preferred now)     & .NET MAUI, Xamarin \\
+\rowcolor{rowB}  Open source     & Yes (OpenJDK)                       & Yes (.NET runtime is fully open-source since 2014) \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Bottom line on Java vs C\#:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Java} is more entrenched in big-enterprise infrastructure, big data tools, and Android (legacy).
+  \item \textbf{C\#} arguably has the cleaner, more modern syntax. C\# adds new language features faster than Java does.
+  \item Both are \textbf{garbage-collected}, \textbf{statically typed}, \textbf{object-oriented}, \textbf{compiled to bytecode}, and have similar performance characteristics.
+  \item If you know one, learning the other takes about a week. The hard part is the ecosystem (Spring vs ASP.NET, Maven vs NuGet), not the language.
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{How they compare to other languages:}
+\begin{itemize}[noitemsep]
+  \item \textbf{vs Python}: Java/C\# are statically typed and 10--50$\times$ faster, but slower to write.
+  \item \textbf{vs Go}: Java/C\# have richer type systems and OO features; Go has simpler syntax and faster compile times.
+  \item \textbf{vs Rust/C++}: Java/C\# trade some performance for safety (GC) and developer productivity.
+  \item \textbf{vs JavaScript}: Java/C\# are far more disciplined and scale better to huge codebases.
+\end{itemize}
+
+\section*{Kotlin \& Scala (JVM Alternatives)}
+
+Both run on the JVM and interoperate with Java code, but offer modernized syntax.
+
+\textbf{Kotlin:} Created by JetBrains in 2011. Now Google's preferred language for Android. Adds:
+\begin{itemize}[noitemsep]
+  \item Null safety in the type system (\texttt{String?} vs \texttt{String}, no NullPointerException at compile time)
+  \item Data classes: one-line definitions for value types
+  \item Extension functions: add methods to existing types
+  \item Coroutines for async code
+  \item Concise: typical Kotlin file is half the size of equivalent Java
+\end{itemize}
+
+\textbf{Scala:} Created in 2003 to merge OO and functional programming on the JVM. Used at Twitter, LinkedIn, Netflix. Powerful but has a reputation for being too complex; Apache Spark (the big data framework) is written in Scala.
+
+\section*{F\# (.NET Alternative)}
+
+\textbf{F\#} is to C\# what Scala is to Java: a functional-first language on the same runtime, fully interoperable. F\# uses ML-style syntax with type inference, immutable values by default, and pattern matching. Used heavily in finance and data analysis.
+
+\newpage
+
+%% =============================================================================
+%%  PART IV -- Scripting & Dynamic Languages
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART IV \textemdash\ Scripting \& Dynamic Languages}}
+\addcontentsline{toc}{subsection}{Python: Readability First}
+\addcontentsline{toc}{subsection}{JavaScript: The Browser's Language}
+\addcontentsline{toc}{subsection}{TypeScript: JavaScript with Types}
+\addcontentsline{toc}{subsection}{Ruby \& PHP}
+\partbanner{part2bg}{sectiongreen}{Part IV \quad Scripting \& Dynamic Languages}
+
+\vspace{8pt}
+
+\section*{Python: Readability First}
+
+\textbf{Created:} 1991 by Guido van Rossum. \textbf{Why:} ABC was a teaching language that Guido liked, but it had limitations. Python prioritized clarity --- ``code is read more often than it is written.''
+
+\begin{lstlisting}[style=code, caption={Python: typical script}]
+from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+def adults(people: List[Person]) -> List[str]:
+    """Return sorted names of people 18 or older."""
+    return sorted(p.name for p in people if p.age >= 18)
+
+if __name__ == "__main__":
+    folks = [Person("Alice", 30), Person("Bob", 17), Person("Carol", 25)]
+    print(adults(folks))  # ['Alice', 'Carol']
+\end{lstlisting}
+
+\textbf{Why Python dominates data science and AI:}
+\begin{itemize}[noitemsep]
+  \item Easy syntax = scientists/researchers can write it without being software engineers
+  \item NumPy and pandas: fast numerical computing (the heavy lifting is C/Fortran under the hood)
+  \item PyTorch and TensorFlow: the machine learning frameworks. Every ML paper publishes Python code.
+  \item Jupyter notebooks: interactive exploration with code + plots + Markdown
+  \item Massive ecosystem: scikit-learn, matplotlib, seaborn, requests, flask, django, fastapi
+\end{itemize}
+
+\textbf{Python's downsides:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Slow}: 10--100$\times$ slower than C/Java for raw computation
+  \item \textbf{The GIL (Global Interpreter Lock)}: prevents true multithreading. CPU-bound parallel work needs multiple processes, not threads
+  \item \textbf{Dynamic typing} catches bugs only at runtime; large codebases are fragile without strict typing discipline
+  \item \textbf{Python 2 vs 3 split} caused a decade of pain (finally resolved $\sim$2020)
+\end{itemize}
+
+\section*{JavaScript: The Browser's Language}
+
+\textbf{Created:} 1995 by Brendan Eich at Netscape, in 10 days. \textbf{Why:} the web needed interactivity. JavaScript was hacked together fast and shipped before it could be properly designed --- which is why it has so many quirks. But it became the universal browser language, then escaped the browser via Node.js (2009) to run on servers.
+
+\begin{lstlisting}[style=code, caption={Modern JavaScript}]
+// Arrow functions, destructuring, async/await, modules
+import fetch from 'node-fetch';
+
+const getUser = async (id) => {
+  const res = await fetch(`https://api.example.com/users/${id}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+(async () => {
+  try {
+    const { name, email } = await getUser(42);
+    console.log(`${name} <${email}>`);
+  } catch (err) {
+    console.error("Failed:", err.message);
+  }
+})();
+\end{lstlisting}
+
+\textbf{JavaScript's quirks (the famous ``WAT'' moments):}
+\begin{itemize}[noitemsep]
+  \item \texttt{[] + [] === ""} (empty string)
+  \item \texttt{[] + \{\} === "[object Object]"}
+  \item \texttt{0.1 + 0.2 === 0.30000000000000004} (floating-point, not unique to JS)
+  \item \texttt{NaN !== NaN} (NaN is the only value not equal to itself)
+  \item Implicit type coercion creates surprising comparisons (\texttt{== vs ===})
+\end{itemize}
+
+\textbf{Where JavaScript is essential:}
+\begin{itemize}[noitemsep]
+  \item Anything in a browser. Period. There is no alternative.
+  \item Server-side via Node.js (Express, NestJS, Fastify) when you want one language across frontend and backend.
+  \item Desktop apps via Electron (VS Code, Discord, Slack, Notion).
+  \item Mobile apps via React Native.
+\end{itemize}
+
+\section*{TypeScript: JavaScript with Types}
+
+\textbf{Created:} 2012 by Microsoft. \textbf{Why:} JavaScript at scale (Google Maps, Microsoft Office Online) became impossible to maintain without static types. TypeScript adds optional static typing and compiles \emph{back} to JavaScript.
+
+\begin{lstlisting}[style=code, caption={TypeScript: same code with types}]
+interface User {
+  id: number;
+  name: string;
+  email?: string;  // optional
+}
+
+async function getUser(id: number): Promise<User> {
+  const res = await fetch(`https://api.example.com/users/${id}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json() as Promise<User>;
+}
+
+// Compile error: argument of type 'string' is not assignable to 'number'
+// const user = await getUser("42");
+\end{lstlisting}
+
+\textbf{Why TypeScript is the default for new projects in 2026:}
+\begin{itemize}[noitemsep]
+  \item Catches type errors at compile time (your editor highlights them as you type)
+  \item Auto-complete in IDEs is dramatically better with types
+  \item Refactoring is safe: rename a property and the compiler finds every usage
+  \item Fully optional --- you can adopt it gradually in an existing JS project
+\end{itemize}
+
+\section*{Ruby \& PHP}
+
+\textbf{Ruby} (1995): designed to be ``a programmer's best friend'' --- prioritizes developer happiness over runtime performance. Famous for \textbf{Ruby on Rails}, the framework that defined modern web development conventions (MVC, convention over configuration, ORM patterns). Used at Shopify, GitHub, Airbnb (originally), Basecamp.
+
+\textbf{PHP} (1995): the original web language. Designed to embed code directly in HTML. Powers $\sim$77\% of all websites with a known server-side language --- because WordPress runs on PHP, and WordPress runs $\sim$43\% of the entire web. Also: Wikipedia, Facebook (originally), Slack's backend. Modern PHP (7+, 8+) is dramatically better than its 2000s reputation suggests.
+
+\newpage
+
+%% =============================================================================
+%%  PART V -- Functional & Specialized Languages
+%% =============================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART V \textemdash\ Functional \& Specialized Languages}}
+\addcontentsline{toc}{subsection}{What ``Functional'' Means}
+\addcontentsline{toc}{subsection}{Haskell, OCaml \& F\#}
+\addcontentsline{toc}{subsection}{Elixir \& Erlang}
+\addcontentsline{toc}{subsection}{Clojure \& Lisp Family}
+\addcontentsline{toc}{subsection}{Specialized: SQL, R, MATLAB, Lua, Bash}
+\addcontentsline{toc}{subsection}{Apple's Swift}
+\partbanner{part5bg}{sectionteal}{Part V \quad Functional \& Specialized Languages}
+
+\vspace{8pt}
+
+\section*{What ``Functional'' Means}
+
+\textbf{Functional programming} treats computation as the evaluation of mathematical functions. Core ideas:
+\begin{itemize}[noitemsep]
+  \item \textbf{Immutable data}: values don't change once created (no mutation)
+  \item \textbf{Pure functions}: same input always produces same output, with no side effects
+  \item \textbf{First-class functions}: functions are values, can be passed around like data
+  \item \textbf{Pattern matching}: deconstruct data structures based on shape
+  \item \textbf{Algebraic data types}: rich types with multiple variants
+\end{itemize}
+
+\textbf{Why bother?} Pure functions are easier to test, parallelize, and reason about. Modern languages (Rust, Kotlin, Swift, even Java) have absorbed functional features. ``Pure'' functional languages take this approach to the extreme.
+
+\section*{Haskell, OCaml \& F\#}
+
+\textbf{Haskell} (1990): Pure functional. \emph{No mutation, ever.} Lazy evaluation. The Mount Everest of programming languages: hard to climb, beautiful at the top. Used in compilers (GHC, Pandoc), financial systems, formal verification.
+
+\textbf{OCaml} (1996): A pragmatic functional language with imperative escape hatches. Famous for compilers and type inference. Used at Jane Street (a quantitative trading firm), Facebook (the Hack language is OCaml-derived; the Flow type checker for JavaScript is written in OCaml).
+
+\begin{lstlisting}[style=code, caption={OCaml: pattern matching and recursion}]
+(* A binary tree as an algebraic data type *)
+type tree = Leaf | Node of int * tree * tree
+
+(* Recursive function with pattern matching *)
+let rec sum_tree t =
+  match t with
+  | Leaf -> 0
+  | Node (v, l, r) -> v + sum_tree l + sum_tree r
+
+(* Type inferred automatically: tree -> int *)
+let example = Node (1, Node (2, Leaf, Leaf), Node (3, Leaf, Leaf))
+let result = sum_tree example  (* 6 *)
+\end{lstlisting}
+
+\textbf{Should you learn OCaml or Haskell?} Probably not as your main language --- very few jobs use them, and the learning curve is steep. \textbf{But studying them changes how you think.} Once you've internalized algebraic data types, pattern matching, and immutability, you write better code in \emph{every} language. Many OCaml/Haskell concepts now appear in Rust, Swift, Kotlin, and TypeScript.
+
+\textbf{F\#} (2005): Microsoft's functional language for .NET. Combines OCaml-style functional programming with full .NET interop. Used heavily in finance.
+
+\section*{Elixir \& Erlang}
+
+\textbf{Erlang} (1986): Built at Ericsson for telecom systems that can never go down. Famous for ``nine nines'' availability (99.9999999\%). The actor model: lightweight processes that communicate via messages.
+
+\textbf{Elixir} (2012): Modern Ruby-like syntax on top of Erlang's runtime (the BEAM virtual machine). Phoenix (Elixir's web framework) handles \emph{millions} of concurrent WebSocket connections per server. Used by Discord, Pinterest, WhatsApp's predecessor.
+
+\section*{Clojure \& Lisp Family}
+
+\textbf{Lisp} (1958): the second-oldest high-level language still in use. Famous for code-as-data (your program is itself a list that the language can manipulate). All Lisps look like \texttt{(function arg1 arg2 (nested ...))}.
+
+\textbf{Clojure} (2007): A modern Lisp running on the JVM. Functional, immutable by default, with great concurrency primitives. Loved by people who use it; small community overall.
+
+\textbf{Other Lisps:} Scheme (academic), Racket (educational; great teaching language), Emacs Lisp (powers the Emacs editor), Common Lisp (the older, batteries-included Lisp).
+
+\section*{Specialized Languages}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Language} & \textbf{Purpose} \\
+\midrule
+\rowcolor{rowTe} \textbf{SQL}    & Querying relational databases. Declarative: you say \emph{what} you want, not \emph{how} to get it. Universal: every dev should know it. \\
+\rowcolor{rowA}  \textbf{R}      & Statistical computing and data visualization. Heavily used in academia and research. Python (pandas + statsmodels) is overtaking it in industry. \\
+\rowcolor{rowTe} \textbf{MATLAB} & Numerical computing for engineers. Strong in signal processing, control systems, simulation. Python + NumPy is the open-source equivalent. \\
+\rowcolor{rowA}  \textbf{Lua}    & Tiny embeddable scripting language. Used in game scripting (World of Warcraft, Roblox), Redis, Nginx, Neovim. \\
+\rowcolor{rowTe} \textbf{Bash / Shell} & The Unix command line. Every developer should know enough Bash to write a deployment script or set up a CI pipeline. \\
+\rowcolor{rowA}  \textbf{PowerShell} & Microsoft's modern shell. Object-oriented (commands return objects, not text). Standard for Windows server administration. \\
+\rowcolor{rowTe} \textbf{Perl}   & Once dominant for text processing and CGI scripts. Has fallen out of favor; Python and Ruby took over. Still maintained, still found in legacy systems. \\
+\rowcolor{rowA}  \textbf{Fortran} & The original numerical computing language (1957!). Still actively used in scientific computing because no one has rewritten 60 years of physics code. \\
+\rowcolor{rowTe} \textbf{COBOL}  & Business mainframe language from 1959. Powers most US banking and government back-end systems. ``Dead'' but absolutely essential --- and rumor has it COBOL programmers can name their salary because so few remain. \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Apple's Swift}
+
+\textbf{Swift} (2014): Apple's modern replacement for Objective-C. Type-inferred, fast (compiles to native code), with optional types for null safety, structs, classes, protocols, and a borrowed-from-Rust ownership model. The default language for iOS and macOS development.
+
+\newpage
+
+%% =============================================================================
+%%  PART VI -- Web Frontend Ecosystem
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART VI \textemdash\ Web Frontend Ecosystem}}
+\addcontentsline{toc}{subsection}{The Big Picture: HTML, CSS, JavaScript}
+\addcontentsline{toc}{subsection}{React: The Industry Standard}
+\addcontentsline{toc}{subsection}{Vue, Angular \& Svelte}
+\addcontentsline{toc}{subsection}{HTMX \& jQuery: The Anti-Frameworks}
+\addcontentsline{toc}{subsection}{Tailwind CSS}
+\addcontentsline{toc}{subsection}{Vite, Webpack \& Build Tools}
+\addcontentsline{toc}{subsection}{Meta-Frameworks: Next.js, Nuxt, SvelteKit}
+\partbanner{part4bg}{sectionorange}{Part VI \quad Web Frontend Ecosystem}
+
+\vspace{8pt}
+
+\section*{The Big Picture: HTML, CSS, JavaScript}
+
+Every webpage is built from three things:
+\begin{itemize}[noitemsep]
+  \item \textbf{HTML}: the structure (paragraphs, headings, buttons)
+  \item \textbf{CSS}: the appearance (colors, layout, fonts)
+  \item \textbf{JavaScript}: the behavior (clicks, form submission, data fetching)
+\end{itemize}
+
+Modern frontend frameworks build on these three to create complex applications.
+
+\section*{React: The Industry Standard}
+
+\textbf{Created:} 2013 by Facebook. \textbf{Why:} the Facebook UI was a tangled mess of jQuery-style DOM manipulation. React introduced \textbf{component-based architecture} and the \textbf{virtual DOM}.
+
+\textbf{The core idea:} write your UI as JavaScript functions that return HTML-like syntax (JSX). React handles updating the actual DOM efficiently when state changes.
+
+\begin{lstlisting}[style=code, caption={React component with hooks}]
+import { useState, useEffect } from 'react';
+
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(r => r.json())
+      .then(data => { setUser(data); setLoading(false); });
+  }, [userId]);
+
+  if (loading) return <div>Loading...</div>;
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+\end{lstlisting}
+
+\textbf{Why React won:}
+\begin{itemize}[noitemsep]
+  \item Component reuse: build a button once, use it everywhere
+  \item Massive ecosystem: thousands of libraries, components, tools
+  \item Backed by Meta and an enormous community
+  \item React Native shares concepts with mobile development
+  \item Hireability: ``React'' is on more job listings than any other UI library
+\end{itemize}
+
+\textbf{React's downsides:} Configuration heavy. State management is tricky (you'll meet Redux, Zustand, Jotai, React Query, etc.). Re-renders are easy to get wrong.
+
+\section*{Vue, Angular \& Svelte}
+
+\textbf{Vue} (2014): Created by Evan You (ex-Google). React's ideas with a more approachable learning curve and built-in tooling. Single-file components (template + style + script in one .vue file). Hugely popular outside the US (especially in Asia).
+
+\textbf{Angular} (2016): Google's full framework. Opinionated, batteries-included, TypeScript-first. Big learning curve but excellent for large enterprise apps. ``Angular'' (post-2016) is a complete rewrite of the older ``AngularJS'' (2010).
+
+\textbf{Svelte} (2016): A compiler that turns components into hand-optimized vanilla JavaScript. No virtual DOM at runtime. Smaller bundles, faster apps, simpler syntax. Growing fast but smaller community than React.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\centering\arraybackslash}p{3cm}}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Framework} & \textbf{Best for} & \textbf{Job market} \\
+\midrule
+\rowcolor{rowOr} React   & Most projects; broadest ecosystem    & Largest \\
+\rowcolor{rowA}  Vue     & Beginners; small-medium apps         & Strong outside US \\
+\rowcolor{rowOr} Angular & Large enterprise apps                 & Strong, declining \\
+\rowcolor{rowA}  Svelte  & Performance-sensitive sites           & Growing \\
+\bottomrule
+\end{tabularx}}
+
+\section*{HTMX \& jQuery: The Anti-Frameworks}
+
+\textbf{Should you learn HTMX?} \textbf{Yes --- and it's having a moment.} HTMX (2020) is a tiny library that lets you build interactive web apps using \emph{just HTML attributes}. No JavaScript framework required.
+
+\begin{lstlisting}[style=code, caption={HTMX: server-rendered interactivity}]
+<!-- Click this button, fetch /users/42, replace the <div> -->
+<button hx-get="/users/42" hx-target="#user-info">
+  Load User
+</button>
+<div id="user-info">User info will appear here</div>
+
+<!-- A search input that triggers an API call as you type -->
+<input type="text" name="q"
+       hx-get="/search"
+       hx-trigger="keyup changed delay:300ms"
+       hx-target="#results">
+<div id="results"></div>
+\end{lstlisting}
+
+\textbf{Why HTMX matters:} It returns to the original idea of HTML hypermedia --- the server renders HTML fragments, and the browser swaps them in. No JSON APIs, no client-side state management, no virtual DOM, no build step. For many applications (forms, dashboards, internal tools), this is dramatically simpler than React.
+
+\textbf{When HTMX is great:}
+\begin{itemize}[noitemsep]
+  \item Server-rendered apps (Rails, Django, Flask, Spring) that need ``a little interactivity''
+  \item Internal tools and dashboards
+  \item Anywhere a SPA would be overkill
+\end{itemize}
+
+\textbf{When HTMX is wrong:} highly interactive client-side apps (Figma, Google Sheets, real-time collaboration). For those, React/Vue/Svelte still win.
+
+\textbf{jQuery (2006):} The library that made early web development bearable. \texttt{\$('\#button').click(function() \{...\})}. \textbf{Should you learn jQuery in 2026?} \textbf{Generally no.} Modern browsers have native APIs (\texttt{document.querySelector}, \texttt{fetch}) that do everything jQuery did. But jQuery still appears in legacy codebases (and powers a chunk of WordPress), so recognize it. Don't make it your foundation.
+
+\section*{Tailwind CSS}
+
+\textbf{Created:} 2017 by Adam Wathan. \textbf{Why:} writing custom CSS for every project is repetitive and inconsistent. Tailwind provides \textbf{utility classes} that you compose to build any design.
+
+\begin{lstlisting}[style=code, caption={Traditional CSS vs Tailwind}]
+<!-- Traditional CSS approach -->
+<button class="primary-button">Click me</button>
+<style>
+  .primary-button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+</style>
+
+<!-- Tailwind approach: utility classes -->
+<button class="bg-blue-500 text-white px-4 py-2 rounded-md font-semibold">
+  Click me
+</button>
+\end{lstlisting}
+
+\textbf{Why Tailwind dominates new projects:}
+\begin{itemize}[noitemsep]
+  \item No more naming things (``what should I call this class?'')
+  \item No CSS file gets bigger over time
+  \item Designs stay consistent (everyone uses the same spacing/color scale)
+  \item Bundles only the classes you actually use (purges unused CSS automatically)
+  \item Works perfectly with React, Vue, Svelte, HTMX, plain HTML
+\end{itemize}
+
+\textbf{Critics say:} HTML gets cluttered with long class strings. You can extract repeated patterns into components or with the \texttt{@apply} directive.
+
+\section*{Vite, Webpack \& Build Tools}
+
+\textbf{Why we have build tools:} modern JavaScript uses imports/exports, JSX, TypeScript, Sass --- none of which run natively in browsers. A build tool transforms your source code into browser-ready bundles.
+
+\textbf{Webpack} (2012): The classic, most powerful, most configurable. Webpack 5 still powers many large apps (and Next.js until recently). Has a reputation for slow builds and complex configuration.
+
+\textbf{Vite} (2020): Created by Evan You (Vue's creator). \textbf{Why:} Webpack was slow during development. Vite uses native ES modules in dev mode --- the browser does the importing, so dev server starts in milliseconds. Production builds use Rollup (efficient bundler).
+
+\textbf{Why Vite is the default for new projects:}
+\begin{itemize}[noitemsep]
+  \item Dev server starts instantly even on huge codebases
+  \item Hot Module Replacement (HMR) is dramatically faster
+  \item Works out of the box with React, Vue, Svelte, vanilla JS
+  \item Sensible defaults; no 500-line config file
+\end{itemize}
+
+\textbf{Other tools:}
+\begin{itemize}[noitemsep]
+  \item \textbf{esbuild}: Bundler written in Go, dramatically faster than alternatives
+  \item \textbf{Bun}: All-in-one JS runtime + bundler + package manager (in Zig)
+  \item \textbf{Parcel}: Zero-config bundler, simpler than Webpack
+  \item \textbf{Turbopack}: Next.js's new bundler (Webpack's successor, by the same author)
+\end{itemize}
+
+\section*{Meta-Frameworks: Next.js, Nuxt, SvelteKit}
+
+\textbf{Meta-frameworks} build on top of frontend libraries to add server-side rendering, routing, and data fetching.
+
+\textbf{Next.js} (2016): React + production tooling (routing, server components, API routes, image optimization, deployment to Vercel). Used by Netflix, TikTok, Notion, Hulu. Effectively the default ``framework on top of React'' in 2026.
+
+\textbf{Nuxt} (2016): The Vue equivalent of Next.js.
+
+\textbf{SvelteKit}: The Svelte equivalent. Server-side rendering, file-based routing, API endpoints.
+
+\textbf{Remix} (2021): A React framework focused on web fundamentals (forms, progressive enhancement, nested routing). Now merged with React Router.
+
+\textbf{Astro} (2021): A meta-framework that lets you mix React, Vue, Svelte components in one site. Optimized for content sites (blogs, docs) where most pages are static.
+
+\newpage
+
+%% =============================================================================
+%%  PART VII -- Backend Frameworks
+%% =============================================================================
+\brownsections
+\addcontentsline{toc}{section}{\textcolor{sectionbrown}{PART VII \textemdash\ Backend Frameworks}}
+\addcontentsline{toc}{subsection}{Java/Kotlin: Spring \& Jakarta EE}
+\addcontentsline{toc}{subsection}{Python: Flask, Django, FastAPI}
+\addcontentsline{toc}{subsection}{Node.js: Express, NestJS, Fastify}
+\addcontentsline{toc}{subsection}{Ruby on Rails}
+\addcontentsline{toc}{subsection}{ASP.NET Core (C\#)}
+\addcontentsline{toc}{subsection}{Go: Gin, Echo, Fiber}
+\partbanner{part8bg}{sectionbrown}{Part VII \quad Backend Frameworks}
+
+\vspace{8pt}
+
+\section*{Java/Kotlin: Spring \& Jakarta EE}
+
+\textbf{Spring Framework} (2003) and \textbf{Spring Boot} (2014): the dominant Java backend framework. Spring Boot eliminates configuration with sensible defaults --- a basic web service is a few annotations.
+
+\begin{lstlisting}[style=code, caption={Spring Boot REST controller}]
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return userService.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    @PostMapping
+    public User createUser(@RequestBody @Valid User user) {
+        return userService.create(user);
+    }
+}
+\end{lstlisting}
+
+\textbf{Why Spring dominates Java backends:}
+\begin{itemize}[noitemsep]
+  \item Dependency injection built in (your code declares what it needs; Spring provides it)
+  \item Massive ecosystem: Spring Data (databases), Spring Security, Spring Cloud (microservices)
+  \item Spring Boot starters: add a dependency, get production-ready features
+  \item Battle-tested in enterprises
+\end{itemize}
+
+\textbf{Jakarta EE} (formerly Java EE): the original, standards-based enterprise Java specification. Includes JAX-RS (REST), JPA (database), CDI (dependency injection). Application servers (WildFly, Payara, GlassFish, Open Liberty) implement the spec. Less popular than Spring today but still very much alive --- and the standard you'll see in larger organizations and government work.
+
+\section*{Python: Flask, Django, FastAPI}
+
+\textbf{Flask} (2010): micro-framework. Minimal core; you add what you need. Great for small APIs and prototypes.
+
+\begin{lstlisting}[style=code, caption={Flask: minimal API}]
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+@app.route('/api/users/<int:user_id>')
+def get_user(user_id):
+    user = db.find_user(user_id)
+    if not user:
+        return jsonify({'error': 'Not found'}), 404
+    return jsonify(user)
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    data = request.json
+    user = db.create_user(data)
+    return jsonify(user), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
+\end{lstlisting}
+
+\textbf{Django} (2005): full-stack ``batteries included'' framework. Built-in admin panel, ORM, authentication, templating, middleware. Powers Instagram, Pinterest, Mozilla, much of NASA. If you want to ship a database-backed web app fast in Python, Django is hard to beat.
+
+\textbf{FastAPI} (2018): Modern, async-first, with automatic API documentation generated from type hints. Combines Flask's simplicity with proper typing and async support.
+
+\begin{lstlisting}[style=code, caption={FastAPI: typed, async, auto-documented}]
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class User(BaseModel):
+    name: str
+    email: str
+
+@app.get('/users/{user_id}', response_model=User)
+async def get_user(user_id: int) -> User:
+    user = await db.find_user(user_id)
+    if not user:
+        raise HTTPException(404, 'User not found')
+    return user
+# Visit /docs for an interactive Swagger UI -- generated automatically
+\end{lstlisting}
+
+\textbf{When to use each:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Flask}: small projects, learning, when you want minimal magic
+  \item \textbf{Django}: full apps with users/auth/admin/database
+  \item \textbf{FastAPI}: modern APIs, especially ML model serving
+\end{itemize}
+
+\section*{Node.js: Express, NestJS, Fastify}
+
+\textbf{Express} (2010): the original Node web framework. Minimal, like Flask. Most Node tutorials use it. Mature, stable, almost too simple.
+
+\textbf{NestJS} (2017): Angular-style architecture for Node. TypeScript-first, decorators, dependency injection. Great if you like Spring's structure but want JavaScript.
+
+\textbf{Fastify} (2016): Faster alternative to Express. Built-in JSON schema validation. Used at Microsoft.
+
+\section*{Ruby on Rails}
+
+\textbf{Rails} (2005) by David Heinemeier Hansson: the framework that defined modern web development conventions. Coined the principle ``\textbf{convention over configuration}'' --- if you follow the standard project layout, things just work.
+
+Rails introduced or popularized: ActiveRecord (the dominant ORM pattern), Asset Pipeline, database migrations, RESTful routing conventions, and the entire MVC web app skeleton that every other framework copied. Used at GitHub, Shopify, Basecamp, formerly Twitter, Airbnb.
+
+\textbf{Why Rails is still relevant in 2026:} for solo developers and small teams shipping web apps, almost nothing matches Rails for productivity. ``Rails is for one person.'' --- DHH
+
+\section*{ASP.NET Core (C\#)}
+
+Microsoft's modern, cross-platform .NET web framework. Replaces the old Windows-only ASP.NET. Combines the structure of Spring with the cleanliness of modern C\#. Standard for enterprise apps in the Microsoft ecosystem.
+
+\section*{Go: Gin, Echo, Fiber}
+
+Go's standard library is so good that you don't \emph{need} a framework. But these add convenience:
+\begin{itemize}[noitemsep]
+  \item \textbf{Gin}: Most popular. Express-like syntax, good performance.
+  \item \textbf{Echo}: Similar to Gin; slightly cleaner API.
+  \item \textbf{Fiber}: Express clone for Go. Built on \texttt{fasthttp} (faster than the standard library). Familiar if you came from Node.
+\end{itemize}
+
+\newpage
+
+%% =============================================================================
+%%  PART VIII -- Build Tools \& Package Managers
+%% =============================================================================
+\greysections
+\addcontentsline{toc}{section}{\textcolor{sectiongrey}{PART VIII \textemdash\ Build Tools \& Package Managers}}
+\addcontentsline{toc}{subsection}{Per-Language Reference}
+\addcontentsline{toc}{subsection}{Maven \& Gradle (Java/Kotlin)}
+\addcontentsline{toc}{subsection}{npm, yarn, pnpm, bun (Node.js)}
+\addcontentsline{toc}{subsection}{pip, Poetry, uv (Python)}
+\addcontentsline{toc}{subsection}{Cargo (Rust)}
+\addcontentsline{toc}{subsection}{NuGet (.NET) \& go modules}
+\partbanner{part7bg}{sectiongrey}{Part VIII \quad Build Tools \& Package Managers}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Every modern language has a package manager that downloads dependencies,
+  resolves versions, and builds your project. Knowing the right one for each language is essential.
+\end{center}
+
+\section*{Per-Language Reference}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}p{4.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Language} & \textbf{Package Manager / Build Tool} & \textbf{Manifest File} \\
+\midrule
+\rowcolor{rowGr} Java       & Maven, Gradle              & \texttt{pom.xml}, \texttt{build.gradle} \\
+\rowcolor{rowA}  Kotlin     & Gradle (preferred)         & \texttt{build.gradle.kts} \\
+\rowcolor{rowGr} JavaScript & npm, yarn, pnpm, bun       & \texttt{package.json} \\
+\rowcolor{rowA}  TypeScript & npm + tsc, or bun          & \texttt{package.json}, \texttt{tsconfig.json} \\
+\rowcolor{rowGr} Python     & pip, Poetry, uv, conda     & \texttt{requirements.txt}, \texttt{pyproject.toml} \\
+\rowcolor{rowA}  Rust       & Cargo                       & \texttt{Cargo.toml} \\
+\rowcolor{rowGr} Go         & built-in \texttt{go mod}    & \texttt{go.mod} \\
+\rowcolor{rowA}  C\#        & NuGet, dotnet CLI           & \texttt{.csproj}, \texttt{packages.config} \\
+\rowcolor{rowGr} Ruby       & Bundler / RubyGems          & \texttt{Gemfile} \\
+\rowcolor{rowA}  PHP        & Composer                    & \texttt{composer.json} \\
+\rowcolor{rowGr} Swift      & Swift Package Manager (SPM) & \texttt{Package.swift} \\
+\rowcolor{rowA}  C/C++      & vcpkg, Conan, CMake (build only) & \texttt{CMakeLists.txt} \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Maven \& Gradle (Java/Kotlin)}
+
+\textbf{Maven} (2004): XML-based, declarative. The classic. Verbose but predictable.
+
+\begin{lstlisting}[style=code, caption={Maven pom.xml fragment}]
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <version>3.2.0</version>
+  </dependency>
+</dependencies>
+\end{lstlisting}
+
+\textbf{Gradle} (2007): Groovy or Kotlin DSL. More concise, more flexible. Standard for Android. Faster builds with caching.
+
+\begin{lstlisting}[style=code, caption={Gradle build.gradle.kts}]
+plugins {
+    id("org.springframework.boot") version "3.2.0"
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+\end{lstlisting}
+
+\section*{npm, yarn, pnpm, bun (Node.js)}
+
+\textbf{npm} (2010): the default. Comes with Node.js. Largest package registry on Earth ($\sim$2.5M packages).
+
+\textbf{yarn} (2016): Facebook's faster, deterministic alternative to npm. Most of its features are now in npm too.
+
+\textbf{pnpm} (2017): uses hard links and a content-addressable store --- one copy of each package, even across multiple projects. Saves gigabytes of disk space and is faster.
+
+\textbf{bun} (2022): JavaScript runtime + package manager + bundler in one. Written in Zig. Dramatically faster than npm for installs.
+
+\begin{lstlisting}[style=code, caption={npm common commands}]
+npm init -y                         # Create package.json
+npm install express                 # Add a dependency
+npm install --save-dev jest         # Add a dev dependency
+npm install -g typescript           # Install globally
+npm uninstall express               # Remove a dependency
+npm update                          # Update all to latest within version range
+npm audit                           # Check for known CVEs
+npm run dev                         # Run a script defined in package.json
+npx create-react-app myapp          # Run a package without installing
+\end{lstlisting}
+
+\section*{pip, Poetry, uv (Python)}
+
+\textbf{pip} (2008): the default. Installs packages from PyPI (Python Package Index). Simple but doesn't manage virtual environments by itself.
+
+\textbf{venv}: built into Python; isolates dependencies per project.
+
+\begin{lstlisting}[style=code, caption={Standard Python workflow}]
+python3 -m venv .venv               # Create virtual env
+source .venv/bin/activate           # Activate (Linux/Mac)
+.venv\Scripts\activate              # Activate (Windows)
+pip install requests pandas         # Install packages
+pip freeze > requirements.txt       # Save dependency list
+pip install -r requirements.txt     # Restore from file
+deactivate                          # Exit virtual env
+\end{lstlisting}
+
+\textbf{Poetry} (2018): proper dependency resolution, lockfiles, virtual env management. Like npm/cargo for Python. Configuration in \texttt{pyproject.toml}.
+
+\textbf{uv} (2024): Rust-based Python package manager from Astral (the same team behind Ruff). \textbf{10--100$\times$ faster} than pip. Drop-in replacement; rapidly becoming the new default.
+
+\textbf{conda}: separate ecosystem mainly for data science / scientific computing. Handles non-Python dependencies (C libraries, CUDA). Anaconda and Miniconda distributions.
+
+\section*{Cargo (Rust)}
+
+\textbf{Cargo} is Rust's killer feature for productivity. Built into the Rust toolchain. Handles dependencies, builds, tests, documentation, publishing.
+
+\begin{lstlisting}[style=code, caption={Cargo basic commands}]
+cargo new myproject                 # Create a new project
+cargo build                          # Compile
+cargo run                            # Compile and execute
+cargo test                           # Run all tests
+cargo check                          # Type-check without compiling (fast)
+cargo doc --open                     # Generate and open docs
+cargo add tokio                      # Add a dependency to Cargo.toml
+cargo update                         # Update dependencies
+cargo publish                        # Push to crates.io
+\end{lstlisting}
+
+Cargo is widely considered the best package manager in any language. Even non-Rust developers cite it as the gold standard. Cargo influenced Bun, uv, and others.
+
+\section*{NuGet (.NET) \& Go Modules}
+
+\textbf{NuGet} (2010): Microsoft's package manager for .NET. Integrated into the dotnet CLI.
+
+\begin{lstlisting}[style=code, caption={dotnet CLI}]
+dotnet new webapi -n MyApi          # Create new project from template
+dotnet add package Newtonsoft.Json  # Add a package
+dotnet build
+dotnet run
+dotnet test
+dotnet publish -c Release           # Production build
+\end{lstlisting}
+
+\textbf{Go modules} (2018): built into the Go toolchain since 1.11. Just put your code in a Git repo and other projects import by URL.
+
+\begin{lstlisting}[style=code, caption={Go modules}]
+go mod init github.com/oscar/myproject
+go get github.com/gin-gonic/gin     # Adds to go.mod and downloads
+go build
+go run main.go
+go test ./...                       # Test all packages recursively
+go mod tidy                         # Remove unused, add missing deps
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART IX -- Language Selection Guide
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART IX \textemdash\ Language Selection Guide}}
+\addcontentsline{toc}{subsection}{Match the Language to the Job}
+\addcontentsline{toc}{subsection}{The Right Tool for Each Domain}
+\addcontentsline{toc}{subsection}{Languages Worth Studying But Not Choosing}
+\partbanner{partbg}{sectionblue}{Part IX \quad Language Selection Guide}
+
+\vspace{8pt}
+
+\section*{Match the Language to the Job}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Domain} & \textbf{Best Choice + Why} \\
+\midrule
+\rowcolor{rowB} Operating system, kernel, drivers   & \textbf{C} or \textbf{Rust}. Direct memory access, no GC overhead, predictable behavior. \\
+\rowcolor{rowA} Game engine                          & \textbf{C++}. Industry standard for AAA. Performance and control essential. Game scripting often Lua or C\#. \\
+\rowcolor{rowB} High-performance API / microservice  & \textbf{Go}. Goroutines for concurrency; fast compile; small static binary; deploys cleanly to containers. \\
+\rowcolor{rowA} Enterprise backend (banking, gov)   & \textbf{Java + Spring Boot} or \textbf{C\# + ASP.NET}. Mature ecosystem, hiring pool, decades of patterns. \\
+\rowcolor{rowB} Data science / ML / research        & \textbf{Python}. Every ML framework targets it; massive scientific library ecosystem. \\
+\rowcolor{rowA} Web frontend                         & \textbf{TypeScript + React} (with Vite). Industry default. \\
+\rowcolor{rowB} Mobile (iOS)                         & \textbf{Swift}. \\
+\rowcolor{rowA} Mobile (Android)                     & \textbf{Kotlin} (Java still works but Google prefers Kotlin). \\
+\rowcolor{rowB} Cross-platform mobile                 & \textbf{React Native} (TS/JS) or \textbf{Flutter} (Dart). Both well-supported. \\
+\rowcolor{rowA} Desktop app                          & \textbf{Electron} (Web tech, e.g., VS Code) or \textbf{Tauri} (Rust + Web). \\
+\rowcolor{rowB} Quick script / automation             & \textbf{Python} or \textbf{Bash}. \\
+\rowcolor{rowA} Database / data analysis             & \textbf{SQL} (universal, declarative); \textbf{Python} for analysis around it. \\
+\rowcolor{rowB} Embedded / IoT                       & \textbf{C} (legacy/constrained), \textbf{Rust} (modern, growing). \\
+\rowcolor{rowA} CLI tool                             & \textbf{Rust} or \textbf{Go}. Both produce single static binaries. \\
+\rowcolor{rowB} WebAssembly target                    & \textbf{Rust} (best support), \textbf{C/C++}, \textbf{AssemblyScript}. \\
+\rowcolor{rowA} Real-time concurrent system          & \textbf{Elixir}/Erlang (the actor model, fault tolerance). \\
+\rowcolor{rowB} Smart contract / blockchain          & \textbf{Solidity} (Ethereum), \textbf{Rust} (Solana). \\
+\bottomrule
+\end{tabularx}}
+
+\section*{The Right Tool for Each Domain}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Why is Go great for APIs (revisited)?}\\[4pt]
+You felt this directly. Here's why:
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Concurrency model fits the workload}: an API server's job is to handle thousands of concurrent requests, each waiting on a DB or another API. Goroutines and channels were designed for exactly this pattern. You write code that looks synchronous but executes concurrently.
+  \item \textbf{Standard library has everything}: \texttt{net/http} is production-grade. \texttt{encoding/json} handles serialization. \texttt{database/sql} is the universal DB interface. You don't fight a framework --- you write straight Go.
+  \item \textbf{Static binary deployment}: a Go binary has no runtime dependencies. Throw it in a 5MB Docker image. No JVM warm-up, no Python venv, no Node modules.
+  \item \textbf{Fast compile = fast iteration}: change code, rebuild, restart in under a second even on big projects. JVM startup feels glacial in comparison.
+  \item \textbf{Easy to onboard juniors}: 25 keywords, no inheritance, opinionated formatting (\texttt{gofmt}). New team members are productive in days.
+  \item \textbf{Memory profile}: typical Go API uses 30--50MB RAM. Comparable Java service uses 300--500MB. Important when you scale to hundreds of replicas.
+\end{enumerate}
+\textbf{The flip side:} Go is verbose for business logic (no exceptions, no inheritance), generics arrived late, error handling is repetitive. For a complex domain model, Java/C\#/Kotlin can express richer abstractions. But for a stateless HTTP service that's mostly orchestrating IO calls, Go is unmatched.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Why Rust was created (revisited):}\\[4pt]
+Rust addresses specific failures of C/C++:
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Memory safety bugs}: Microsoft and Google both report 70\%+ of high-severity CVEs in their C/C++ codebases are memory issues (buffer overflows, use-after-free, double-free, data races). Rust's borrow checker proves these can't happen at compile time.
+  \item \textbf{Concurrency bugs}: data races in C++ are infamous and undetectable until production. Rust forbids them by design.
+  \item \textbf{Tooling}: Cargo replaces the C/C++ landscape of CMake, autotools, vcpkg, Conan, etc.
+  \item \textbf{Modern features}: pattern matching, generics, sum types --- things C++ added later and awkwardly.
+\end{itemize}
+\textbf{What Rust kept from C/C++}: zero-cost abstractions (high-level features compile to fast code), no garbage collector, predictable performance, low-level control (raw pointers in \texttt{unsafe} blocks for OS work).\\[4pt]
+\textbf{Where Rust is winning}: new infrastructure (Cloudflare Workers, Discord), browsers (Servo, Chrome rewriting components), kernels (Linux now accepts Rust drivers), CLI tools where it dominates the C-equivalent in both speed and safety.
+\end{tcolorbox}
+
+\section*{Languages Worth Studying But Not Choosing}
+
+These languages teach valuable concepts but probably shouldn't be your day-to-day tool unless you have a specific need.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Language} & \textbf{Why Study It} \\
+\midrule
+\rowcolor{rowB} OCaml / Haskell    & Algebraic data types, pattern matching, immutability, type inference. Once internalized, you'll use these patterns in Rust, Swift, Kotlin, and TypeScript. Studying Haskell for a month is a famous productivity boost. \\
+\rowcolor{rowA} Lisp / Scheme       & Code-as-data, macros, recursion. Studying \emph{Structure and Interpretation of Computer Programs} (SICP) in Scheme remains a foundational CS experience. \\
+\rowcolor{rowB} Smalltalk           & Pure object-orientation. Influenced Ruby, Objective-C, Python's design. Show you what ``everything is an object'' really means. \\
+\rowcolor{rowA} Prolog              & Logic programming. Different paradigm entirely; teaches you backtracking and constraint solving. \\
+\rowcolor{rowB} Assembly            & Understanding what your code actually does. Even reading x86-64 assembly without writing it changes how you think about performance. \\
+\rowcolor{rowA} jQuery              & Has shaped how millions of websites work. Recognize it in legacy code. Don't build new things on it. \\
+\rowcolor{rowB} Perl                & Once dominated text processing. Read it; appreciate it. The ``Perl is line noise'' jokes have a basis. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Should you learn jQuery in 2026?} Generally no. Modern browsers have native APIs (\texttt{querySelector}, \texttt{fetch}, \texttt{addEventListener}) that do everything jQuery did. Just know it exists --- you'll see it in older codebases.
+
+\textbf{Should you learn OCaml?} Probably not as a primary language --- but spending two weekends with OCaml or Haskell will permanently improve how you write code in any language. Pattern matching, immutability, and algebraic data types are universal skills now.
+
+\newpage
+
+%% =============================================================================
+%%  PART X -- Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART X \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part X \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape Languages, frameworks, and use cases at a glance.\end{center}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Systems Languages}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{C}: OS kernels, embedded, runtimes; manual memory; fastest
+  \item \textbf{C++}: games, browsers, HFT; classes + RAII
+  \item \textbf{Rust}: fastest \emph{and} safe; borrow checker prevents memory bugs
+  \item \textbf{Go}: APIs/microservices; goroutines; fast compile; static binary
+  \item \textbf{Zig}: a modern C; no hidden control flow
+\end{itemize}
+\columnbreak
+\textbf{Why Rust uses f64:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Explicit bit-width: \texttt{f64} = 64-bit float, \texttt{i32} = 32-bit signed int
+  \item Fixes C's portability bugs (\texttt{int} varies by platform)
+  \item Default float is f64 because more precision (15-17 digits)
+  \item u8/u16/u32/u64 = unsigned; i8/i16/i32/i64 = signed; f32/f64 = floats
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Java vs C\#}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Similarities:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Both: GC, static typing, OOP, compiled to bytecode
+  \item Both: single inheritance + multiple interfaces
+  \item Both: $\sim$10\% performance difference at most
+  \item Both: cross-platform (Java since 1995, .NET since 2016)
+\end{itemize}
+\columnbreak
+\textbf{C\# advantages:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Properties, async/await, LINQ, pattern matching
+  \item Reified generics; value types (struct)
+  \item Cleaner syntax overall
+\end{itemize}
+\textbf{Java advantages:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Bigger ecosystem (esp.\ data tools: Spark, Kafka)
+  \item Larger job market
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Scripting/Dynamic Languages}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Python}: data science, ML, scripts, web (slow but easy)
+  \item \textbf{JavaScript}: browsers; Node for backends; quirky
+  \item \textbf{TypeScript}: JS + types; default for new web projects
+  \item \textbf{Ruby}: Rails for rapid web development; Shopify scale
+  \item \textbf{PHP}: WordPress; 77\% of websites
+\end{itemize}
+\columnbreak
+\textbf{Why Go for APIs:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Goroutines = cheap concurrent handlers
+  \item Standard library has everything for HTTP/JSON
+  \item Static binary $\to$ small Docker images
+  \item Fast compile + simple syntax for team scaling
+  \item Low memory footprint (30-50MB vs 300-500MB for Java)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Frontend Ecosystem}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Frameworks:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{React}: industry standard; biggest ecosystem
+  \item \textbf{Vue}: easier learning curve; popular outside US
+  \item \textbf{Angular}: full enterprise framework
+  \item \textbf{Svelte}: compiles to vanilla JS; fastest
+  \item \textbf{Next.js}: React + SSR + routing (default meta-framework)
+\end{itemize}
+\columnbreak
+\textbf{Anti-frameworks \& tools:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{HTMX}: server-rendered + HTML attributes; YES learn it
+  \item \textbf{jQuery}: legacy only; recognize but don't choose
+  \item \textbf{Tailwind CSS}: utility classes; default for new projects
+  \item \textbf{Vite}: instant dev server; default build tool
+  \item \textbf{Webpack}: classic, configurable, slow
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part8bg, colframe=sectionbrown,
+  title={\bfseries Backend Frameworks \& Build Tools}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Backends:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Java/Kotlin: Spring Boot, Jakarta EE
+  \item Python: Flask (small), Django (full), FastAPI (modern)
+  \item Node: Express (basic), NestJS (Angular-like), Fastify
+  \item Ruby: Rails (CoC, productivity)
+  \item C\#: ASP.NET Core
+  \item Go: Gin, Echo, Fiber (or stdlib)
+\end{itemize}
+\columnbreak
+\textbf{Package managers:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Java: Maven (XML), Gradle (Kotlin/Groovy DSL)
+  \item JS: npm, yarn, pnpm, bun (Node ecosystem)
+  \item Python: pip + venv, Poetry, uv (Rust-based, fast)
+  \item Rust: Cargo (gold standard)
+  \item Go: go mod (built-in)
+  \item .NET: NuGet, dotnet CLI
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Languages to Study (but maybe not pick)}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{OCaml/Haskell}: ADTs, pattern matching, immutability $\to$ improves Rust/Kotlin/TS skills
+  \item \textbf{Lisp/Scheme}: code-as-data, recursion, foundational CS
+  \item \textbf{Smalltalk}: pure OOP roots
+  \item \textbf{Prolog}: logic programming, backtracking
+  \item \textbf{Assembly}: what your code becomes
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Erlang/Elixir}: actor model, fault tolerance (Discord)
+  \item \textbf{Clojure}: modern Lisp on JVM
+  \item \textbf{F\#}: OCaml on .NET
+  \item \textbf{Lua}: embedded scripting (games, Redis)
+  \item \textbf{jQuery}: read in legacy code; don't build new on it
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}

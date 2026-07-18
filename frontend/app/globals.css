@@ -1,0 +1,54 @@
+/* destination: src/app/globals.css */
+
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+  --foreground: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 28rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 26rem),
+    var(--background);
+  color: var(--foreground);
+  /* Removed: font-family: Arial, Helvetica, sans-serif;
+     Geist Sans is set via --font-sans in @theme inline above
+     and applied through the font-sans class on <html> in layout.tsx */
+}
+
+::selection {
+  background: rgba(103, 232, 249, 0.32);
+  color: #f8fafc;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: #67e8f9;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: var(--font-geist-mono), "Cascadia Code", "Fira Code", monospace;
+}

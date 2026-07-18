@@ -1,0 +1,61 @@
+/* HouseRules.module.css — extracted from the inline CSS string */
+/* Import this in HouseRules.tsx and pass className to the root <style> tag,
+   OR use it as a global stylesheet for the game route. */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap');
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+/* ── Animations ───────────────────────────────────────────────── */
+@keyframes fadeUp      { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes dealIn      { from { opacity: 0; transform: translateX(-10px) scale(.95) } to { opacity: 1; transform: none } }
+@keyframes glowPulse   { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+@keyframes popIn       { from { opacity: 0; transform: scale(.88) } to { opacity: 1; transform: none } }
+@keyframes floatUp     { 0% { opacity: 0; transform: translateY(0) } 15% { opacity: 1 } 70% { opacity: 1; transform: translateY(-44px) } 100% { opacity: 0; transform: translateY(-64px) } }
+@keyframes badgePulse  { 0%, 100% { transform: scale(1); filter: brightness(1) } 50% { transform: scale(1.22); filter: brightness(1.8) } }
+@keyframes heartBreak  { 0% { transform: scale(1) } 30% { transform: scale(1.55) } 60% { transform: scale(.75) rotate(-12deg) } 100% { transform: scale(.55); opacity: .35 } }
+@keyframes throb       { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.2) } }
+@keyframes scFlash     { 0% { opacity: 0 } 15% { opacity: .96 } 75% { opacity: .94 } 100% { opacity: 0 } }
+@keyframes targetBump  { 0% { transform: scale(1) } 40% { transform: scale(1.35) } 100% { transform: scale(1) } }
+@keyframes actBurn     { 0% { filter: brightness(1); text-shadow: none } 35% { filter: brightness(2.2); text-shadow: 0 0 18px rgba(245,158,11,.95); transform: scale(1.14) } 75% { filter: brightness(1.6); text-shadow: 0 0 10px rgba(220,38,38,.9); transform: scale(.96) } 100% { filter: brightness(1); text-shadow: none; transform: scale(1) } }
+@keyframes achievementSlide { 0% { opacity: 0; transform: translateX(18px) scale(.96) } 15% { opacity: 1; transform: none } 85% { opacity: 1; transform: none } 100% { opacity: 0; transform: translateX(18px) scale(.96) } }
+@keyframes pvFlashUp     { 0% { transform: scale(1.3); color: #22c55e } 100% { transform: scale(1) } }
+@keyframes pvFlashDown   { 0% { transform: scale(1.3); color: #ef4444 } 100% { transform: scale(1) } }
+@keyframes pvFlashPerfect { 0% { transform: scale(1.35); color: #c9a84c; text-shadow: 0 0 20px rgba(201,168,76,.9) } 100% { transform: scale(1) } }
+
+/* ── Utility classes ───────────────────────────────────────────── */
+.fade    { animation: fadeUp .5s ease both }
+.deal    { animation: dealIn .28s ease both }
+.pop     { animation: popIn .35s cubic-bezier(.34,1.4,.64,1) both }
+.glow    { animation: glowPulse 3s ease infinite }
+.pvUp    { animation: pvFlashUp .55s ease both !important }
+.pvDown  { animation: pvFlashDown .55s ease both !important }
+.pvPerfect { animation: pvFlashPerfect .65s ease both !important }
+.actBurn { animation: actBurn .85s ease both }
+.achievementToast { animation: achievementSlide 3.4s ease both }
+
+/* ── Card tooltip ──────────────────────────────────────────────── */
+.cardTip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%); z-index: 60;
+  background: #0a1a0b; border: 1px solid rgba(201,168,76,.38); border-radius: 6px;
+  padding: 7px 10px; white-space: nowrap; font-size: 11px; color: #e8d8b4;
+  pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.65);
+  line-height: 1.5; font-family: Georgia, serif;
+}
+
+/* ── Layout ────────────────────────────────────────────────────── */
+.hr-wrap    { width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh }
+.hr-body    { flex: 1; display: flex; flex-direction: column; padding: 14px; gap: 10px; overflow-y: auto }
+.hr-main    { display: flex; flex-direction: column; gap: 10px }
+.hr-sidebar { display: none }
+.hr-actbar  { width: 100%; padding: 11px 16px; border-top: 1px solid rgba(201,168,76,.1); background: rgba(0,0,0,.22); display: flex; gap: 10px; justify-content: center; align-items: center; flex-shrink: 0 }
+
+@media (min-width: 820px) {
+  .hr-wrap    { max-width: 1060px }
+  .hr-body    { flex-direction: row; align-items: flex-start; padding: 16px 16px 0 }
+  .hr-main    { flex: 1; min-width: 0 }
+  .hr-sidebar { display: flex; flex-direction: column; width: 240px; flex-shrink: 0; position: sticky; top: 0; max-height: calc(100vh - 110px); overflow-y: auto }
+  .hr-actbar  { border-radius: 0 }
+}

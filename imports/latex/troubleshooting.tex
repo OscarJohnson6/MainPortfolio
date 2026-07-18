@@ -1,0 +1,1679 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{listings}
+\usepackage{courier}
+
+\tcbuselibrary{skins, breakable}
+
+% -- Colors -------------------------------------------------------------------
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{sectiongrey}{RGB}{70, 70, 70}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{tableheadergrey}{RGB}{230, 230, 230}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowGr}{RGB}{242, 242, 242}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{part7bg}{RGB}{242, 242, 242}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+\definecolor{codebg}{RGB}{245, 245, 250}
+\definecolor{codeborder}{RGB}{100, 100, 140}
+\definecolor{logbg}{RGB}{245, 250, 245}
+\definecolor{logborder}{RGB}{60, 130, 70}
+
+% -- Section switchers ---------------------------------------------------------
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+\newcommand{\greysections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongrey}}{}{0em}{}[\color{sectiongrey}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongrey!80!black}}{}{0em}{}%
+}
+
+% -- Part banner ---------------------------------------------------------------
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+% -- Code style ----------------------------------------------------------------
+\lstdefinestyle{shell}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single, rulecolor=\color{codeborder},
+  commentstyle=\itshape\color{sectiongreen},
+  comment=[l]{\#},
+  breaklines=true, showstringspaces=false,
+  numbers=left, numberstyle=\tiny\color{gray},
+  numbersep=6pt, xleftmargin=16pt, tabsize=2
+}
+\lstdefinestyle{gitlog}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{part7bg},
+  frame=single, rulecolor=\color{sectiongrey},
+  breaklines=true, showstringspaces=false,
+  xleftmargin=8pt, tabsize=2
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+% -- TOC styling ---------------------------------------------------------------
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+%% =============================================================================
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries The Engineering Playbook}\\[6pt]
+  {\large Troubleshooting, Debugging \& Systems Reference}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I - The Debugging Mindset (Interview Ready)
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART I \textemdash\ The Debugging Mindset}}
+\addcontentsline{toc}{subsection}{The Universal Debugging Process}
+\addcontentsline{toc}{subsection}{The Five Whys Technique}
+\addcontentsline{toc}{subsection}{Rubber Duck Debugging \& Other Mental Resets}
+\addcontentsline{toc}{subsection}{Interview: How to Talk About Debugging}
+\addcontentsline{toc}{subsection}{Classifying Bugs by Type}
+\partbanner{part3bg}{sectionpurple}{Part I \quad The Debugging Mindset}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Good debugging is not luck --- it is a repeatable, methodical process.
+  This section is your framework for any problem, in any interview.
+\end{center}
+\vspace{4pt}
+
+% -- Universal Debugging Process -----------------------------------------------
+\section*{The Universal Debugging Process}
+
+No matter the system --- frontend, backend, database, OS, network --- the same structured approach applies. Jumping straight to solutions without following these steps is how hours get wasted.
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries The 6-Step Debugging Loop}, arc=3pt, boxrule=1pt]
+\begin{enumerate}[leftmargin=*, noitemsep]
+  \item \textbf{Reproduce it first.} A bug you cannot reproduce is a bug you cannot prove you fixed. Find the exact steps, inputs, and environment that trigger the failure consistently.
+  \item \textbf{Read the error message.} Actually read it. The type, message, file, and line number are usually a direct pointer. Most engineers skim these and miss the answer.
+  \item \textbf{Isolate the scope.} Narrow down \emph{where} the bug lives. Is it in the frontend or backend? In your code or a library? On this machine only or everywhere? Binary-search the system by removing components until the bug disappears --- whatever you just removed was involved.
+  \item \textbf{Form a hypothesis.} State exactly what you believe is wrong and \emph{why}. ``I think the CORS filter isn't running for POST requests because the middleware is registered after the router'' is a testable hypothesis. ``Something is broken'' is not.
+  \item \textbf{Test one change at a time.} Change exactly one thing, observe the result. If you change three things and the bug goes away, you don't know which fix worked.
+  \item \textbf{Document your fix.} Write down what broke, why it broke, and what fixed it. This is what becomes your personal debug log --- the most valuable reference you own.
+\end{enumerate}
+\end{tcolorbox}
+
+% -- Five Whys -----------------------------------------------------------------
+\section*{The Five Whys Technique}
+
+Originally from Toyota's manufacturing process, the \textbf{Five Whys} technique finds the \emph{root cause} of a problem rather than treating symptoms. Ask ``why?'' repeatedly until you reach something actionable.
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Example: ``The frontend shows a blank page.''}
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Why?} The API call returns a 500 error.
+  \item \textbf{Why?} The server throws a NullPointerException.
+  \item \textbf{Why?} A database object is null --- the query returned no results.
+  \item \textbf{Why?} The query uses a column name that was renamed in last week's migration.
+  \item \textbf{Why?} The migration updated the schema but the ORM entity class was not updated to match.
+\end{enumerate}
+\textbf{Root cause:} Incomplete migration --- the entity class was out of sync. The fix is clear; without Five Whys, you might have just ``handled the null'' and shipped a band-aid.
+\end{tcolorbox}
+
+% -- Mental Resets -------------------------------------------------------------
+\section*{Rubber Duck Debugging \& Other Mental Resets}
+
+When you are stuck, your brain is often locked into a false assumption. These techniques force you to re-examine those assumptions:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Rubber duck debugging:} Explain your code line-by-line to an inanimate object (or a junior dev, or yourself out loud). The act of verbalizing forces you to confront what you \emph{assumed} vs.\ what the code \emph{actually does}. The bug usually surfaces during this explanation.
+  \item \textbf{The 20-minute rule:} If you've been stuck on the same problem for 20 minutes without forward progress, stop. Take a walk, switch tasks, or ask someone. Fresh eyes catch things tunnel vision misses.
+  \item \textbf{Read it backwards:} Start from the error and trace backwards through the call stack toward the root cause instead of reading top-to-bottom.
+  \item \textbf{Check your assumptions:} Write a list of everything you ``know'' is true about the system. Then verify each one. At least one will be wrong.
+\end{itemize}
+
+% -- Interview Framework -------------------------------------------------------
+\section*{Interview: How to Talk About Debugging}
+
+Interviewers asking ``tell me about a time you debugged a hard problem'' want to hear a structured story. Use the \textbf{STAR format}: Situation, Task, Action, Result.
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder,
+  title={\bfseries STAR Template for Debugging Stories}, arc=3pt, boxrule=1pt]
+\textbf{Situation:} Set the scene. What system, what was the symptom, when did it appear?\\
+\textit{``In a Jakarta EE REST API consumed by a React frontend\ldots''}\\[4pt]
+\textbf{Task:} What was your specific responsibility?\\
+\textit{``I was responsible for diagnosing why POST requests were failing with Network Error while GET worked fine.''}\\[4pt]
+\textbf{Action:} Walk through your exact steps. Be specific --- name the tools, techniques, and decisions.\\
+\textit{``I opened the browser Network tab, saw an OPTIONS preflight request returning 500, identified this as a CORS misconfiguration on the server side, and implemented a ContainerResponseFilter to inject the correct headers.''}\\[4pt]
+\textbf{Result:} What happened? Quantify if possible.\\
+\textit{``All cross-origin requests resolved immediately. I documented the root cause and added a CORS filter template to the team's project boilerplate.''}
+\end{tcolorbox}
+
+% -- Bug Classification --------------------------------------------------------
+\section*{Classifying Bugs by Type}
+
+Knowing the \emph{category} of a bug tells you immediately where to look.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Bug Type} & \textbf{Description} & \textbf{First Place to Look} \\
+\midrule
+\rowcolor{rowPu} Logic error      & Code runs but produces wrong output & Unit tests, print statements, debugger watch \\
+\rowcolor{rowA}  Runtime error    & Code crashes mid-execution (NullPointer, IndexOutOfBounds) & Stack trace, line number in error \\
+\rowcolor{rowPu} Configuration    & Code is correct; environment is wrong & Config files, env variables, .env files \\
+\rowcolor{rowA}  Integration      & Two systems don't agree (type mismatch, schema drift) & API contracts, migration history, logs on both sides \\
+\rowcolor{rowPu} Race condition   & Bug only appears under concurrent load or timing-dependent scenarios & Thread logs, mutex/lock usage, stress tests \\
+\rowcolor{rowA}  Regression       & Previously working feature breaks after a change & \texttt{git bisect}, recent commit history \\
+\rowcolor{rowPu} Environment      & Works on your machine, fails in CI/prod & Docker config, OS differences, dependency versions \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART II - Git Strategy & Version Control
+%% =============================================================================
+\greysections
+\addcontentsline{toc}{section}{\textcolor{sectiongrey}{PART II \textemdash\ Git Strategy \& Version Control}}
+\addcontentsline{toc}{subsection}{Core Mental Model}
+\addcontentsline{toc}{subsection}{Commit Philosophy}
+\addcontentsline{toc}{subsection}{Emergency Recovery Commands}
+\addcontentsline{toc}{subsection}{Branching Strategy}
+\addcontentsline{toc}{subsection}{Undoing Things: The Right Tool for Each Situation}
+\addcontentsline{toc}{subsection}{Investigating History}
+\partbanner{part7bg}{sectiongrey}{Part II \quad Git Strategy \& Version Control}
+
+\vspace{8pt}
+
+% -- Mental Model --------------------------------------------------------------
+\section*{Core Mental Model}
+
+Git tracks a \textbf{directed acyclic graph (DAG) of snapshots}. Every commit is a snapshot of your entire project, linked to its parent(s). Three areas matter:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Working Directory:} Your actual files on disk --- what you see in your editor.
+  \item \textbf{Staging Area (Index):} A draft of your next commit. \texttt{git add} moves changes here.
+  \item \textbf{Repository (.git):} The permanent history of all commits. \texttt{git commit} writes the index here.
+  \item \textbf{Remote (origin):} The copy on GitHub/GitLab. \texttt{git push}/\texttt{pull} syncs between local and remote.
+\end{itemize}
+
+% -- Commit Philosophy ---------------------------------------------------------
+\section*{Commit Philosophy (``Patch Note'' Style)}
+
+A good commit history is a \textbf{story}. It should explain what changed and why --- not just that something changed.
+
+\begin{tcolorbox}[colback=part7bg, colframe=sectiongrey, arc=3pt, boxrule=1pt]
+\textbf{Conventional Commits format:} \quad \texttt{type(scope): short description}\\[4pt]
+\texttt{feat}: a new feature \quad
+\texttt{fix}: a bug fix \quad
+\texttt{refactor}: code restructure, no behavior change\\
+\texttt{style}: formatting, whitespace \quad
+\texttt{docs}: documentation only \quad
+\texttt{chore}: build system, deps
+\end{tcolorbox}
+
+\begin{lstlisting}[style=gitlog, caption={Good vs.\ bad commits}]
+# BAD -- tells you nothing
+git commit -m "stuff"
+git commit -m "fix"
+git commit -m "changes"
+
+# GOOD -- patch note style
+git commit -m "fix(cors): add ContainerResponseFilter for OPTIONS preflight"
+git commit -m "feat(auth): add JWT refresh token endpoint"
+git commit -m "refactor(db): extract query builder into repository layer"
+git commit -m "style: consolidate small grammar fixes across 3 doc files"
+\end{lstlisting}
+
+\textbf{Group vs.\ Isolate decisions:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Group} cosmetic fixes (whitespace, typos, formatting) --- they are noise if separated.
+  \item \textbf{Isolate} any single logical change --- a one-line bug fix that changes behavior deserves its own commit so it can be reverted cleanly.
+\end{itemize}
+
+% -- Emergency Recovery --------------------------------------------------------
+\section*{Emergency Recovery Commands}
+
+\begin{lstlisting}[style=shell, caption={Emergency recovery: when things go wrong}]
+# NUCLEAR LOCAL FIX -- local files are trashed, remote is healthy
+git fetch origin
+git reset --hard origin/main    # Wipes ALL local changes. No recovery.
+
+# Undo last commit but KEEP the changes in working directory
+git reset --soft HEAD~1         # Changes stay staged (ready to re-commit)
+git reset --mixed HEAD~1        # Changes stay in working dir (default)
+
+# Undo last commit and DISCARD the changes entirely
+git reset --hard HEAD~1         # Gone. No recovery without reflog.
+
+# Recover a hard-reset using reflog (your safety net)
+git reflog                      # Shows every HEAD move, even after reset
+git reset --hard HEAD@{2}       # Jump back to 2 moves ago
+
+# Discard changes to a specific file only (don't touch others)
+git checkout -- path/to/file.js
+
+# Temporarily stash your work to switch branches
+git stash                       # Saves dirty state
+git stash pop                   # Restores it
+
+# Undo a pushed commit safely (creates a new "undo" commit)
+git revert <commit-hash>        # Safe for shared branches; never rewrites history
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\textbf{The golden rule:} Never \texttt{git reset --hard} or \texttt{git push --force} on a \textbf{shared branch} (main, dev, staging). You will rewrite history for every teammate. \texttt{git revert} is always safe --- it adds a new commit rather than deleting old ones.
+\end{tcolorbox}
+
+% -- Branching Strategy --------------------------------------------------------
+\section*{Branching Strategy}
+
+\begin{lstlisting}[style=shell, caption={Feature branch workflow}]
+# Start a new feature
+git checkout -b feat/user-auth    # Create + switch to new branch
+git push -u origin feat/user-auth # Set upstream and push
+
+# Keep your branch up to date with main (prefer rebase for clean history)
+git fetch origin
+git rebase origin/main            # Replays your commits on top of latest main
+
+# Squash messy WIP commits before merging (interactive rebase)
+git rebase -i HEAD~4              # Opens editor to squash/reword last 4 commits
+
+# Merge back (on GitHub: open Pull Request; locally:)
+git checkout main
+git merge --no-ff feat/user-auth  # --no-ff preserves branch history
+git branch -d feat/user-auth      # Clean up local branch
+\end{lstlisting}
+
+% -- Undoing Things ------------------------------------------------------------
+\section*{Undoing Things: The Right Tool for Each Situation}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm}
+                              >{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Situation} & \textbf{Command} & \textbf{Notes} \\
+\midrule
+\rowcolor{rowGr} Unstaged changes in working dir & \texttt{git checkout -{}- file} & Irreversible \\
+\rowcolor{rowA}  File added to stage by mistake  & \texttt{git restore --staged file} & Keeps working-dir changes \\
+\rowcolor{rowGr} Last commit was wrong (not pushed) & \texttt{git reset --soft HEAD\textasciitilde1} & Keeps changes staged \\
+\rowcolor{rowA}  Last commit was wrong (pushed) & \texttt{git revert HEAD} & Safe; makes a new commit \\
+\rowcolor{rowGr} Find when a bug was introduced & \texttt{git bisect start} & Binary search through history \\
+\rowcolor{rowA}  Recover deleted branch/commit & \texttt{git reflog} & 90-day window by default \\
+\rowcolor{rowGr} Merge went wrong mid-process & \texttt{git merge --abort} & Restores pre-merge state \\
+\bottomrule
+\end{tabularx}}
+
+% -- Investigating History -----------------------------------------------------
+\section*{Investigating History}
+
+\begin{lstlisting}[style=shell, caption={Digging through history to find a bug}]
+# See a compact one-line log with graph
+git log --oneline --graph --all
+
+# Show what changed in a specific commit
+git show <commit-hash>
+
+# Find which commit introduced a specific line (blame)
+git blame path/to/file.js       # Shows author + commit per line
+
+# Binary search: find the commit that broke something
+git bisect start
+git bisect bad                  # Mark current commit as broken
+git bisect good v2.1.0          # Mark a known-good tag/commit
+# Git will checkout midpoints; you mark each good/bad
+# until it identifies the exact breaking commit
+git bisect reset                # Clean up when done
+
+# Search all commits for a string (great for tracking down removed code)
+git log -S "functionName" --all --oneline
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART III - Web, API & CORS Debugging
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART III \textemdash\ Web, API \& CORS Debugging}}
+\addcontentsline{toc}{subsection}{HTTP Status Code Reference}
+\addcontentsline{toc}{subsection}{The CORS Preflight Problem (Your Debug Log)}
+\addcontentsline{toc}{subsection}{Diagnosing API Failures: A Checklist}
+\addcontentsline{toc}{subsection}{REST vs.\ Common Mistakes}
+\addcontentsline{toc}{subsection}{Browser DevTools: Network Tab Workflow}
+\partbanner{part6bg}{sectionred}{Part III \quad Web, API \& CORS Debugging}
+
+\vspace{8pt}
+
+% -- HTTP Status Codes ---------------------------------------------------------
+\section*{HTTP Status Code Reference}
+
+The status code is always your \textbf{first diagnostic signal}. Read it before touching any code.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1.2cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Code} & \textbf{Name} & \textbf{What it means \& where to look} \\
+\midrule
+\rowcolor{rowA}  200 & OK                    & Request succeeded. \\
+\rowcolor{rowRe} 201 & Created               & POST succeeded; resource created. Check \texttt{Location} header. \\
+\rowcolor{rowA}  204 & No Content            & Success but no body (common for DELETE). \\
+\rowcolor{rowRe} 301 & Moved Permanently     & URL has changed; check redirect config. \\
+\rowcolor{rowA}  400 & Bad Request           & Client sent malformed data. Check request body/params vs.\ expected schema. \\
+\rowcolor{rowRe} 401 & Unauthorized          & Missing or invalid auth token. Check Authorization header. \\
+\rowcolor{rowA}  403 & Forbidden             & Auth is valid but lacks permission. Check roles, ACLs, file permissions. \\
+\rowcolor{rowRe} 404 & Not Found             & Wrong URL or resource doesn't exist. Check routing config. \\
+\rowcolor{rowA}  405 & Method Not Allowed    & Wrong HTTP verb. Is your endpoint annotated for POST but you sent GET? \\
+\rowcolor{rowRe} 409 & Conflict              & Duplicate resource (e.g., unique constraint violation in DB). \\
+\rowcolor{rowA}  415 & Unsupported Media Type & Wrong \texttt{Content-Type} header. Did you send JSON without \texttt{application/json}? \\
+\rowcolor{rowRe} 422 & Unprocessable Entity  & Body is parseable but semantically invalid (validation failure). \\
+\rowcolor{rowA}  429 & Too Many Requests     & Rate-limited. Back off and retry with exponential backoff. \\
+\rowcolor{rowRe} 500 & Internal Server Error & Server crashed. Check \textbf{server logs first}. \\
+\rowcolor{rowA}  502 & Bad Gateway           & Reverse proxy (Nginx) can't reach the backend. Is the app running? \\
+\rowcolor{rowRe} 503 & Service Unavailable   & Server overloaded or down. Check process manager (systemd, pm2). \\
+\rowcolor{rowA}  504 & Gateway Timeout       & Backend too slow. Check DB queries, external API calls, thread pools. \\
+\bottomrule
+\end{tabularx}}
+
+% -- CORS Debug Log ------------------------------------------------------------
+\section*{The CORS Preflight Problem (Personal Debug Log)}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder,
+  title={\bfseries Debug Log \#001 --- Jakarta EE CORS Failure}, arc=3pt, boxrule=1pt]
+\textbf{Symptom:} React frontend successfully fetches data (\texttt{GET} works) but every \texttt{POST} and \texttt{PUT} throws a Network Error. No response body visible in the UI.\\[4pt]
+\textbf{Diagnosis steps:}
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item Opened Chrome DevTools $\to$ Network tab.
+  \item Noticed an \texttt{OPTIONS} request firing \emph{before} every \texttt{POST} --- this is the CORS \textbf{preflight handshake}.
+  \item The \texttt{OPTIONS} request returned \texttt{500}. The browser saw the failure and blocked the actual \texttt{POST} from ever sending.
+  \item \textbf{Root cause:} The Jakarta EE server had no handler for \texttt{OPTIONS} requests and no \texttt{Access-Control-Allow-Origin} header on responses. Browsers require this before allowing cross-origin writes.
+\end{enumerate}
+\textbf{Fix:} Registered a \texttt{ContainerResponseFilter} that injects CORS headers on every response.
+\end{tcolorbox}
+
+\textbf{Why GET worked but POST didn't:} Browsers apply CORS \textbf{preflight} only to ``non-simple'' requests --- those that use \texttt{POST}/\texttt{PUT}/\texttt{DELETE}, custom headers, or \texttt{application/json} content type. Simple \texttt{GET} requests without custom headers skip preflight entirely, which is why GET appeared to work fine.
+
+\begin{lstlisting}[style=shell, caption={Jakarta EE CORSFilter.java skeleton}]
+@Provider
+@PreMatching
+public class CORSFilter implements ContainerResponseFilter {
+    @Override
+    public void filter(ContainerRequestContext req,
+                       ContainerResponseContext res) {
+        res.getHeaders().add("Access-Control-Allow-Origin",  "*");
+        res.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        // Handle OPTIONS preflight: return 200 immediately
+        if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
+            res.setStatus(200);
+        }
+    }
+}
+\end{lstlisting}
+
+% -- API Failure Checklist -----------------------------------------------------
+\section*{Diagnosing API Failures: A Checklist}
+
+Work through these in order before touching any application code:
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Is the server running?} \texttt{curl http://localhost:8080/health} or check the process.
+  \item \textbf{What status code is returned?} Read the table above. 4xx = client problem; 5xx = server problem.
+  \item \textbf{Is there a preflight OPTIONS failure?} Network tab $\to$ filter by \texttt{OPTIONS}.
+  \item \textbf{Is the Content-Type header correct?} POST/PUT with JSON must include \texttt{Content-Type: application/json}.
+  \item \textbf{Is the Authorization header present and valid?} Check for typos, expiration, correct scheme (\texttt{Bearer} vs.\ \texttt{Basic}).
+  \item \textbf{Does the request body match the expected schema?} Log the raw body server-side and compare to the expected DTO/model.
+  \item \textbf{Check server logs.} A 500 on the client means an exception on the server. Read the stack trace.
+  \item \textbf{Test with \texttt{curl} or Postman}, bypassing the frontend. If it works there, the bug is in your frontend code.
+\end{enumerate}
+\end{tcolorbox}
+
+% -- Browser DevTools Workflow -------------------------------------------------
+\section*{Browser DevTools: Network Tab Workflow}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Filter by XHR/Fetch} to hide asset noise and see only API calls.
+  \item \textbf{Click a request} $\to$ check: Headers (request + response), Payload (body sent), Preview/Response (body received), Timing (where the delay is).
+  \item \textbf{Red entries} = failed requests (4xx or 5xx, or blocked by CORS).
+  \item \textbf{Preserve Log} checkbox --- check it so requests don't disappear on navigation/redirect.
+  \item \textbf{Console tab} --- CORS errors appear here as explicit messages naming the blocked origin.
+\end{itemize}
+
+\newpage
+
+%% =============================================================================
+%%  PART IV - Linux Systems Debugging
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART IV \textemdash\ Linux Systems Debugging}}
+\addcontentsline{toc}{subsection}{Filesystem \& Permissions}
+\addcontentsline{toc}{subsection}{Reading \& Tailing Logs}
+\addcontentsline{toc}{subsection}{Process Management}
+\addcontentsline{toc}{subsection}{Networking Commands}
+\addcontentsline{toc}{subsection}{Standard Directory Reference}
+\addcontentsline{toc}{subsection}{Diagnosing a Server That Won't Start}
+\addcontentsline{toc}{subsection}{Linux Setup: Package Management}
+\addcontentsline{toc}{subsection}{Linux Setup: Users, SSH \& Firewall}
+\addcontentsline{toc}{subsection}{Linux Setup: Cron, Env Vars \& Aliases}
+\partbanner{part2bg}{sectiongreen}{Part IV \quad Linux Systems Debugging \& Setup}
+
+\vspace{8pt}
+
+% -- Permissions ---------------------------------------------------------------
+\section*{Filesystem \& Permissions}
+
+Linux permissions are three groups of three bits: \textbf{Owner | Group | Others}, each with read (r=4), write (w=2), execute (x=1).
+
+\[
+  \texttt{chmod 755} \;\Longleftrightarrow\; \texttt{rwxr-xr-x}
+  \quad\text{(owner: full; group+others: read+execute)}
+\]
+
+\begin{lstlisting}[style=shell, caption={Permissions and ownership}]
+# Read current permissions
+ls -la /var/www/html
+
+# Set permissions numerically
+chmod 755 /var/www/html        # rwxr-xr-x (directories, executables)
+chmod 644 /var/www/html/*.html # rw-r--r-- (regular files)
+chmod -R 755 /var/www/         # Recursive
+
+# Fix ownership-based 403 Forbidden errors
+chown -R www-data:www-data /var/www/html   # Give web server ownership
+chown oscar:oscar /home/oscar/project      # Take back your own files
+
+# Who am I running as?
+whoami
+id                             # Shows uid, gid, and all groups
+
+# Check what user a process is running as
+ps aux | grep nginx
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Common permission errors:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{403 Forbidden from Nginx/Apache:} File is not readable by the web server user (\texttt{www-data}). Fix: \texttt{chown} or \texttt{chmod o+r}.
+  \item \textbf{Permission denied running a script:} Missing execute bit. Fix: \texttt{chmod +x script.sh}.
+  \item \textbf{Can't write to a log file:} Process doesn't own the file. Fix: \texttt{chown processuser logfile}.
+\end{itemize}
+\end{tcolorbox}
+
+% -- Logs ----------------------------------------------------------------------
+\section*{Reading \& Tailing Logs}
+
+\begin{lstlisting}[style=shell, caption={Log reading commands}]
+# Follow a log live (most useful during debugging)
+tail -f /var/log/nginx/error.log
+tail -f /var/log/syslog
+
+# View last N lines
+tail -n 100 /var/log/app/server.log
+
+# Search a log for a pattern
+grep "ERROR" /var/log/app/server.log
+grep -i "exception" /var/log/app/server.log   # -i = case insensitive
+grep -A 5 "NullPointer" /var/log/app.log      # -A 5: show 5 lines AFTER match
+grep -B 3 "NullPointer" /var/log/app.log      # -B 3: show 3 lines BEFORE match
+
+# journald (systemd systems) -- most modern servers
+journalctl -u nginx.service                   # Logs for a specific service
+journalctl -u nginx.service -f                # Follow live
+journalctl -u myapp --since "1 hour ago"      # Time-filtered
+journalctl -p err                             # Only error-level and above
+
+# Key log locations
+# /var/log/syslog         -- general system messages
+# /var/log/auth.log       -- login attempts, sudo usage
+# /var/log/nginx/         -- access.log and error.log
+# /var/log/apache2/       -- Apache logs
+# /var/log/mysql/         -- MySQL error log
+# /var/log/apt/           -- Package install history
+\end{lstlisting}
+
+% -- Process Management --------------------------------------------------------
+\section*{Process Management}
+
+\begin{lstlisting}[style=shell, caption={Processes: finding, inspecting, and controlling}]
+# See all running processes (snapshot)
+ps aux
+ps aux | grep java            # Filter for a specific process
+
+# Interactive process viewer (top replacement)
+htop                          # Press F6 to sort by CPU, M for memory
+
+# What process is using port 8080?
+lsof -i :8080
+ss -tulnp | grep 8080         # Modern alternative to netstat
+
+# Kill a process
+kill <PID>                    # Graceful (SIGTERM)
+kill -9 <PID>                 # Force kill (SIGKILL) -- last resort
+
+# Systemd service management (servers, daemons)
+systemctl status nginx         # Is it running? Any recent errors?
+systemctl start nginx
+systemctl stop nginx
+systemctl restart nginx
+systemctl reload nginx         # Reload config without full restart
+systemctl enable nginx         # Auto-start on boot
+journalctl -u nginx -n 50 -f  # Live logs for the service
+\end{lstlisting}
+
+% -- Networking Commands -------------------------------------------------------
+\section*{Networking Commands}
+
+\begin{lstlisting}[style=shell, caption={Network diagnostics}]
+# Is the host reachable?
+ping google.com
+ping 192.168.1.1
+
+# Trace the path packets take (diagnose where they drop)
+traceroute google.com
+
+# Is port 8080 actually open and listening?
+ss -tulnp                     # All listening ports
+lsof -i :8080                 # What process owns port 8080
+
+# Make an HTTP request from the command line (great for bypassing the browser)
+curl -v http://localhost:8080/api/users         # -v = verbose (shows headers)
+curl -X POST http://localhost:8080/api/login \
+     -H "Content-Type: application/json" \
+     -d '{"username":"oscar","password":"test"}'
+
+# DNS resolution: what IP does this hostname resolve to?
+nslookup myapp.example.com
+dig myapp.example.com
+
+# Show network interfaces and IP addresses
+ip addr show
+\end{lstlisting}
+
+% -- Directory Reference -------------------------------------------------------
+\section*{Standard Directory Reference}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\ttfamily\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Path} & \textbf{What lives here} \\
+\midrule
+\rowcolor{rowA}  /etc             & System-wide configuration files. Nginx, SSH, hosts, cron, apt sources. \\
+\rowcolor{rowBg} /var/log         & All log files. First stop when diagnosing a crash. \\
+\rowcolor{rowA}  /var/www         & Web server document roots (Apache/Nginx). \\
+\rowcolor{rowBg} /home/username   & User files, user-specific config (\texttt{.bashrc}, \texttt{.ssh/}). \\
+\rowcolor{rowA}  /tmp             & Temporary files; cleared on reboot. \\
+\rowcolor{rowBg} /usr/bin         & User-installed binaries (most commands you type). \\
+\rowcolor{rowA}  /usr/local       & Manually installed software (outside the package manager). \\
+\rowcolor{rowBg} /opt             & Optional/third-party application packages. \\
+\rowcolor{rowA}  /proc            & Virtual filesystem exposing live kernel/process info (e.g., \texttt{/proc/cpuinfo}). \\
+\rowcolor{rowBg} /sys             & Hardware and driver info exposed by the kernel. \\
+\bottomrule
+\end{tabularx}}
+
+% -- Server Won't Start --------------------------------------------------------
+\section*{Diagnosing a Server That Won't Start}
+
+\begin{lstlisting}[style=shell, caption={Systematic checklist when a service fails to start}]
+# 1. Check the service status -- usually tells you the exact error
+systemctl status myapp.service
+
+# 2. Read the last 50 lines of the journal for this service
+journalctl -u myapp.service -n 50 --no-pager
+
+# 3. Is the port already in use?
+lsof -i :8080   # If something else owns 8080, your app can't bind it
+
+# 4. Does the config file have syntax errors?
+nginx -t                        # Test Nginx config
+apachectl configtest            # Test Apache config
+
+# 5. Can the process read its own config/data files?
+ls -la /etc/myapp/config.yaml   # Check permissions
+
+# 6. Are all dependencies/environment variables set?
+cat /etc/systemd/system/myapp.service   # Check the unit file for EnvironmentFile
+env | grep DATABASE_URL                  # Verify env vars are present
+\end{lstlisting}
+
+% -- Linux Setup: Package Management ------------------------------------------
+\section*{Linux Setup: Package Management}
+
+\begin{lstlisting}[style=shell, caption={apt (Debian/Ubuntu) and dnf/yum (RHEL/Fedora/CentOS)}]
+# -- Debian / Ubuntu (apt) -----------------------------------------------------
+sudo apt update                        # Refresh package lists from repos
+sudo apt upgrade -y                    # Upgrade all installed packages
+sudo apt install nginx postgresql git  # Install packages
+sudo apt remove nginx                  # Remove package (keep config files)
+sudo apt purge nginx                   # Remove package AND config files
+sudo apt autoremove                    # Remove unused dependency packages
+apt list --installed | grep nginx      # Check if a package is installed
+apt-cache search "web server"          # Search available packages by keyword
+apt show nginx                         # Show details about a package
+
+# -- RHEL / Fedora / CentOS (dnf / yum) ---------------------------------------
+sudo dnf update -y                     # Update all packages
+sudo dnf install nginx                 # Install
+sudo dnf remove nginx                  # Remove
+sudo dnf list installed | grep nginx   # Check installation
+sudo dnf search "web server"           # Search
+
+# -- Holding back a package (don't auto-upgrade) -------------------------------
+sudo apt-mark hold nginx               # Pin nginx to current version
+sudo apt-mark unhold nginx             # Release pin
+
+# -- Install from a .deb file directly -----------------------------------------
+sudo dpkg -i mypackage.deb             # Install local .deb
+sudo apt install -f                    # Fix any dependency errors after dpkg
+\end{lstlisting}
+
+% -- Linux Setup: Users, SSH & Firewall ---------------------------------------
+\section*{Linux Setup: Users, SSH \& Firewall}
+
+\begin{lstlisting}[style=shell, caption={User management}]
+# -- User and group management -------------------------------------------------
+sudo useradd -m -s /bin/bash oscar     # Create user with home dir + bash shell
+sudo passwd oscar                      # Set the user's password
+sudo usermod -aG sudo oscar            # Add user to sudo group (admin rights)
+sudo usermod -aG docker oscar          # Add user to docker group
+sudo userdel -r oscar                  # Delete user AND home directory
+
+id oscar                               # Show oscar's UID, GID, and groups
+groups oscar                           # List groups oscar belongs to
+cat /etc/passwd | grep oscar           # Verify account entry
+sudo visudo                            # Safely edit /etc/sudoers
+
+# -- Switching users -----------------------------------------------------------
+su - oscar                             # Switch to oscar (full login shell)
+sudo -u oscar command                  # Run one command as oscar
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={SSH setup and hardening}]
+# -- Generate an SSH keypair (on your LOCAL machine) ---------------------------
+ssh-keygen -t ed25519 -C "oscar@uww.edu"
+# Keys saved to: ~/.ssh/id_ed25519 (private) and ~/.ssh/id_ed25519.pub (public)
+
+# -- Copy your public key to a remote server -----------------------------------
+ssh-copy-id oscar@192.168.1.100
+# OR manually: cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys (on server)
+
+# -- Harden SSH: edit /etc/ssh/sshd_config on the SERVER ----------------------
+# PasswordAuthentication no     # Disable password login (key-only)
+# PermitRootLogin no            # Never SSH as root
+# Port 2222                     # Change from default port 22 (reduces bot traffic)
+# AllowUsers oscar              # Whitelist specific users
+
+sudo systemctl restart sshd            # Apply config changes
+
+# -- Connect with a specific key or port --------------------------------------
+ssh -i ~/.ssh/id_ed25519 oscar@server.com
+ssh -p 2222 oscar@server.com
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={UFW firewall (Uncomplicated Firewall)}]
+# -- UFW basics ----------------------------------------------------------------
+sudo ufw status verbose                # Show current rules and status
+sudo ufw enable                        # Activate firewall (default: deny incoming)
+sudo ufw disable                       # Disable (dangerous in production)
+
+# -- Allow / deny by port ------------------------------------------------------
+sudo ufw allow 22/tcp                  # SSH
+sudo ufw allow 80/tcp                  # HTTP
+sudo ufw allow 443/tcp                 # HTTPS
+sudo ufw allow 8080                    # Custom app port (both TCP and UDP)
+sudo ufw deny 3306                     # Block MySQL from the internet
+
+# -- Allow by service name -----------------------------------------------------
+sudo ufw allow 'Nginx Full'            # Allow both HTTP and HTTPS for Nginx
+sudo ufw allow 'OpenSSH'
+
+# -- Allow from a specific IP only ---------------------------------------------
+sudo ufw allow from 203.0.113.5        # Allow all ports from this IP
+sudo ufw allow from 203.0.113.5 to any port 5432  # Allow only PostgreSQL from that IP
+
+# -- Delete a rule -------------------------------------------------------------
+sudo ufw delete allow 80/tcp
+sudo ufw status numbered               # Show rules with numbers
+sudo ufw delete 3                      # Delete rule number 3
+\end{lstlisting}
+
+% -- Linux Setup: Cron, Env Vars & Aliases ------------------------------------
+\section*{Linux Setup: Cron, Environment Variables \& Aliases}
+
+\begin{lstlisting}[style=shell, caption={Cron jobs and scheduled tasks}]
+# -- Edit your cron jobs -------------------------------------------------------
+crontab -e                             # Edit cron jobs for the current user
+crontab -l                             # List current user's cron jobs
+sudo crontab -u oscar -l              # List another user's cron jobs
+
+# -- Cron syntax: minute hour day month weekday command ------------------------
+# * = every   */5 = every 5   0 = at 0   1-5 = Monday to Friday
+# Examples:
+# 0 2 * * *    /home/oscar/backup.sh      # 2:00 AM every day
+# */15 * * * * /scripts/healthcheck.sh   # Every 15 minutes
+# 0 9 * * 1    /scripts/weekly_report.sh # 9:00 AM every Monday
+# @reboot      /home/oscar/start-app.sh  # On every system boot
+
+# -- System-wide cron (runs as root) ------------------------------------------
+sudo nano /etc/crontab                 # System-wide cron (has username field)
+ls /etc/cron.d/                        # Per-package cron jobs
+ls /etc/cron.daily/                    # Scripts run daily by the system
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={Environment variables and shell configuration}]
+# -- View and set env vars -----------------------------------------------------
+env                                    # Print all environment variables
+echo $DATABASE_URL                     # Print a specific variable
+export DATABASE_URL="postgres://user:pass@localhost:5432/mydb"  # Set for session
+
+# -- Make permanent (add to ~/.bashrc or ~/.profile) --------------------------
+echo 'export DATABASE_URL="postgres://..."' >> ~/.bashrc
+echo 'export NODE_ENV="production"' >> ~/.bashrc
+source ~/.bashrc                       # Apply changes without logging out
+
+# -- Project-level env with .env files ----------------------------------------
+# Create: /home/oscar/myapp/.env
+# DATABASE_URL=postgres://...
+# SECRET_KEY=abc123
+# NODE_ENV=production
+
+# Load in a shell script:
+# set -a; source .env; set +a; ./start.sh
+
+# -- Create command aliases ----------------------------------------------------
+# Add to ~/.bashrc:
+alias ll='ls -alh'
+alias gs='git status'
+alias gc='git commit -m'
+alias dc='docker-compose'
+alias k='kubectl'
+alias myapp='cd /home/oscar/projects/myapp && source .venv/bin/activate'
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART V - Windows Enterprise Debugging
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART V \textemdash\ Windows Enterprise Debugging}}
+\addcontentsline{toc}{subsection}{User Profile Corruption}
+\addcontentsline{toc}{subsection}{Registry Navigation}
+\addcontentsline{toc}{subsection}{Event Viewer}
+\addcontentsline{toc}{subsection}{Useful Built-in Diagnostic Tools}
+\addcontentsline{toc}{subsection}{Group Policy \& Enterprise Quirks}
+\addcontentsline{toc}{subsection}{Windows Setup: PowerShell Quick Reference}
+\addcontentsline{toc}{subsection}{Windows Setup: Users, Firewall \& Scheduled Tasks}
+\addcontentsline{toc}{subsection}{Windows Setup: Remote Access \& IIS}
+\partbanner{partbg}{sectionblue}{Part V \quad Windows Enterprise Debugging \& Setup}
+
+\vspace{8pt}
+
+% -- User Profile Corruption ---------------------------------------------------
+\section*{User Profile Corruption (Personal Debug Log)}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder,
+  title={\bfseries Debug Log \#002 --- Erratic App Behavior for Specific Users}, arc=3pt, boxrule=1pt]
+\textbf{Symptom:} An application behaves erratically (wrong settings, missing data, crashes) for one user but works fine for others on the same machine or in the same domain.\\[4pt]
+\textbf{Diagnosis:}
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item Log in as a different user on the same machine --- if the app works, the issue is \textbf{profile-specific}, not machine-wide.
+  \item Open \textbf{System Properties} (\texttt{sysdm.cpl} $\to$ Advanced $\to$ User Profiles) --- look for profiles marked as ``Roaming'' or showing errors.
+  \item Navigate to \texttt{\%AppData\%} (usually \texttt{C:\textbackslash Users\textbackslash username\textbackslash AppData}) --- look for the app's folder. Corrupted JSON/XML config files here are the most common cause.
+  \item Check \texttt{HKEY\_CURRENT\_USER} in Registry Editor for the app's key.
+\end{enumerate}
+\textbf{Fix:} Delete the corrupted \texttt{\%AppData\%} folder for the specific application. The app re-creates it with defaults on next launch. For more severe profile corruption, use \texttt{sysdm.cpl} to delete and re-create the profile (user must log out first).
+\end{tcolorbox}
+
+% -- Registry ------------------------------------------------------------------
+\section*{Registry Navigation}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\ttfamily\bfseries\raggedright\arraybackslash}p{5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Hive} & \textbf{What it controls} \\
+\midrule
+\rowcolor{rowA}  HKEY\_CURRENT\_USER (HKCU)   & Settings for the \emph{currently logged-in} user. App preferences, recent files, per-user config. First place to look for user-specific bugs. \\
+\rowcolor{rowB}  HKEY\_LOCAL\_MACHINE (HKLM)  & Machine-wide settings. Software installs, hardware drivers, system-wide config. Requires admin to modify. \\
+\rowcolor{rowA}  HKEY\_CLASSES\_ROOT (HKCR)   & File associations and COM object registration. \\
+\rowcolor{rowB}  HKEY\_USERS (HKU)            & All user profiles loaded on this machine. \\
+\rowcolor{rowA}  HKEY\_CURRENT\_CONFIG (HKCC) & Current hardware profile. Rarely edited manually. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Key paths to know:}
+\begin{itemize}[noitemsep]
+  \item \texttt{HKCU\textbackslash Software\textbackslash [AppName]} --- user-level app settings
+  \item \texttt{HKLM\textbackslash SOFTWARE\textbackslash [AppName]} --- machine-level app settings
+  \item \texttt{HKLM\textbackslash SYSTEM\textbackslash CurrentControlSet\textbackslash Services} --- installed services
+\end{itemize}
+
+% -- Event Viewer --------------------------------------------------------------
+\section*{Event Viewer --- Windows' Equivalent of \texttt{/var/log}}
+
+Event Viewer (\texttt{eventvwr.msc}) is the \textbf{first place to check} when a Windows application or service crashes. It is the Windows equivalent of \texttt{journalctl} or \texttt{/var/log}.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Windows Logs $\to$ Application:} Application-level errors, crashes, and warnings. Look for Error-level entries timestamped when the problem occurred.
+  \item \textbf{Windows Logs $\to$ System:} Hardware, driver, and OS-level events.
+  \item \textbf{Windows Logs $\to$ Security:} Login events, permission changes, audit records.
+  \item \textbf{Applications and Services Logs:} Per-application logs for things like IIS, .NET runtime, Windows Defender.
+\end{itemize}
+
+\textbf{Tip:} Right-click any log $\to$ ``Filter Current Log'' $\to$ set Level to Error/Critical and pick a time window around when the problem occurred. This cuts through the noise immediately.
+
+% -- Built-in Diagnostic Tools ------------------------------------------------
+\section*{Useful Built-in Diagnostic Tools}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\ttfamily\bfseries\raggedright\arraybackslash}p{3.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Command / Tool} & \textbf{Use case} \\
+\midrule
+\rowcolor{rowA}  sysdm.cpl     & System Properties: user profiles, environment variables, computer name. \\
+\rowcolor{rowB}  eventvwr.msc  & Event Viewer: application/system crash logs. \\
+\rowcolor{rowA}  services.msc  & Start, stop, and configure Windows services. \\
+\rowcolor{rowB}  msconfig      & Startup items, boot configuration, safe mode toggle. \\
+\rowcolor{rowA}  resmon        & Resource Monitor: real-time CPU, memory, disk, network by process. \\
+\rowcolor{rowB}  perfmon       & Performance Monitor: long-term resource logging. \\
+\rowcolor{rowA}  taskmgr       & Task Manager: quick process/performance overview. \\
+\rowcolor{rowB}  netstat -ano  & Active connections and listening ports with PIDs. \\
+\rowcolor{rowA}  sfc /scannow  & System File Checker: repairs corrupted Windows system files. \\
+\rowcolor{rowB}  gpresult /h   & Group Policy Result: shows what policies are applied to this user/machine. \\
+\bottomrule
+\end{tabularx}}
+
+% -- Windows Setup: PowerShell Quick Reference --------------------------------
+\section*{Windows Setup: PowerShell Quick Reference}
+
+PowerShell is the authoritative management interface for Windows. Run it as Administrator for any system configuration.
+
+\begin{lstlisting}[style=shell, caption={PowerShell essentials (run as Administrator)}]
+# -- Execution policy (required before running scripts) ------------------------
+Get-ExecutionPolicy                               # Check current policy
+Set-ExecutionPolicy RemoteSigned -Scope LocalMachine  # Allow local scripts
+
+# -- Service management --------------------------------------------------------
+Get-Service                                       # List all services
+Get-Service -Name nginx                           # Check a specific service
+Start-Service -Name nginx
+Stop-Service -Name nginx
+Restart-Service -Name nginx
+Set-Service -Name nginx -StartupType Automatic    # Auto-start on boot
+Set-Service -Name nginx -StartupType Disabled     # Prevent from starting
+
+# -- Process management --------------------------------------------------------
+Get-Process                                       # List running processes
+Get-Process -Name node                            # Find by name
+Stop-Process -Name node -Force                    # Kill by name
+Stop-Process -Id 1234 -Force                      # Kill by PID
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10  # Top 10 by CPU
+
+# -- File and path operations --------------------------------------------------
+Get-ChildItem -Path C:\Apps -Recurse              # Recursive directory listing
+New-Item -Path C:\Apps\myapp -ItemType Directory  # Create directory
+Copy-Item source.txt destination.txt
+Remove-Item -Path C:\Temp\* -Recurse -Force       # Delete all files in Temp
+Get-Content C:\Logs\app.log -Tail 50 -Wait        # Tail a log file live
+
+# -- Environment variables -----------------------------------------------------
+$env:DATABASE_URL = "postgres://..."              # Set for session only
+[System.Environment]::SetEnvironmentVariable("DATABASE_URL","postgres://...", "Machine")  # System-wide persistent
+[System.Environment]::GetEnvironmentVariable("DATABASE_URL","Machine")  # Read back
+\end{lstlisting}
+
+% -- Windows Setup: Users, Firewall & Scheduled Tasks ------------------------
+\section*{Windows Setup: Users, Firewall \& Scheduled Tasks}
+
+\begin{lstlisting}[style=shell, caption={User management in PowerShell}]
+# -- Local user management -----------------------------------------------------
+Get-LocalUser                                     # List all local accounts
+New-LocalUser -Name "oscar" -Password (ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force) -FullName "Oscar"
+Set-LocalUser -Name "oscar" -Password (ConvertTo-SecureString "NewP@ss!" -AsPlainText -Force)
+Remove-LocalUser -Name "oscar"
+Enable-LocalUser -Name "oscar"
+Disable-LocalUser -Name "oscar"
+
+# -- Group membership ----------------------------------------------------------
+Get-LocalGroup                                    # List all local groups
+Get-LocalGroupMember -Group "Administrators"
+Add-LocalGroupMember -Group "Administrators" -Member "oscar"
+Remove-LocalGroupMember -Group "Administrators" -Member "oscar"
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={Windows Defender Firewall via PowerShell}]
+# -- View rules ----------------------------------------------------------------
+Get-NetFirewallRule | Where-Object {$_.Enabled -eq 'True'} | Select-Object DisplayName, Direction, Action
+Get-NetFirewallRule -DisplayName "Allow HTTP"
+
+# -- Create rules --------------------------------------------------------------
+New-NetFirewallRule -DisplayName "Allow HTTP" -Direction Inbound -Port 80 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Allow HTTPS" -Direction Inbound -Port 443 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Allow Custom App" -Direction Inbound -Port 8080 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Block Telnet" -Direction Inbound -Port 23 -Protocol TCP -Action Block
+
+# -- Delete rules --------------------------------------------------------------
+Remove-NetFirewallRule -DisplayName "Allow HTTP"
+
+# -- Enable / disable the firewall itself -------------------------------------
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True   # Enable all
+Set-NetFirewallProfile -Profile Public -Enabled False                 # Disable one profile
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={Scheduled Tasks (schtasks.exe -- works in cmd and PowerShell)}]
+# -- Create scheduled tasks ----------------------------------------------------
+schtasks /create /tn "DailyBackup" /tr "C:\Scripts\backup.bat" /sc daily /st 02:00 /ru SYSTEM
+schtasks /create /tn "HourlyCheck" /tr "powershell.exe C:\Scripts\check.ps1" /sc hourly
+schtasks /create /tn "OnStartup" /tr "C:\Apps\myapp\start.bat" /sc onstart /ru SYSTEM /delay 0000:30
+
+# -- Manage tasks --------------------------------------------------------------
+schtasks /query /tn "DailyBackup" /fo LIST /v   # Detailed info about a task
+schtasks /run /tn "DailyBackup"                 # Run immediately (test it)
+schtasks /end /tn "DailyBackup"                 # Stop a running task
+schtasks /delete /tn "DailyBackup" /f           # Delete (no confirmation prompt)
+schtasks /change /tn "DailyBackup" /st 03:00    # Change start time
+schtasks /query /fo TABLE | findstr "Ready"     # List all enabled tasks
+\end{lstlisting}
+
+% -- Windows Setup: Remote Access & IIS ---------------------------------------
+\section*{Windows Setup: Remote Access \& IIS}
+
+\begin{lstlisting}[style=shell, caption={Remote Desktop and WinRM configuration}]
+# -- Enable Remote Desktop via PowerShell --------------------------------------
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' `
+  -Name fDenyTSConnections -Value 0                # 0 = allow, 1 = deny
+Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+# Also ensure: System > Remote > "Allow remote connections to this computer"
+
+# -- Check if RDP is enabled ---------------------------------------------------
+(Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server').fDenyTSConnections
+# Returns 0 = enabled, 1 = disabled
+
+# -- WinRM (Windows Remote Management -- for remote PowerShell) ----------------
+winrm quickconfig                                 # Configure WinRM (run as admin)
+Enable-PSRemoting -Force                          # Enable incoming PS connections
+Enter-PSSession -ComputerName SERVER01 -Credential DOMAIN\oscar  # Connect remotely
+Invoke-Command -ComputerName SERVER01 -ScriptBlock { Get-Service }
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={IIS (Internet Information Services) basics}]
+# -- Install IIS via PowerShell ------------------------------------------------
+Install-WindowsFeature -name Web-Server -IncludeManagementTools
+# Or GUI: Server Manager > Add Roles > Web Server (IIS)
+
+# -- IIS management via PowerShell (requires WebAdministration module) ---------
+Import-Module WebAdministration
+Get-Website                                       # List all websites
+New-Website -Name "MyApp" -Port 8080 -PhysicalPath "C:\inetpub\myapp" -ApplicationPool "MyAppPool"
+Start-Website -Name "MyApp"
+Stop-Website -Name "MyApp"
+Restart-WebItem -PSPath 'IIS:\Sites\MyApp'
+
+# -- Application pools ---------------------------------------------------------
+Get-WebConfiguration system.applicationHost/applicationPools/add | Select-Object name, state
+New-WebAppPool -Name "MyAppPool"
+Set-ItemProperty IIS:\AppPools\MyAppPool -Name processModel.identityType -Value 3  # NetworkService
+
+# -- View IIS logs -------------------------------------------------------------
+# Default location: C:\inetpub\logs\LogFiles\W3SVC1\
+Get-Content "C:\inetpub\logs\LogFiles\W3SVC1\u_ex*.log" -Tail 100
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART VI - Performance & Database Debugging
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART VI \textemdash\ Performance \& Database Debugging}}
+\addcontentsline{toc}{subsection}{Identifying the Bottleneck}
+\addcontentsline{toc}{subsection}{Slow SQL Queries}
+\addcontentsline{toc}{subsection}{Database Connection Issues}
+\addcontentsline{toc}{subsection}{Memory \& CPU Profiling Concepts}
+\partbanner{part4bg}{sectionorange}{Part VI \quad Performance \& Database Debugging}
+
+\vspace{8pt}
+
+% -- Identifying the Bottleneck ------------------------------------------------
+\section*{Identifying the Bottleneck}
+
+Performance problems always have \textbf{one primary bottleneck} at any given moment. Fix that one first before touching anything else.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Bottleneck} & \textbf{Symptoms} & \textbf{Tool to confirm} \\
+\midrule
+\rowcolor{rowOr} CPU     & High CPU \%, slow computation, threads pegged at 100\% & \texttt{htop}, Task Manager, profiler \\
+\rowcolor{rowA}  Memory  & Swapping to disk, OOM kills, GC pauses increasing & \texttt{free -h}, heap dump, GC logs \\
+\rowcolor{rowOr} Disk I/O & High iowait \%, slow file reads/writes & \texttt{iostat}, \texttt{iotop} \\
+\rowcolor{rowA}  Network  & High latency, low throughput, timeouts & \texttt{ping}, \texttt{traceroute}, Wireshark \\
+\rowcolor{rowOr} Database & Slow queries, connection timeouts, lock waits & \texttt{EXPLAIN}, slow query log \\
+\rowcolor{rowA}  External API & Requests hang waiting on a third-party service & Add timeouts; log API latency \\
+\bottomrule
+\end{tabularx}}
+
+% -- Slow SQL ------------------------------------------------------------------
+\section*{Slow SQL Queries}
+
+\begin{lstlisting}[style=shell, caption={Diagnosing slow queries in MySQL/PostgreSQL}]
+-- See the query execution plan (EXPLAIN)
+-- Look for: "Full Table Scan", high "rows" count, "Using filesort"
+EXPLAIN SELECT * FROM orders WHERE customer_id = 42;
+EXPLAIN ANALYZE SELECT * FROM orders WHERE customer_id = 42;  -- PostgreSQL
+
+-- A full table scan on a large table = missing index
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+
+-- Find slow queries in MySQL (requires slow query log enabled)
+-- In /etc/mysql/my.cnf:
+-- slow_query_log = 1
+-- long_query_time = 1   (log queries > 1 second)
+-- slow_query_log_file = /var/log/mysql/slow.log
+
+-- Check active locks / blocking queries (MySQL)
+SHOW PROCESSLIST;
+SELECT * FROM information_schema.INNODB_LOCKS;
+
+-- N+1 query problem: ORM fetching each related record individually
+-- Symptom: 1 query to get 100 users, then 100 queries to get each user's profile
+-- Fix: use JOIN or ORM eager loading (e.g., JPA @EntityGraph, Hibernate fetch join)
+SELECT u.*, p.* FROM users u JOIN profiles p ON p.user_id = u.id;
+\end{lstlisting}
+
+% -- Connection Issues ---------------------------------------------------------
+\section*{Database Connection Issues}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{``Too many connections'' error:} Each request is opening a new DB connection and not closing it. Fix: use a \textbf{connection pool} (HikariCP in Java, pg-pool in Node.js). The pool keeps a fixed number of connections open and reuses them.\\[4pt]
+\textbf{``Connection refused'' on startup:} The app started before the database was ready. Fix: add a health check / retry loop on startup, or use Docker Compose \texttt{depends\_on} with a health check.\\[4pt]
+\textbf{Connection timeout in production but not locally:} A firewall is blocking port 3306/5432 between the app server and the DB server. Check security group rules (AWS) or firewall rules (\texttt{ufw status}).
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART VIb - Common Fixes Quick Reference
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART VIb \textemdash\ Common Fixes Quick Reference}}
+\addcontentsline{toc}{subsection}{Symptom-Driven Fix Table}
+\addcontentsline{toc}{subsection}{The 5-Minute First-Response Checklist}
+\partbanner{part6bg}{sectionred}{Part VIb \quad Common Fixes Quick Reference}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  You see the symptom. You need the fix. This section skips the theory and goes straight to the solution.
+\end{center}
+\vspace{4pt}
+
+\section*{Symptom-Driven Fix Table}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.2cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\ttfamily\raggedright\arraybackslash}p{4.5cm}}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Symptom} & \textbf{Most Likely Cause} & \textbf{First Command / Fix} \\
+\midrule
+\rowcolor{rowRe} Service fails to start & Port already in use by another process & lsof -i :PORT \\
+\rowcolor{rowA}  ``Permission denied'' on a file & Wrong owner or missing execute bit & chown / chmod +x \\
+\rowcolor{rowRe} 403 Forbidden from Nginx & Files not readable by www-data & chown -R www-data /path \\
+\rowcolor{rowA}  ``Address already in use'' & Previous process didn't exit cleanly & kill \$(lsof -t -i:PORT) \\
+\rowcolor{rowRe} App works locally, fails in Docker & Env vars not passed to container & Add -e VAR=val or .env file \\
+\rowcolor{rowA}  ``Module not found'' / ``Cannot find module'' & Deps not installed or wrong directory & npm install / pip install -r \\
+\rowcolor{rowRe} Git push rejected & Remote has commits your local doesn't & git pull --rebase \\
+\rowcolor{rowA}  Merge conflict won't resolve & Both branches modified the same lines & git mergetool or manually edit \\
+\rowcolor{rowRe} ``Connection refused'' on startup & App started before DB was ready & Add retry loop / depends\_on \\
+\rowcolor{rowA}  ``Too many connections'' (DB) & No connection pooling & Add HikariCP / pg-pool \\
+\rowcolor{rowRe} SSL cert errors in browser & Cert expired or self-signed & Check expiry: openssl x509 -enddate \\
+\rowcolor{rowA}  DNS not resolving hostname & Wrong DNS server or stale cache & nslookup host / flush DNS cache \\
+\rowcolor{rowRe} 500 after deploy & New code has missing env var or config & Check server logs immediately \\
+\rowcolor{rowA}  App OOM killed (Out of Memory) & Memory leak or undersized container & Check \texttt{free -h} / \texttt{dmesg | grep oom} \\
+\rowcolor{rowRe} Slow API response ($>$2s) & Missing DB index or N+1 query & EXPLAIN the query; add index \\
+\rowcolor{rowA}  Docker image won't build & Changed base image or cache stale & docker build --no-cache \\
+\rowcolor{rowRe} ``CORS blocked'' Network Error & Missing Access-Control headers on server & Add CORS filter/middleware \\
+\rowcolor{rowA}  ``JWT expired'' / 401 loop & Token not refreshing before expiry & Add refresh token or reduce TTL \\
+\rowcolor{rowRe} WebSocket disconnects under load & Synchronous broadcast blocks the loop & Refactor to async (asyncio.gather) \\
+\rowcolor{rowA}  Git history looks wrong after rebase & Rebased a shared branch & git reflog to recover \\
+\rowcolor{rowRe} Windows app crashes for one user only & Corrupted AppData or registry keys & Delete \%AppData\%\textbackslash[AppName] \\
+\rowcolor{rowA}  Rust index out of bounds on resize & Cached terminal dimensions not updated & Listen for SIGWINCH signal \\
+\rowcolor{rowRe} WASM allocator panic after Next dev restart & Stale/corrupted WASM module or heap instance & Reload renderer; cache-bust JS+\texttt{.wasm}; test production build \\
+\rowcolor{rowRe} P2P sync overwrites newer data & Client clocks not synchronized (NTP drift) & Replace wall-clock with logical versions \\
+\rowcolor{rowA}  ``No space left on device'' & Disk full or inode table exhausted & df -h and df -i \\
+\rowcolor{rowRe} cron job doesn't run & Wrong path, no execute bit, or env missing & Test with full absolute paths; check /var/log/syslog \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{8pt}
+\section*{The 5-Minute First-Response Checklist}
+
+When something breaks in production and you have no idea where to start, run through this in order. This is the fastest way to go from ``something is wrong'' to a specific hypothesis.
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Under 5 Minutes: Orient Yourself Before Touching Anything}, arc=3pt, boxrule=1pt]
+\begin{enumerate}[leftmargin=*, noitemsep]
+  \item \textbf{What changed?} Check recent deploys, config changes, cron jobs, and scheduled events. Most production incidents are caused by something that changed in the last hour. \texttt{git log --oneline -10} and deployment timestamps first.
+  \item \textbf{Is it all users or just some?} Affects all users = server/infra problem. Affects one user = user profile, permissions, or session data.
+  \item \textbf{What does the error say?} Tail the server log: \texttt{journalctl -u app -n 50} or \texttt{tail -f /var/log/app.log}. Read the first error, not the last one -- cascading errors hide the root cause.
+  \item \textbf{Is the service even running?} \texttt{systemctl status appname} (Linux) or \texttt{Get-Service} (Windows). Surprising how often this is the answer.
+  \item \textbf{Is the port listening?} \texttt{ss -tulnp | grep 8080}. If it's not listening, the app crashed or never started.
+  \item \textbf{Can you reach the database?} \texttt{curl localhost:8080/health} or connect directly: \texttt{psql -U user -d dbname}. DB down = everything fails.
+  \item \textbf{How is memory and CPU?} \texttt{htop} or \texttt{free -h}. OOM kills look like mysterious crashes.
+  \item \textbf{Has the disk filled up?} \texttt{df -h}. Full disk causes bizarre failures: logs stop, writes fail, apps crash.
+\end{enumerate}
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART VII - Personal Debug Log
+%% =============================================================================
+\greysections
+\addcontentsline{toc}{section}{\textcolor{sectiongrey}{PART VII \textemdash\ Personal Debug Log}}
+\addcontentsline{toc}{subsection}{How to Use This Log}
+\addcontentsline{toc}{subsection}{Log \#001: Jakarta EE CORS Preflight}
+\addcontentsline{toc}{subsection}{Log \#002: Windows User Profile Corruption}
+\addcontentsline{toc}{subsection}{Log \#003: Real-time Desync in Multiplayer Rhythm Game}
+\addcontentsline{toc}{subsection}{Log \#004: Rust Terminal VFX Out-of-Bounds Panic}
+\addcontentsline{toc}{subsection}{Log \#005: Peer-to-Peer Database Sync Overwrites}
+\addcontentsline{toc}{subsection}{Log \#006: Terminal FX Next.js Dev WASM Allocator Panic}
+\addcontentsline{toc}{subsection}{Log Template (Blank)}
+\partbanner{part7bg}{sectiongrey}{Part VII \quad Personal Debug Log}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Writing down what broke and how you fixed it is how you turn luck into skill.
+  Each entry is a story you can tell in any interview.
+\end{center}
+\vspace{4pt}
+
+% -- How to Use ----------------------------------------------------------------
+\section*{How to Use This Log}
+
+Every time you solve a non-trivial bug, add an entry. Even 5 minutes of writing saves hours the next time you hit the same issue --- and gives you \textbf{concrete interview stories} ready to go. Each entry should capture:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Symptom:} What the user or you observed. No assumptions yet.
+  \item \textbf{Environment:} Stack, OS, versions, network setup --- anything that scopes the problem.
+  \item \textbf{Diagnosis steps:} Every tool you used, every clue you found, in order.
+  \item \textbf{Root cause:} The actual underlying reason. Not the symptom.
+  \item \textbf{Fix:} What you changed, with enough detail to repeat it.
+  \item \textbf{Prevention:} What would have caught this earlier? A test? A config check? A linter rule?
+\end{enumerate}
+
+% -- Log 001 -------------------------------------------------------------------
+\section*{Log \#001 --- Jakarta EE CORS Preflight Failure}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Date}] 2025 (approximate)
+  \item[\textbf{Stack}] Jakarta EE backend $\cdot$ React frontend $\cdot$ Axios HTTP client
+  \item[\textbf{Symptom}] GET requests returned data correctly. Every POST/PUT request failed with a generic ``Network Error'' in the browser. No HTTP status code visible.
+  \item[\textbf{Diagnosis}] Opened Chrome DevTools $\to$ Network tab. Spotted an \texttt{OPTIONS} request (the CORS preflight) firing before every POST. The OPTIONS request returned HTTP 500 because no handler existed for it on the server. The browser blocked the actual POST.
+  \item[\textbf{Root Cause}] Jakarta EE server had no \texttt{ContainerResponseFilter} to inject \texttt{Access-Control-Allow-*} response headers. Without these headers, the browser refuses to allow cross-origin non-simple requests.
+  \item[\textbf{Fix}] Wrote and registered a \texttt{CORSFilter} implementing \texttt{ContainerResponseFilter}, injecting the three required headers and returning HTTP 200 for OPTIONS requests.
+  \item[\textbf{Prevention}] Add CORS filter to project boilerplate template. Include a test that makes a cross-origin POST during integration testing.
+  \item[\textbf{STAR summary}] Can describe in an interview as: ``I diagnosed and resolved a CORS misconfiguration in a Jakarta EE REST API that was silently blocking all write operations from a React frontend, by reading the browser network tab and implementing a server-side response filter.''
+\end{description}
+\end{tcolorbox}
+
+% -- Log 002 -------------------------------------------------------------------
+\section*{Log \#002 --- Windows User Profile Corruption}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Stack}] Windows Enterprise domain environment $\cdot$ User profiles with roaming configuration
+  \item[\textbf{Symptom}] Application behaved erratically (wrong settings, crashes on open) for one specific user. Other users on the same machine were unaffected.
+  \item[\textbf{Diagnosis}] Logged in as a different user --- app worked fine, confirming the issue was profile-specific. Navigated to the affected user's \texttt{\%AppData\%} directory and found corrupted config files. Checked \texttt{HKEY\_CURRENT\_USER} for stale/malformed keys.
+  \item[\textbf{Root Cause}] The user's AppData directory contained a corrupted configuration file from a prior failed update. The app failed to parse it and entered a broken state.
+  \item[\textbf{Fix}] Deleted the application-specific folder under \texttt{\%AppData\%\textbackslash Local\textbackslash [AppName]}. Application re-created it with clean defaults on next launch. Cleared relevant \texttt{HKEY\_CURRENT\_USER} registry keys for the app.
+  \item[\textbf{Prevention}] Apps should validate and gracefully reset corrupted config files rather than crashing. From an IT perspective: document which AppData folders to clear during support escalation for that app.
+  \item[\textbf{STAR summary}] ``I isolated an application malfunction to a single user's profile in a Windows Enterprise environment by testing with an alternate account, then resolved it by clearing corrupted AppData and registry keys --- restoring functionality without affecting other users.''
+\end{description}
+\end{tcolorbox}
+
+% -- Log 003 -------------------------------------------------------------------
+\section*{Log \#003 --- Real-time Desync in Multiplayer Rhythm Game}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Stack}] React $\cdot$ Vite $\cdot$ WebSockets $\cdot$ Python backend (\texttt{asyncio})
+  \item[\textbf{Symptom}] Players experienced severe input desync in a real-time multiplayer rhythm game. Game state updates would freeze momentarily and then fast-forward all at once, causing missed beats. Some client connections dropped entirely under concurrent load.
+  \item[\textbf{Diagnosis}] Opened Chrome DevTools $\to$ Network $\to$ WS tab to inspect raw WebSocket frames. Observed a growing backlog of unprocessed messages when multiple clients were connected. Used \texttt{wscat -c ws://localhost:8000} to manually send payloads and measure response latency. The Python server stalled whenever multiple clients connected simultaneously.
+  \item[\textbf{Root Cause}] The Python broadcast loop was \textbf{synchronous}. When one client had high latency, the blocking \texttt{socket.send()} call halted the entire loop for all clients. Every client had to wait for the slowest client's \texttt{send()} to complete before receiving their own update --- causing the fast-forward catch-up effect on the frontend.
+  \item[\textbf{Fix}] Refactored the broadcast function to use \texttt{asyncio.gather()} for concurrent, non-blocking sends. Added standard WebSocket ping/pong keepalive frames to detect and drop dead connections proactively rather than letting them block the loop indefinitely.
+  \item[\textbf{Prevention}] Always load-test real-time WebSocket servers with multiple simultaneous automated clients, not just local single-client testing. A server that works for 1 client may fail completely at 5.
+  \item[\textbf{STAR summary}] ``I diagnosed and resolved a critical real-time desync issue in a multiplayer WebSocket application. By inspecting raw WebSocket frames in DevTools and simulating load with \texttt{wscat}, I identified that a synchronous Python broadcast loop was blocking on slow clients. I refactored it to use \texttt{asyncio.gather()} for concurrent sends, eliminating the desync entirely.''
+\end{description}
+\end{tcolorbox}
+
+% -- Log 004 -------------------------------------------------------------------
+\section*{Log \#004 --- Rust Terminal VFX Out-of-Bounds Panic}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Stack}] Rust $\cdot$ CLI / Terminal environment $\cdot$ crossterm / raw terminal rendering
+  \item[\textbf{Symptom}] A terminal-based visual effects application (rendering animated ASCII art) would randomly panic with \texttt{thread 'main' panicked at 'index out of bounds'} during execution. The crash was intermittent and initially appeared random.
+  \item[\textbf{Diagnosis}] Ran the application with full backtraces enabled: \texttt{RUST\_BACKTRACE=1 cargo run}. The stack trace isolated the panic to the grid rendering function where a 2D array was mapped to screen coordinates. After observing the pattern, the crash was reproducible by simply \textbf{resizing the terminal window} during execution.
+  \item[\textbf{Root Cause}] The application read the terminal's width and height \textbf{once at startup} and cached them in a static buffer. When the window was resized \emph{smaller}, the render loop continued using the old (larger) dimensions, attempting to write into array indices beyond the new buffer bounds. Rust's bounds checking correctly caught this as a panic rather than silently corrupting memory.
+  \item[\textbf{Fix}] Implemented a POSIX signal handler for \texttt{SIGWINCH} (the ``window change'' signal sent by the OS when a terminal is resized). Upon receiving the signal, the app recalculates terminal dimensions and reallocates the rendering buffer before drawing the next frame.
+  \item[\textbf{Prevention}] Any systems-level UI or TUI tool must treat the terminal as a \emph{dynamic} environment, not a static one. Never cache hardware/environment constraints without an invalidation mechanism.
+  \item[\textbf{STAR summary}] ``I debugged an intermittent index-out-of-bounds panic in a Rust terminal application by enabling \texttt{RUST\_BACKTRACE=1} and observing that the crash correlated with terminal window resizes. The root cause was stale cached dimensions. I fixed it by handling the \texttt{SIGWINCH} OS signal and dynamically reallocating the rendering buffer on resize.''
+\end{description}
+\end{tcolorbox}
+
+% -- Log 005 -------------------------------------------------------------------
+\section*{Log \#005 --- Peer-to-Peer Database Sync Overwrites (Clock Drift)}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Stack}] HTML $\cdot$ JavaScript $\cdot$ Peer-to-Peer networking (class project)
+  \item[\textbf{Symptom}] When syncing two peer databases, newer data was silently overwritten by older data during the merge process. The issue was intermittent --- sometimes the correct data won, sometimes the stale data won --- with no obvious pattern.
+  \item[\textbf{Diagnosis}] Used Chrome DevTools Network throttling to simulate poor connections between peers. Added \texttt{console.table()} logging to track the exact timestamps of JSON payloads at dispatch vs.\ arrival. Discovered that the peer whose system clock was slightly \emph{ahead} always won the merge, regardless of the actual order of user actions.
+  \item[\textbf{Root Cause}] The conflict resolution protocol used \texttt{Date.now()} wall-clock timestamps generated by the client machines. Because system clocks across peers \textbf{drifted} (NTP synchronization is not perfect), a peer with a faster local clock consistently generated higher timestamps and therefore always ``won'' the merge comparison --- even when its data was genuinely older.
+  \item[\textbf{Fix}] Replaced wall-clock timestamps with a \textbf{logical version counter}. Each database record incremented a revision integer on every update. Peers merged changes by accepting the highest revision number, falling back to a deterministic hash comparison when revision numbers were tied. This makes the merge outcome independent of clock synchronization.
+  \item[\textbf{Prevention}] Never trust client-side clocks for authoritative event ordering in distributed or decentralized systems. Use logical clocks (Lamport timestamps, vector clocks) or server-assigned monotonic sequence numbers.
+  \item[\textbf{STAR summary}] ``In a P2P data sync project, I diagnosed silent data overwrites caused by NTP clock drift across peer machines. Stale data was winning merges simply because that peer's clock ran fast. I redesigned the conflict resolution to use logical version counters instead of wall-clock timestamps, making the outcome deterministic and clock-independent.''
+\end{description}
+\end{tcolorbox}
+
+
+% -- Log 006 -------------------------------------------------------------------
+\section*{Log \#006 --- Terminal FX Next.js Dev WASM Allocator Panic}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder, breakable, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Date}] 2026 (Terminal FX portfolio integration)
+  \item[\textbf{Stack}] Next.js App Router $\cdot$ React client components $\cdot$ Rust/WASM via \texttt{wasm-bindgen} $\cdot$ Canvas 2D $\cdot$ Python/FastAPI WebSocket demo
+  \item[\textbf{Symptom}] The Terminal FX portfolio page worked in two modes: a Python/xterm.js browser demo and a Rust/WASM canvas renderer. The Python side worked after isolating it into its own component. The Rust side rendered correctly, but after restarting the \textbf{Next.js frontend dev server}, the first visit back to the Rust tab could briefly show the animation and then fail with a Rust allocator panic:
+  \begin{lstlisting}[style=gitlog]
+panicked at dlmalloc.rs:
+assertion failed: psize >= size + min_overhead
+
+CanvasEngine.update(...)
+components/terminal-fx/useCanvasEngine.ts
+  \end{lstlisting}
+  \item[\textbf{Diagnosis}] First, verified that the backend was not the cause: the Python/FastAPI WebSocket route continued to work, and the bug appeared even when only the frontend Next.js server was restarted. The stack trace pointed to \texttt{CanvasEngine.update()}, not to React state, xterm.js, or the Python API. The issue was hard to reproduce during normal browsing, but became reproducible after restarting the Next dev server and then visiting the Rust tab. Switching away from Rust and back, or refreshing the page, usually recovered the renderer. This narrowed the problem to a stale or corrupted WASM instance during development hot reload / static asset replacement.
+  \item[\textbf{Root Cause}] The failure was not a normal JavaScript memory leak. It was a Rust/WASM allocator panic inside \texttt{dlmalloc}, meaning the active WebAssembly memory heap was in an invalid state. The likely cause was a stale \texttt{terminal\_fx.js} / \texttt{terminal\_fx\_bg.wasm} module pair after the Next.js dev server restarted. The browser could still hold an older WASM wrapper or engine instance while the dev server served refreshed frontend chunks. When \texttt{requestAnimationFrame} called \texttt{engine.update(dt, tAbs)}, the old WASM engine could panic at allocator level.
+  \item[\textbf{Fix}] Treated the Rust renderer as a recoverable, isolated client-side engine. The animation loop wraps \texttt{engine.update()}, \texttt{render\_pixels()}, and \texttt{putImageData()} in a \texttt{try/catch}, stops the RAF loop on failure, and shows an error overlay instead of crashing the whole page. For development, a full page refresh or switching away and back forces the Rust renderer to recreate a fresh engine. A stronger dev-only mitigation is to cache-bust the WASM JS and WASM binary when loading:
+  \begin{lstlisting}[style=shell]
+const cacheBust =
+  process.env.NODE_ENV === "development" ? `?v=${Date.now()}` : "";
+
+const wasmJsUrl = new URL(
+  `/wasm/terminal_fx.js${cacheBust}`,
+  location.origin,
+).toString();
+
+const wasmBgUrl = new URL(
+  `/wasm/terminal_fx_bg.wasm${cacheBust}`,
+  location.origin,
+).toString();
+
+const mod = await import(/* webpackIgnore: true */ wasmJsUrl);
+await mod.default(wasmBgUrl);
+  \end{lstlisting}
+  \item[\textbf{Additional Fix: Render Scale}] A separate visual problem made Rust modes like Bounce look tiny inside a massive arena. The cause was passing the full CSS canvas size multiplied by device pixel ratio into Rust. Since the modes were originally tuned around terminal-sized coordinate spaces, the browser was giving them an oversized simulation world. The fix was an internal render scale: keep the visible canvas large, but pass a smaller internal width/height to \texttt{CanvasEngine}. Lower scale values zoom in and usually improve FPS; higher values are sharper but can feel farther away.
+  \begin{lstlisting}[style=shell]
+const DEFAULT_RENDER_SCALE = 0.30;
+const MAX_DEVICE_PIXEL_RATIO = 1.35;
+
+function getEngineSize(canvas, renderScale) {
+  const dpr = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
+  return {
+    w: Math.max(96, Math.floor(canvas.clientWidth * dpr * renderScale)),
+    h: Math.max(54, Math.floor(canvas.clientHeight * dpr * renderScale)),
+  };
+}
+  \end{lstlisting}
+  \item[\textbf{Prevention}] Keep WASM renderers isolated from the rest of the page. Mount only one renderer at a time. Debounce \texttt{ResizeObserver} callbacks with \texttt{requestAnimationFrame}. Skip duplicate \texttt{engine.resize()} calls when dimensions did not actually change. In development, avoid assuming static WASM assets behave exactly like production bundles. Test both \texttt{npm run dev} and \texttt{npm run build \&\& npm run start}. If a WASM allocator panic occurs, treat the instance as poisoned and recreate or reload it instead of continuing to call methods on it.
+  \item[\textbf{Lessons Learned}] WASM errors can cross the boundary in misleading ways: the browser may show a React/Next stack frame, but the root cause can be inside Rust's allocator. This bug was fascinating because it looked like a frontend memory leak at first, but the decisive clue was the \texttt{dlmalloc} assertion. The best debugging move was to separate the two renderers, prove Python was stable, identify the exact frontend restart trigger, and then treat Rust/WASM as an isolated runtime target.
+  \item[\textbf{STAR summary}] ``While integrating my Rust Terminal FX renderer into a Next.js portfolio page through WebAssembly, I diagnosed a rare allocator panic that appeared only after restarting the frontend dev server. By isolating the Python and Rust renderers, reading the stack trace down to \texttt{CanvasEngine.update()}, and recognizing the \texttt{dlmalloc} assertion as a WASM heap failure rather than a React bug, I added safer renderer isolation, resize throttling, render scaling, and dev-mode recovery steps.''
+\end{description}
+\end{tcolorbox}
+
+% -- Blank Template ------------------------------------------------------------
+\section*{Log Template (Copy This for New Entries)}
+
+\begin{tcolorbox}[colback=logbg, colframe=logborder,
+  title={\bfseries Log \#--- --- [Title]}, arc=3pt, boxrule=1pt]
+\begin{description}[noitemsep, leftmargin=2cm, style=nextline]
+  \item[\textbf{Date}] \phantom{x}
+  \item[\textbf{Stack}] \phantom{x}
+  \item[\textbf{Symptom}] \phantom{x}
+  \item[\textbf{Diagnosis}] \phantom{x}
+  \item[\textbf{Root Cause}] \phantom{x}
+  \item[\textbf{Fix}] \phantom{x}
+  \item[\textbf{Prevention}] \phantom{x}
+  \item[\textbf{STAR summary}] \phantom{x}
+\end{description}
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART VIII - Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART VIII \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part VIII \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape One page. Everything essential. Great for last-minute review.\end{center}
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries Debugging Process \& Bug Types}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{6-step loop:}
+\begin{enumerate}[noitemsep, leftmargin=*, label=\arabic*.]
+  \item Reproduce it
+  \item Read the full error message
+  \item Isolate scope (binary search)
+  \item Form a testable hypothesis
+  \item Change one thing at a time
+  \item Document the fix
+\end{enumerate}
+\columnbreak
+\textbf{Bug categories:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Logic: wrong output, check with tests
+  \item Runtime: crash, read the stack trace
+  \item Config: env vars, .env, config files
+  \item Integration: schema drift, type mismatch
+  \item Race condition: concurrency, timing
+  \item Regression: \texttt{git bisect} the history
+  \item Environment: Docker, OS, dep versions
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part7bg, colframe=sectiongrey,
+  title={\bfseries Git Emergency Commands}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Nuclear reset: \texttt{git reset --hard origin/main}
+  \item Undo last commit (keep changes): \texttt{git reset --soft HEAD\textasciitilde1}
+  \item Safe undo of pushed commit: \texttt{git revert HEAD}
+  \item Recover anything: \texttt{git reflog}
+  \item Find breaking commit: \texttt{git bisect start}
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Commit style: \texttt{type(scope): message}
+  \item Group cosmetic; isolate logic changes
+  \item Never force-push shared branches
+  \item Stash WIP: \texttt{git stash} / \texttt{git stash pop}
+  \item Blame a line: \texttt{git blame file.js}
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries HTTP Codes \& API Debugging}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item 400: bad request body/params
+  \item 401: missing/invalid auth token
+  \item 403: valid auth, wrong permission (also Linux: check \texttt{chown}/\texttt{chmod})
+  \item 404: wrong URL or route not registered
+  \item 405: wrong HTTP verb for this endpoint
+  \item 415: wrong Content-Type header
+  \item 500: crash --- read server logs first
+  \item 502: reverse proxy can't reach backend (is app running?)
+  \item 504: backend too slow (DB? external API?)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item CORS: GET = no preflight; POST/PUT/custom headers = OPTIONS first
+  \item OPTIONS 500 = server has no CORS filter
+  \item Fix: \texttt{ContainerResponseFilter} (Jakarta) / \texttt{cors()} middleware (Express)
+  \item Test bypassing frontend: \texttt{curl -v http://\ldots}
+  \item Browser Network tab: filter XHR, check headers + payload
+  \item ``Network Error'' with no status = CORS blocked or server unreachable
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Linux \& Windows Quick Commands}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Linux:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Live logs: \texttt{tail -f /var/log/app.log}
+  \item Service logs: \texttt{journalctl -u svc -f}
+  \item Port owner: \texttt{lsof -i :8080}
+  \item Fix 403: \texttt{chown www-data:www-data /path}
+  \item Fix ``permission denied'': \texttt{chmod +x script.sh}
+  \item Is port open?: \texttt{ss -tulnp | grep 8080}
+  \item HTTP test: \texttt{curl -v http://localhost:8080}
+\end{itemize}
+\columnbreak
+\textbf{Windows:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Crash logs: \texttt{eventvwr.msc} $\to$ Windows Logs $\to$ Application
+  \item Profile issues: \texttt{sysdm.cpl} $\to$ Advanced $\to$ User Profiles
+  \item Corrupted app: delete \texttt{\%AppData\%\textbackslash[AppName]}
+  \item Services: \texttt{services.msc}
+  \item Port owner: \texttt{netstat -ano | findstr :8080}
+  \item Applied policies: \texttt{gpresult /h report.html}
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Linux Setup Quick Reference}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Packages (apt):}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Update: \texttt{apt update \&\& apt upgrade -y}
+  \item Install: \texttt{apt install nginx}
+  \item Remove+config: \texttt{apt purge nginx}
+  \item Check installed: \texttt{apt list --installed | grep X}
+\end{itemize}
+\textbf{Users:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Create: \texttt{useradd -m -s /bin/bash oscar}
+  \item Set password: \texttt{passwd oscar}
+  \item Add to sudo: \texttt{usermod -aG sudo oscar}
+  \item Delete: \texttt{userdel -r oscar}
+\end{itemize}
+\columnbreak
+\textbf{SSH:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Keygen: \texttt{ssh-keygen -t ed25519}
+  \item Copy key: \texttt{ssh-copy-id user@host}
+  \item Harden: \texttt{PasswordAuthentication no} in sshd\_config
+\end{itemize}
+\textbf{Firewall (UFW):}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Status: \texttt{ufw status verbose}
+  \item Allow: \texttt{ufw allow 443/tcp}
+  \item Block: \texttt{ufw deny 3306}
+  \item Delete: \texttt{ufw delete allow 80/tcp}
+\end{itemize}
+\textbf{Cron:} \texttt{MIN HR DAY MON DOW CMD} in \texttt{crontab -e}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Windows PowerShell Setup Quick Reference}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Services:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Status: \texttt{Get-Service -Name X}
+  \item Start/Stop/Restart: \texttt{Start-Service X}
+  \item Auto-start: \texttt{Set-Service X -StartupType Automatic}
+\end{itemize}
+\textbf{Users:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item List: \texttt{Get-LocalUser}
+  \item Create: \texttt{New-LocalUser -Name "oscar" -Password ...}
+  \item Add admin: \texttt{Add-LocalGroupMember -Group "Administrators" -Member oscar}
+\end{itemize}
+\columnbreak
+\textbf{Firewall:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Allow port: \texttt{New-NetFirewallRule -Port 80 -Action Allow}
+  \item Delete: \texttt{Remove-NetFirewallRule -DisplayName "..."}
+\end{itemize}
+\textbf{Scheduled Tasks:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Create: \texttt{schtasks /create /tn "Name" /tr cmd /sc daily /st 02:00}
+  \item Run now: \texttt{schtasks /run /tn "Name"}
+  \item Delete: \texttt{schtasks /delete /tn "Name" /f}
+\end{itemize}
+\textbf{RDP:} Set \texttt{fDenyTSConnections = 0} in registry
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Common Fixes at a Glance}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Port in use: \texttt{lsof -i :PORT} then \texttt{kill PID}
+  \item Permission denied: \texttt{chown} or \texttt{chmod +x}
+  \item 403 Nginx: \texttt{chown -R www-data /path}
+  \item Disk full: \texttt{df -h} and \texttt{df -i} (inodes!)
+  \item OOM killed: \texttt{dmesg | grep oom-killer}
+  \item App crashed: \texttt{journalctl -u app -n 50}
+  \item CORS blocked: add \texttt{Access-Control-Allow-*} headers
+  \item JWT 401 loop: check expiry; add refresh token
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item WebSocket desync: use \texttt{asyncio.gather} not sync loop
+  \item Rust panic on resize: listen for \texttt{SIGWINCH} signal
+  \item WASM allocator panic after dev restart: refresh/reload WASM; cache-bust JS+\texttt{.wasm}; treat engine as poisoned
+  \item P2P clock drift: use logical version counters, not \texttt{Date.now()}
+  \item Windows app corrupt: delete \texttt{\%AppData\%\textbackslash[AppName]}
+  \item DB ``too many connections'': add connection pool
+  \item Git push rejected: \texttt{git pull --rebase}
+  \item Docker build stale: \texttt{docker build --no-cache}
+  \item Missing env var: check \texttt{.env} and restart service
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}

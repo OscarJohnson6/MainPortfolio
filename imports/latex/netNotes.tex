@@ -1,0 +1,2025 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{graphicx}
+
+\tcbuselibrary{skins, breakable}
+
+% ── Colors ──────────────────────────────────────────────────────────────────
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+
+% ── Section format switchers ─────────────────────────────────────────────────
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+
+% ── Part banner ──────────────────────────────────────────────────────────────
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+% ── TOC styling ──────────────────────────────────────────────────────────────
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+%% ===========================================================================
+\begin{document}
+
+% ── Title ────────────────────────────────────────────────────────────────────
+\begin{center}
+  {\Huge\bfseries Computer Networking Notes}\\[6pt]
+  {\large Introductory Course Reference}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+
+\vspace{8pt}
+    \tableofcontents
+\newpage
+
+%% ===========================================================================
+%%  PART I – Network Architecture & Layered Models
+%% ===========================================================================
+\bluesections
+    \addcontentsline{toc}{section}{\textcolor{sectionblue}{PART I \textemdash\ Network Architecture \& Layered Models}}
+    \addcontentsline{toc}{subsection}{Why Layered Models?}
+    \addcontentsline{toc}{subsection}{The TCP/IP Five-Layer Model}
+    \addcontentsline{toc}{subsection}{The OSI Seven-Layer Model}
+    \addcontentsline{toc}{subsection}{TCP/IP vs.\ OSI Comparison}
+    \addcontentsline{toc}{subsection}{Encapsulation \& PDUs}
+\partbanner{partbg}{sectionblue}{Part I \quad Network Architecture \& Layered Models}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Foundational concepts: how networks are organized into layers, what each layer does,
+  and how data moves through the stack.
+\end{center}
+\vspace{4pt}
+
+% ── Why Layered Models ────────────────────────────────────────────────────────
+\section*{Why Layered Models?}
+
+Networking is complex. Layered models break the problem into \textbf{modular, independent layers}, each responsible for a specific function. This gives us:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Abstraction} -- each layer interacts only with the layers directly above and below it via well-defined interfaces.
+  \item \textbf{Interoperability} -- different vendors can implement the same layer independently, as long as they conform to the standard interface.
+  \item \textbf{Easier troubleshooting} -- faults can be isolated to a specific layer.
+  \item \textbf{Modularity} -- a layer can be updated or replaced without redesigning the entire stack.
+\end{itemize}
+
+% ── TCP/IP Five-Layer Model ────────────────────────────────────────────────────
+\section*{The TCP/IP Five-Layer Model}
+
+The \textbf{TCP/IP model} (also called the Internet model) is the architecture the real Internet uses. It has five layers:
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{\#} & \textbf{Layer} & \textbf{Responsibilities} & \textbf{Example Protocols / Hardware} \\
+\midrule
+\rowcolor{rowB} 5 & Application     & Provides services directly to user applications; defines the format and rules for data exchange. & HTTP, HTTPS, FTP, SMTP, DNS, SSH \\
+\rowcolor{rowA} 4 & Transport       & End-to-end communication; segmentation, flow control, error detection, congestion control. & TCP, UDP \\
+\rowcolor{rowB} 3 & Network         & Logical addressing and routing of packets across multiple networks. & IP (IPv4/IPv6), ICMP, routers \\
+\rowcolor{rowA} 2 & Data Link       & Node-to-node transfer over a single link; framing, MAC addressing, error detection on a physical medium. & Ethernet, Wi-Fi (802.11), switches \\
+\rowcolor{rowB} 1 & Physical        & Transmission of raw bits over the physical medium; electrical, optical, or radio signals. & Cables, fiber, radio waves, hubs \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Memory trick (top to bottom):} ``\textbf{A}ll \textbf{T}hose \textbf{N}etworks \textbf{D}eliver \textbf{P}ackets'' -- Application, Transport, Network, Data Link, Physical.
+\end{tcolorbox}
+
+% ── OSI Seven-Layer Model ─────────────────────────────────────────────────────
+\section*{The OSI Seven-Layer Model}
+
+The \textbf{OSI (Open Systems Interconnection)} model is a conceptual reference framework with seven layers. It is used for teaching and troubleshooting, though the Internet runs on the TCP/IP model in practice.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.6cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{\#} & \textbf{Layer} & \textbf{Responsibilities} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowB} 7 & Application  & Interface between the network and user-facing software; defines communication protocols for applications. & HTTP, FTP, SMTP, DNS \\
+\rowcolor{rowA} 6 & Presentation & Data translation, encryption/decryption, and compression so the application layer can interpret it. & SSL/TLS, JPEG, ASCII, MPEG \\
+\rowcolor{rowB} 5 & Session      & Establishes, manages, and terminates sessions (logical connections) between applications. & NetBIOS, RPC, SQL sessions \\
+\rowcolor{rowA} 4 & Transport    & End-to-end delivery, segmentation, flow control, and error correction. & TCP, UDP \\
+\rowcolor{rowB} 3 & Network      & Logical addressing, routing, and forwarding of packets between networks. & IP, ICMP, routers \\
+\rowcolor{rowA} 2 & Data Link    & Node-to-node framing, MAC addressing, and error detection over a physical link. & Ethernet, Wi-Fi, switches \\
+\rowcolor{rowB} 1 & Physical     & Transmission of raw bitstreams over physical hardware. & Cables, hubs, radio waves \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt,
+  title={\bfseries OSI Memory Aids}]
+\textbf{Top to bottom (7$\to$1):} ``\textit{All People Seem To Need Data Processing}''\\
+\quad Application, Presentation, Session, Transport, Network, Data Link, Physical\\[4pt]
+\textbf{Bottom to top (1$\to$7):} ``\textit{Please Do Not Throw Sausage Pizza Away}''\\
+\quad Physical, Data Link, Network, Transport, Session, Presentation, Application
+\end{tcolorbox}
+
+% ── TCP/IP vs OSI ─────────────────────────────────────────────────────────────
+\section*{TCP/IP vs.\ OSI Comparison}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{TCP/IP Model} & \textbf{OSI Model} \\
+\midrule
+\rowcolor{rowA} Number of layers & 5 & 7 \\
+\rowcolor{rowB} Purpose & Practical; used by the Internet & Conceptual; used for teaching \& troubleshooting \\
+\rowcolor{rowA} Top layers & Single Application layer covers OSI 5, 6, 7 & Separate Session, Presentation, Application \\
+\rowcolor{rowB} Adoption & Industry standard in real networks & Reference model; not directly implemented \\
+\rowcolor{rowA} Development & DARPA / Internet Engineering & ISO (International Standards Organization) \\
+\bottomrule
+\end{tabularx}}
+
+% ── Encapsulation ─────────────────────────────────────────────────────────────
+\section*{Encapsulation \& PDUs}
+
+As data travels \textbf{down} the stack from the sender, each layer adds its own \textbf{header} (and sometimes a trailer) -- a process called \textbf{encapsulation}. The receiving host \textbf{de-encapsulates} by removing each header as data moves \textbf{up} the stack.
+
+Each layer has a specific name for its unit of data, called a \textbf{Protocol Data Unit (PDU)}:
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\centering\arraybackslash}p{2.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{\#} & \textbf{Layer} & \textbf{PDU Name} & \textbf{Header contains\ldots} \\
+\midrule
+\rowcolor{rowB} 5 & Application  & Message / Data & Application-specific (e.g., HTTP request) \\
+\rowcolor{rowA} 4 & Transport    & Segment (TCP) / Datagram (UDP) & Source/dest port, seq number, flags \\
+\rowcolor{rowB} 3 & Network      & Packet & Source/dest IP address, TTL \\
+\rowcolor{rowA} 2 & Data Link    & Frame & Source/dest MAC address, EtherType \\
+\rowcolor{rowB} 1 & Physical     & Bits & (no header -- raw signal) \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% ===========================================================================
+%%  PART II – Key Protocols by Layer
+%% ===========================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART II \textemdash\ Key Protocols by Layer}}
+\addcontentsline{toc}{subsection}{Application Layer Protocols}
+\addcontentsline{toc}{subsection}{Transport Layer -- TCP vs.\ UDP}
+\addcontentsline{toc}{subsection}{Network Layer -- IP \& Routing}
+\addcontentsline{toc}{subsection}{Data Link Layer -- Ethernet \& MAC}
+\partbanner{part2bg}{sectiongreen}{Part II \quad Key Protocols by Layer}
+
+\vspace{8pt}
+
+% ── Application Layer ─────────────────────────────────────────────────────────
+\section*{Application Layer Protocols}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.3cm}
+                              >{\centering\arraybackslash}p{1.5cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Protocol} & \textbf{Port} & \textbf{Transport} & \textbf{Purpose} \\
+\midrule
+\rowcolor{rowA}  HTTP   & 80   & TCP & HyperText Transfer Protocol; web page requests and responses. \\
+\rowcolor{rowBg} HTTPS  & 443  & TCP & Encrypted HTTP using TLS; secure web browsing. \\
+\rowcolor{rowA}  FTP    & 20/21& TCP & File Transfer Protocol; transfers files between hosts. \\
+\rowcolor{rowBg} SMTP   & 25   & TCP & Simple Mail Transfer Protocol; sending email. \\
+\rowcolor{rowA}  DNS    & 53   & UDP (mostly) & Domain Name System; resolves hostnames to IP addresses. \\
+\rowcolor{rowBg} DHCP   & 67/68& UDP & Dynamic Host Config.\ Protocol; assigns IP addresses automatically. \\
+\rowcolor{rowA}  SSH    & 22   & TCP & Secure Shell; encrypted remote terminal access. \\
+\rowcolor{rowBg} SNMP   & 161  & UDP & Simple Network Management Protocol; monitors network devices. \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen, arc=3pt, boxrule=1pt]
+\textbf{DNS deep dive:} DNS is one of the most critical services on the Internet. When you type \texttt{www.example.com}, your computer:
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item Checks its \textbf{local cache} for the IP address.
+  \item Queries the \textbf{recursive resolver} (usually your ISP or Google's 8.8.8.8).
+  \item The resolver walks the DNS hierarchy: Root server $\to$ TLD server (\texttt{.com}) $\to$ Authoritative server for \texttt{example.com}.
+  \item Returns the IP address; your browser opens a TCP connection to it.
+\end{enumerate}
+\end{tcolorbox}
+
+% ── Transport Layer ───────────────────────────────────────────────────────────
+\section*{Transport Layer -- TCP vs.\ UDP}
+
+\subsection*{TCP (Transmission Control Protocol)}
+
+TCP provides \textbf{reliable, ordered, connection-oriented} delivery. Before data is exchanged, a connection is established via the \textbf{three-way handshake}:
+
+\[
+  \text{Client} \xrightarrow{\;\textbf{SYN}\;} \text{Server} \xrightarrow{\;\textbf{SYN-ACK}\;} \text{Client} \xrightarrow{\;\textbf{ACK}\;} \text{Server}
+\]
+
+\textbf{Key TCP features:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Sequence numbers} -- each byte of data is numbered so the receiver can reorder segments and detect gaps.
+  \item \textbf{Acknowledgments (ACKs)} -- the receiver sends an ACK for each segment received; the sender retransmits if no ACK arrives within a timeout.
+  \item \textbf{Flow control} -- the receiver advertises a \textbf{receive window} (rwnd) telling the sender how much buffer space is available, preventing the sender from overwhelming the receiver.
+  \item \textbf{Congestion control} -- the sender also maintains a \textbf{congestion window} (cwnd) to avoid overwhelming the network (see Part III).
+  \item \textbf{Full duplex} -- data can flow in both directions simultaneously on the same connection.
+\end{itemize}
+
+\subsection*{UDP (User Datagram Protocol)}
+
+UDP is \textbf{connectionless and unreliable} -- it sends datagrams with no guarantee of delivery, ordering, or duplicate protection.
+
+\textbf{Why use UDP?}
+\begin{itemize}[noitemsep]
+  \item \textbf{Lower overhead} -- no connection setup, no ACKs, no retransmission; smaller header (8 bytes vs.\ TCP's 20+ bytes).
+  \item \textbf{Latency-sensitive applications} prefer UDP: live video streaming, VoIP (phone calls), online gaming, DNS lookups.
+  \item The application can implement its own error handling if needed (e.g., QUIC, WebRTC).
+\end{itemize}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Feature} & \textbf{TCP} & \textbf{UDP} \\
+\midrule
+\rowcolor{rowA}  Connection     & Connection-oriented (3-way handshake) & Connectionless \\
+\rowcolor{rowBg} Reliability    & Guaranteed (retransmission, ACKs) & No guarantee \\
+\rowcolor{rowA}  Ordering       & Guaranteed (sequence numbers) & Not guaranteed \\
+\rowcolor{rowBg} Flow control   & Yes (rwnd) & No \\
+\rowcolor{rowA}  Congestion control & Yes (cwnd) & No \\
+\rowcolor{rowBg} Header size    & 20--60 bytes & 8 bytes \\
+\rowcolor{rowA}  Speed/Overhead & Slower (more overhead) & Faster (less overhead) \\
+\rowcolor{rowBg} Use cases      & HTTP, FTP, SSH, email & DNS, VoIP, video streaming, gaming \\
+\bottomrule
+\end{tabularx}}
+
+% ── Network Layer ─────────────────────────────────────────────────────────────
+\section*{Network Layer -- IP \& Routing}
+
+\subsection*{IP Addressing}
+
+The \textbf{Internet Protocol (IP)} provides \textbf{logical addressing} and \textbf{best-effort} packet delivery (no guarantees).
+
+\begin{itemize}[noitemsep]
+  \item \textbf{IPv4:} 32-bit addresses written in dotted-decimal notation (e.g., \texttt{192.168.1.1}). Theoretical maximum of $2^{32} \approx 4.3$ billion addresses.
+  \item \textbf{IPv6:} 128-bit addresses written in hexadecimal (e.g., \texttt{2001:0db8::1}). Designed to solve IPv4 address exhaustion.
+  \item \textbf{Subnet mask:} Divides the IP address into a \textbf{network prefix} (identifies the network) and a \textbf{host part} (identifies the device). Written as CIDR notation: \texttt{192.168.1.0/24} means 24 bits are the network prefix.
+  \item \textbf{Private address ranges} (not routable on the public Internet): \texttt{10.0.0.0/8}, \texttt{172.16.0.0/12}, \texttt{192.168.0.0/16}.
+\end{itemize}
+
+\subsection*{Routing}
+
+\textbf{Routers} operate at the Network layer. They forward packets based on their \textbf{routing table}, which maps destination IP prefixes to outgoing interfaces or next-hop routers.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Static routing:} Routes manually configured by a network administrator. Simple but doesn't adapt to failures.
+  \item \textbf{Dynamic routing:} Routers exchange information using routing protocols (e.g., \textbf{OSPF}, \textbf{BGP}) and automatically compute optimal paths.
+  \item \textbf{BGP (Border Gateway Protocol):} The protocol used to route traffic between autonomous systems (ASes) on the global Internet.
+  \item \textbf{TTL (Time to Live):} An IP header field decremented by 1 at each router hop. When TTL reaches 0, the packet is discarded and an ICMP ``Time Exceeded'' message is sent back -- prevents routing loops.
+\end{itemize}
+
+% ── Data Link Layer ───────────────────────────────────────────────────────────
+\section*{Data Link Layer -- Ethernet \& MAC}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{MAC address:} A 48-bit hardware address burned into a network interface card (NIC), written in hex (e.g., \texttt{AA:BB:CC:DD:EE:FF}). Unique to each device; used for local delivery on a single network segment.
+  \item \textbf{ARP (Address Resolution Protocol):} Resolves an IP address to a MAC address on a local network. A host broadcasts ``Who has IP \texttt{x.x.x.x}?'' and the owner replies with its MAC address.
+  \item \textbf{Switches} operate at Layer 2. They maintain a \textbf{MAC address table} to forward frames only to the correct port, reducing unnecessary traffic (unlike hubs, which broadcast to all ports).
+  \item \textbf{Ethernet frame structure:} Preamble | Dest MAC | Src MAC | EtherType | Payload (IP packet) | CRC (error detection).
+\end{itemize}
+
+\newpage
+
+%% ===========================================================================
+%%  PART IIa – IP Addressing, Subnetting & Network Devices
+%% ===========================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART IIa \textemdash\ IP Addressing, Subnetting \& Network Devices}}
+\addcontentsline{toc}{subsection}{What Is an IP Address?}
+\addcontentsline{toc}{subsection}{IPv4 Binary Form \& Dotted Decimal}
+\addcontentsline{toc}{subsection}{IPv4 vs.\ IPv6}
+\addcontentsline{toc}{subsection}{Subnet Masks \& CIDR Notation}
+\addcontentsline{toc}{subsection}{Subnetting Math --- Worked Examples}
+\addcontentsline{toc}{subsection}{Network Devices: Hub, Switch, Router, Modem}
+\addcontentsline{toc}{subsection}{Network Interfaces}
+\partbanner{partbg}{sectionblue}{Part IIa \quad IP Addressing, Subnetting \& Network Devices}
+
+\vspace{8pt}
+
+% ── What Is an IP Address ─────────────────────────────────────────────────────
+\section*{What Is an IP Address?}
+
+An \textbf{IP (Internet Protocol) address} is a numerical label assigned to every device on
+a network. It serves two functions: \textbf{host identification} (who you are) and
+\textbf{location addressing} (where you are, so packets can be routed to you).
+
+\textbf{Why the dotted-decimal format like \texttt{223.1.1.1}?}
+
+IPv4 addresses are \textbf{32 bits} long. 32 bits can represent numbers from 0 to
+$2^{32}-1 \approx$ 4.3 billion. Rather than write one giant number, the 32 bits are split
+into four groups of 8 bits (\textbf{octets}), and each octet is written in decimal
+(0--255) separated by dots.
+
+\[
+  \underbrace{223}_{8\text{ bits}}
+  .\underbrace{1}_{8\text{ bits}}
+  .\underbrace{1}_{8\text{ bits}}
+  .\underbrace{1}_{8\text{ bits}}
+  \quad = \quad
+  11011111.00000001.00000001.00000001_2
+\]
+
+This is purely a human-readable convenience. Inside a router or packet, the address is
+always 32 binary bits.
+
+\textbf{How are IP addresses assigned?}
+\begin{itemize}[noitemsep]
+  \item \textbf{Dynamically} via \textbf{DHCP}: Your home router assigns you a private IP
+        (e.g., \texttt{192.168.1.x}) when you connect. Your ISP assigns your router a public
+        IP via DHCP from their block.
+  \item \textbf{Statically:} A network admin manually configures a fixed IP. Used for servers
+        and infrastructure that must always be at the same address.
+  \item \textbf{Globally managed:} IANA (Internet Assigned Numbers Authority) allocates large
+        blocks to regional registries (ARIN, RIPE, etc.), who allocate to ISPs, who allocate
+        to customers.
+\end{itemize}
+
+% ── IPv4 Binary Form ──────────────────────────────────────────────────────────
+\section*{IPv4 Binary Form \& Dotted Decimal Conversion}
+
+\subsection*{Decimal Octet $\to$ Binary (and Back)}
+
+Each octet is an 8-bit number. Use powers of 2:
+\[
+  128 \quad 64 \quad 32 \quad 16 \quad 8 \quad 4 \quad 2 \quad 1
+\]
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Example: Convert \texttt{192.168.10.5} to 32-bit binary.}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{r|cccccccc|l}
+\toprule
+\textbf{Decimal} & 128 & 64 & 32 & 16 & 8 & 4 & 2 & 1 & \textbf{Binary} \\
+\midrule
+192 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \texttt{11000000} \\
+168 & 1 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & \texttt{10101000} \\
+ 10 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & \texttt{00001010} \\
+  5 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & \texttt{00000101} \\
+\bottomrule
+\end{tabular}
+\end{center}
+Full 32-bit form: \texttt{11000000.10101000.00001010.00000101}
+\end{tcolorbox}
+
+\subsection*{The Network Part and the Host Part}
+
+An IP address has two parts, separated by the \textbf{subnet mask}:
+\[
+  \underbrace{192.168.10}_{\text{Network prefix}} . \underbrace{5}_{\text{Host}}
+  \quad (\texttt{/24} \text{ subnet mask})
+\]
+
+All devices with the \textbf{same network prefix} are on the same local network (same subnet)
+and can communicate directly. Devices on \textbf{different prefixes} must go through a router.
+
+% ── IPv4 vs IPv6 ──────────────────────────────────────────────────────────────
+\section*{IPv4 vs.\ IPv6}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{IPv4} & \textbf{IPv6} \\
+\midrule
+\rowcolor{rowA}  Address size    & 32 bits & 128 bits \\
+\rowcolor{rowB}  Address space   & $\approx$ 4.3 billion ($2^{32}$) & $\approx 3.4 \times 10^{38}$ ($2^{128}$) \\
+\rowcolor{rowA}  Notation        & Dotted decimal: \texttt{192.168.1.1} & Hex with colons: \texttt{2001:0db8::1} \\
+\rowcolor{rowB}  Header size     & 20--60 bytes (variable) & Fixed 40 bytes (simpler, faster) \\
+\rowcolor{rowA}  NAT required?   & Yes (addresses exhausted) & No (every device gets a globally unique address) \\
+\rowcolor{rowB}  Fragmentation   & Routers can fragment & Only source host fragments \\
+\rowcolor{rowA}  Checksum        & In IP header & Removed (handled by L4 or L2) \\
+\rowcolor{rowB}  Security        & Optional (IPsec add-on) & IPsec built-in (mandatory in spec) \\
+\rowcolor{rowA}  Auto-config     & Needs DHCP server & SLAAC (stateless auto-configuration) built-in \\
+\bottomrule
+\end{tabularx}}
+
+\textit{IPv4 exhaustion was solved temporarily by \textbf{NAT (Network Address Translation)},
+which lets many devices share one public IP. IPv6 eliminates the need for NAT entirely.
+Adoption of IPv6 is ongoing --- most of the Internet still dual-stacks both.}
+
+% ── Subnet Masks & CIDR ───────────────────────────────────────────────────────
+\section*{Subnet Masks \& CIDR Notation}
+
+A \textbf{subnet mask} is a 32-bit pattern of consecutive 1s (network bits) followed by
+consecutive 0s (host bits). It is applied to an IP address using a \textbf{bitwise AND}
+to extract the \textbf{network address}.
+
+\textbf{CIDR (Classless Inter-Domain Routing)} notation writes the mask as a suffix:
+\texttt{a.b.c.d/n} where $n$ = number of 1-bits in the mask.
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.5cm}
+                              >{\centering\arraybackslash}p{3.8cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{CIDR} & \textbf{Subnet Mask} & \textbf{Net Bits} & \textbf{Host Bits} & \textbf{Usable Hosts} \\
+\midrule
+\rowcolor{rowA} /8  & 255.0.0.0   & 8  & 24 & $2^{24}-2 = 16{,}777{,}214$ \\
+\rowcolor{rowB} /16 & 255.255.0.0 & 16 & 16 & $2^{16}-2 = 65{,}534$ \\
+\rowcolor{rowA} /24 & 255.255.255.0 & 24 & 8 & $2^{8}-2 = 254$ \\
+\rowcolor{rowB} /25 & 255.255.255.128 & 25 & 7 & $2^{7}-2 = 126$ \\
+\rowcolor{rowA} /30 & 255.255.255.252 & 30 & 2 & $2^{2}-2 = 2$ (point-to-point links) \\
+\rowcolor{rowB} /32 & 255.255.255.255 & 32 & 0 & 1 host (host route; loopback) \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{Why subtract 2 from host count? The \textbf{network address} (all host bits = 0) and
+\textbf{broadcast address} (all host bits = 1) are reserved --- neither can be assigned to a device.}
+
+% ── Subnetting Math ───────────────────────────────────────────────────────────
+\section*{Subnetting Math --- Worked Examples}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Given: \texttt{192.168.5.130/26} --- find network, broadcast, and host range}, arc=3pt, boxrule=1pt]
+\textbf{Step 1: Write the subnet mask.}\\
+\texttt{/26} $\Rightarrow$ 26 ones, 6 zeros $\Rightarrow$ \texttt{255.255.255.192}
+(because $128+64=192$ in the last octet).
+
+\textbf{Step 2: Convert last octet to binary.}
+\begin{center}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{r|cccccccc}
+IP last octet (130): & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+Mask last octet (192): & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+AND result: & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+\end{tabular}
+\end{center}
+AND result = $128$ $\Rightarrow$ \textbf{Network address: \texttt{192.168.5.128}}
+
+\textbf{Step 3: Find broadcast address.}\\
+Set all host bits (last 6) to 1: $128 + 63 = 191$
+$\Rightarrow$ \textbf{Broadcast: \texttt{192.168.5.191}}
+
+\textbf{Step 4: Usable host range.}\\
+\texttt{192.168.5.129} to \texttt{192.168.5.190} = \textbf{62 hosts} ($2^6 - 2$).
+
+\textbf{Step 5: First and last usable addresses.}\\
+First: network address $+1$ = \texttt{192.168.5.129}\\
+Last: broadcast $-1$ = \texttt{192.168.5.190}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Subnetting quick formula:}
+\[
+  \text{Block size} = 256 - \text{interesting octet of mask}
+  \qquad \text{e.g., } 256 - 192 = 64
+\]
+Starting from 0, subnets fall at multiples of the block size: 0, 64, 128, 192.
+\texttt{.130} falls in the \texttt{.128} subnet (the third block). Next subnet starts at
+\texttt{.192}, so the broadcast is \texttt{.191}.
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Worked Example 2: Splitting a Subnet (Borrowing Bits \& "Magic Number")}, arc=3pt, boxrule=1pt]
+\textbf{Goal:} Split the subnet \texttt{118.25.144.0/20} into four equal-sized subnets.
+
+\textbf{Step 1: Determine bits to borrow.}\\
+We need 4 subnets. Since computers work in binary, find the power of 2: $2^2 = 4$.
+We must borrow \textbf{2 bits} from the host portion.
+
+\textbf{Step 2: Calculate the new prefix.}\\
+Original prefix + borrowed bits = $20 + 2 = \mathbf{22}$. The new prefix is \texttt{/22}.
+
+\textbf{Step 3: Find the "Jump Size" (Offset / Magic Number).}\\
+A \texttt{/22} mask has its boundary in the \textbf{3rd octet}.
+The first two octets use 16 bits. $22 - 16 = \textbf{6 bits}$ used in the 3rd octet.
+Look at the binary placeholder value of the \textbf{6th bit} in an octet:
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+Bit Position & 1st & 2nd & 3rd & 4th & 5th & \textbf{6th} & 7th & 8th \\ \hline
+Value & 128 & 64 & 32 & 16 & 8 & \textbf{4} & 2 & 1 \\ \hline
+\end{tabular}
+\end{center}
+The value of the 6th bit is \textbf{4}. This is our jump size!
+
+\textbf{Step 4: List the new subnets.}\\
+Start at the original address (\texttt{.144.0}) and increment the 3rd octet by 4:
+\begin{itemize}[noitemsep]
+  \item Subnet 1: \texttt{118.25.144.0/22}
+  \item Subnet 2: \texttt{118.25.148.0/22}
+  \item Subnet 3: \texttt{118.25.152.0/22}
+  \item Subnet 4: \texttt{118.25.156.0/22}
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt, title={\bfseries Spanning Across Octets}]
+When adding a large block of hosts (like 512 hosts for a \texttt{/23} subnet) to find the broadcast address, remember the "bucket" rule. An octet only holds 256 values (0-255).
+If a subnet starts at \texttt{140.146.158.0/23}, the broadcast is the 512th address.
+$140.146.158.0 + 511$ addresses:
+Since $511 / 256 = 1$ remainder $255$, the 3rd octet increments by 1 ($158+1=159$) and the 4th octet is the remainder ($255$).
+Resulting Broadcast: \textbf{140.146.159.255}.
+\end{tcolorbox}
+
+\textbf{Why does subnetting help routing?} Without subnetting, a router would need an
+individual entry for every host on the Internet. With subnetting, a single routing table
+entry covers an entire block (e.g., \texttt{192.168.5.0/24} covers 254 hosts with one
+entry). This is called \textbf{route aggregation} or \textbf{supernetting} and is why the
+global Internet routing table has $\sim$900,000 entries rather than billions.
+
+% ── Network Devices ───────────────────────────────────────────────────────────
+\section*{Network Devices: Hub, Switch, Router, Modem}
+
+\noindent
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.2cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.2cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Device} & \textbf{OSI Layer} & \textbf{What it does} & \textbf{Addressing used} \\
+\midrule
+\rowcolor{rowA} Hub     & Layer 1 (Physical) & Broadcasts every incoming signal out of \emph{all} other ports. No intelligence --- everyone on the hub sees all traffic. Causes collisions in busy networks. & None --- pure signal repeater \\
+\rowcolor{rowB} Switch  & Layer 2 (Data Link) & Learns which MAC address is connected to each port (MAC address table). Forwards frames \emph{only} to the correct port. Eliminates collisions. & MAC addresses \\
+\rowcolor{rowA} Router  & Layer 3 (Network) & Connects \emph{different} networks. Reads destination IP addresses, looks up its routing table, and forwards packets toward the destination. Enforces subnet boundaries. & IP addresses \\
+\rowcolor{rowB} Modem   & Layer 1/2 & \textbf{Mo}dulates/\textbf{dem}odulates: converts digital data to/from the analog signal used by your ISP's last-mile medium (coax, phone line, fiber). Connects your home to the ISP. & Provided by ISP \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Typical home network layout:}
+\[
+  \text{Internet} \;\longleftrightarrow\;
+  \underbrace{\text{Modem}}_{\text{ISP signal} \to \text{digital}} \;\longleftrightarrow\;
+  \underbrace{\text{Router}}_{\text{NAT + DHCP + routing}} \;\longleftrightarrow\;
+  \underbrace{\text{Switch / Wi-Fi AP}}_{\text{local device connections}}
+\]
+Many home devices combine modem + router + switch + Wi-Fi into one box (a ``gateway'').
+In enterprise networks these are separate devices for reliability and control.
+\end{tcolorbox}
+
+\textbf{Hub vs.\ Switch in detail:}
+\begin{itemize}[noitemsep]
+  \item A \textbf{hub} creates a single \textbf{collision domain}: if two devices transmit
+        simultaneously, their signals collide and both must wait and retry (CSMA/CD). On a
+        busy hub, most bandwidth is wasted on retransmissions.
+  \item A \textbf{switch} gives each port its own collision domain. Devices can transmit
+        simultaneously to the switch without interfering with each other. This is why switches
+        replaced hubs entirely in modern networks.
+  \item A switch still forms one \textbf{broadcast domain} --- a broadcast frame is flooded
+        to all ports. VLANs (Virtual LANs) can logically separate broadcast domains on a
+        single switch.
+\end{itemize}
+
+\textbf{Switch vs.\ Router:}
+\begin{itemize}[noitemsep]
+  \item A switch connects devices \emph{within} a network (same subnet). It operates on
+        MAC addresses and doesn't understand IP.
+  \item A router connects \emph{different} networks (different subnets/IP ranges). It
+        operates on IP addresses and separates broadcast domains entirely. Without a router,
+        your devices could not reach the Internet.
+\end{itemize}
+
+% ── Network Interfaces ────────────────────────────────────────────────────────
+\section*{Network Interfaces}
+
+\textbf{Why is ``interface'' used for both network and user interfaces?}
+
+The word \textbf{interface} simply means ``a point of interaction between two systems.'' It
+is a general term used in many contexts:
+\begin{itemize}[noitemsep]
+  \item \textbf{User Interface (UI):} The boundary between a human and software. The buttons,
+        screens, and controls through which a user interacts with an application. Lives at
+        OSI Layer 7 (Application) --- it is what the user sees.
+  \item \textbf{Network Interface:} The boundary between a device and a network. Hardware
+        (NIC) and/or software that handles sending and receiving frames on a physical medium.
+        Lives at OSI Layers 1 and 2 --- it handles bits and frames.
+  \item \textbf{API (Application Programming Interface):} The boundary between two software
+        systems. How one program calls functions in another.
+\end{itemize}
+
+A \textbf{Network Interface Card (NIC)} has:
+\begin{itemize}[noitemsep]
+  \item A permanently assigned \textbf{MAC address} (Layer 2 identity).
+  \item A dynamically or statically assigned \textbf{IP address} (Layer 3 identity).
+  \item A name: \texttt{eth0}, \texttt{wlan0} (Linux), \texttt{en0} (macOS), ``Local Area
+        Connection'' (Windows).
+\end{itemize}
+
+A single device can have multiple network interfaces --- e.g., a laptop with both an Ethernet
+port (\texttt{eth0}) and a Wi-Fi card (\texttt{wlan0}), each with its own MAC and IP address.
+
+
+\newpage
+
+%% ===========================================================================
+%%  PART III – TCP Congestion Control
+%% ===========================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART III \textemdash\ TCP Congestion Control}}
+\addcontentsline{toc}{subsection}{What Is Congestion?}
+\addcontentsline{toc}{subsection}{The Congestion Window (cwnd)}
+\addcontentsline{toc}{subsection}{Slow Start}
+\addcontentsline{toc}{subsection}{Congestion Avoidance}
+\addcontentsline{toc}{subsection}{Fast Retransmit \& Fast Recovery}
+\addcontentsline{toc}{subsection}{TCP Reno vs.\ TCP Cubic}
+\addcontentsline{toc}{subsection}{Detecting Congestion}
+\partbanner{part4bg}{sectionorange}{Part III \quad TCP Congestion Control}
+
+\vspace{8pt}
+
+% ── What Is Congestion ────────────────────────────────────────────────────────
+\section*{What Is Congestion?}
+
+\textbf{Network congestion} occurs when the aggregate demand for a shared resource (typically a router's outgoing link) exceeds its available capacity. Congestion manifests as:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Packet loss} -- router buffers fill up and new arriving packets are dropped.
+  \item \textbf{Increased queuing delay} -- packets wait in router buffers before being forwarded.
+  \item \textbf{Jitter} -- variable delay between packets, degrading real-time applications (VoIP, video).
+  \item \textbf{Congestion collapse} (severe case) -- so many retransmissions flood the network that useful throughput approaches zero despite high utilization.
+\end{itemize}
+
+\textbf{Congestion control} is distinct from \textbf{flow control}:
+\begin{itemize}[noitemsep]
+  \item \textbf{Flow control} (rwnd) -- protects the \emph{receiver} from being overwhelmed.
+  \item \textbf{Congestion control} (cwnd) -- protects the \emph{network} from being overwhelmed.
+\end{itemize}
+
+The actual sending rate is bounded by:
+\[
+  \text{Effective Sending Rate} \leq \frac{\min(\text{cwnd},\, \text{rwnd})}{\text{RTT}}
+\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Key transition rule:} Slow start switches to congestion avoidance once
+\texttt{cwnd} $\geq$ \texttt{ssthresh}. The value of \texttt{ssthresh} is set to
+\textbf{half of cwnd at the time congestion was last detected}. After a timeout,
+\texttt{ssthresh} $\leftarrow$ cwnd$/2$ and cwnd resets to 1, restarting slow start
+from the bottom. After 3 dup ACKs (fast recovery), \texttt{ssthresh} $\leftarrow$
+cwnd$/2$ but cwnd jumps to ssthresh$+3$, staying in congestion avoidance --- no
+slow-start restart needed.
+\end{tcolorbox}
+
+
+% ── Congestion Window ─────────────────────────────────────────────────────────
+\section*{The Congestion Window (cwnd)}
+
+The \textbf{congestion window} (cwnd) is a sender-side variable that limits how many unacknowledged bytes can be ``in flight'' on the network at any time. It is adjusted dynamically by the congestion control algorithm based on perceived network conditions.
+
+\[
+  \text{Bytes in flight} \leq \text{cwnd}
+\]
+
+TCP also maintains a \textbf{slow start threshold} (ssthresh) to decide when to switch from aggressive to conservative growth.
+
+% ── Slow Start ────────────────────────────────────────────────────────────────
+\section*{Slow Start}
+
+\textbf{Slow start} governs the initial growth of cwnd when a new connection is opened or after a timeout-detected loss:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Start:} cwnd is initialized to a small value (typically 1--10 segments, called IW -- Initial Window).
+  \item \textbf{Growth:} For each ACK received, cwnd increases by 1 segment. Because one ACK is received per segment sent, cwnd \textbf{doubles each RTT} -- this is \textbf{exponential growth}.
+  \item \textbf{Exit:} Slow start ends when cwnd reaches \textbf{ssthresh}. The algorithm then switches to Congestion Avoidance.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Naming note:} ``Slow start'' is misleadingly named -- the \emph{initial} window is small (hence ``slow''), but growth is actually \textbf{exponential} (doubling each RTT). The name contrasts with older TCP behavior that started with a full window immediately.
+\end{tcolorbox}
+
+% ── Congestion Avoidance ──────────────────────────────────────────────────────
+\section*{Congestion Avoidance}
+
+Once cwnd $\geq$ ssthresh, TCP enters \textbf{congestion avoidance}:
+
+\begin{itemize}[noitemsep]
+  \item cwnd increases by $\frac{1}{\text{cwnd}}$ for each ACK received.
+  \item This results in cwnd increasing by \textbf{1 segment per RTT} -- \textbf{linear (additive) growth}.
+  \item This is the ``Additive Increase'' in the \textbf{AIMD} (Additive Increase / Multiplicative Decrease) paradigm.
+\end{itemize}
+
+\textbf{When congestion is detected} (packet loss via timeout):
+\begin{itemize}[noitemsep]
+  \item ssthresh $\leftarrow$ cwnd $/ 2$ (halved).
+  \item cwnd $\leftarrow$ 1 segment (reset).
+  \item Slow start restarts from cwnd = 1.
+\end{itemize}
+
+% ── Fast Retransmit & Fast Recovery ───────────────────────────────────────────
+\section*{Fast Retransmit \& Fast Recovery}
+
+A \textbf{timeout} is slow to detect loss. TCP uses \textbf{duplicate ACKs} as an early signal:
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Fast Retransmit:} If the sender receives \textbf{3 duplicate ACKs} for the same sequence number, it infers that one segment was lost (but later segments arrived, triggering the duplicates). Without waiting for a timeout, it \textbf{immediately retransmits} the missing segment.\\[4pt]
+\textbf{Fast Recovery} (TCP Reno): After a fast retransmit:
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item ssthresh $\leftarrow$ cwnd $/ 2$
+  \item cwnd $\leftarrow$ ssthresh $+ 3$ (accounts for the 3 segments that have left the network)
+  \item Resume \textbf{congestion avoidance} (linear growth) -- \textbf{does NOT return to slow start}.
+\end{enumerate}
+This is more efficient than a full reset because the 3 duplicate ACKs suggest the network is still delivering some segments.
+\end{tcolorbox}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Event} & \textbf{Response} & \textbf{Result} \\
+\midrule
+\rowcolor{rowOr} cwnd $<$ ssthresh & Slow start (exponential growth) & cwnd doubles each RTT \\
+\rowcolor{rowA} cwnd $\geq$ ssthresh & Congestion avoidance (linear growth) & cwnd $+1$ per RTT \\
+\rowcolor{rowOr} 3 duplicate ACKs & Fast retransmit + Fast recovery & ssthresh $= $ cwnd$/2$; cwnd $=$ ssthresh$+3$; linear growth \\
+\rowcolor{rowA} Timeout & Full reset & ssthresh $=$ cwnd$/2$; cwnd $= 1$; slow start restarts \\
+\bottomrule
+\end{tabularx}}
+
+% ── TCP Reno vs Cubic ─────────────────────────────────────────────────────────
+\section*{TCP Reno vs.\ TCP Cubic}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{TCP Reno} (classic): Uses the AIMD scheme described above. Performs well on low-latency, lower-bandwidth links but underutilizes high-bandwidth long-distance links (\emph{long fat networks}).
+  \item \textbf{TCP Cubic} (modern default on Linux): Uses a \textbf{cubic function} to grow cwnd. It probes aggressively while far from the last congestion point, and cautiously near it, achieving higher throughput on high-bandwidth paths without excessive drops.
+  \item \textbf{BBR (Bottleneck Bandwidth and RTT):} A model-based algorithm developed by Google that estimates available bandwidth and RTT directly, rather than waiting for loss to signal congestion. Used by Google for YouTube and QUIC.
+\end{itemize}
+
+% ── Detecting Congestion ──────────────────────────────────────────────────────
+\section*{Detecting Congestion}
+
+TCP infers congestion in two ways:
+\begin{itemize}[noitemsep]
+  \item \textbf{Timeout:} A retransmission timer fires before an ACK arrives. Treated as a severe congestion signal -- cwnd resets to 1 and slow start restarts.
+  \item \textbf{3 Duplicate ACKs:} A milder signal (some segments are still getting through) -- fast retransmit and fast recovery are triggered.
+  \item \textbf{ECN (Explicit Congestion Notification):} An optional extension where routers mark packets (rather than drop them) to signal congestion early, before queues fill completely.
+\end{itemize}
+
+\newpage
+
+%% ===========================================================================
+%%  PART IV – Network Performance & Delay
+%% ===========================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART IV \textemdash\ Network Performance \& Delay}}
+\addcontentsline{toc}{subsection}{Four Sources of Packet Delay}
+\addcontentsline{toc}{subsection}{Key Performance Formulas}
+\addcontentsline{toc}{subsection}{Bandwidth-Delay Product}
+\addcontentsline{toc}{subsection}{Worked Example 1 -- Single Link Throughput}
+\addcontentsline{toc}{subsection}{Worked Example 2 -- Router with Finite Buffers}
+\addcontentsline{toc}{subsection}{Worked Example 3 -- Multi-Sender Throughput}
+\addcontentsline{toc}{subsection}{Additional Formula Reference}
+\partbanner{part5bg}{sectionteal}{Part IV \quad Network Performance \& Delay}
+
+\vspace{8pt}
+
+% ── Four Sources of Delay ─────────────────────────────────────────────────────
+\section*{Four Sources of Packet Delay}
+
+The total end-to-end delay of a packet has four components:
+
+\[
+  d_{\text{total}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}
+\]
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Delay Component} & \textbf{Description} & \textbf{Formula / Notes} \\
+\midrule
+\rowcolor{rowTe} Processing delay ($d_{\text{proc}}$) & Time to examine a packet's header, check for bit errors, and determine the outgoing link. & Typically $<$ 1 ms; depends on router hardware. \\
+\rowcolor{rowA}  Queuing delay ($d_{\text{queue}}$)    & Time waiting in the router's buffer before being transmitted. Depends on traffic intensity. & Highly variable; can dominate under load. \\
+\rowcolor{rowTe} Transmission delay ($d_{\text{trans}}$) & Time to push all bits of a packet onto the link. & $d_{\text{trans}} = \dfrac{L}{R}$ where $L$ = packet size (bits), $R$ = link rate (bps). \\
+\rowcolor{rowA}  Propagation delay ($d_{\text{prop}}$) & Time for a signal to travel from sender to receiver along the physical medium. & $d_{\text{prop}} = \dfrac{d}{s}$ where $d$ = distance, $s \approx 2\times10^8$ m/s in fiber. \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Transmission vs.\ Propagation -- a critical distinction:}\\
+\textbf{Transmission delay} depends on the \emph{packet size and link bandwidth} -- it is the time to put the bits on the wire. \\
+\textbf{Propagation delay} depends on the \emph{distance and speed of light} -- it is the time for the first bit to reach the destination. \\
+Doubling the link bandwidth halves $d_{\text{trans}}$ but has \emph{no effect} on $d_{\text{prop}}$.
+\end{tcolorbox}
+
+% ── Key Performance Formulas ──────────────────────────────────────────────────
+\section*{Key Performance Formulas}
+
+\subsection*{Traffic Intensity}
+
+The \textbf{traffic intensity} $\rho$ measures how loaded a link is. If packets arrive at rate $\lambda$ (packets/s) and each has $L$ bits, then:
+
+\[
+  \rho = \frac{\lambda L}{R}
+\]
+
+\begin{itemize}[noitemsep]
+  \item $\rho < 1$: The link can keep up; queuing delay is bounded.
+  \item $\rho \geq 1$: The arrival rate meets or exceeds link capacity; the queue grows without bound and queuing delay $\to \infty$.
+\end{itemize}
+
+\subsection*{Transmission Delay}
+
+\[
+  d_{\text{trans}} = \frac{L}{R}
+\]
+where $L$ is the packet length in bits and $R$ is the link bandwidth in bits per second (bps).
+
+\subsection*{Propagation Delay}
+
+\[
+  d_{\text{prop}} = \frac{d}{s}
+\]
+where $d$ is the physical distance between nodes and $s$ is the signal propagation speed ($\approx 3 \times 10^8$ m/s in vacuum; $\approx 2 \times 10^8$ m/s in copper/fiber).
+
+\subsection*{Throughput}
+
+\textbf{Throughput} is the actual rate at which data is successfully delivered end-to-end. It is bounded by the \textbf{bottleneck link} -- the link on the path with the lowest bandwidth:
+
+\[
+  \text{Throughput} = \min(R_1,\, R_2,\, \ldots,\, R_n)
+\]
+
+For a simple stop-and-wait protocol (sender waits for ACK before sending next packet):
+
+\[
+  \text{Throughput}_{\text{stop-and-wait}} = \frac{L}{R + 2 \cdot d_{\text{prop}}} = \frac{L / R}{1 + 2a}
+  \quad \text{where } a = \frac{d_{\text{prop}}}{d_{\text{trans}}} = \frac{d_{\text{prop}} \cdot R}{L}
+\]
+
+% ── Bandwidth-Delay Product ───────────────────────────────────────────────────
+\section*{Bandwidth-Delay Product (BDP)}
+
+The \textbf{bandwidth-delay product} is the amount of data that can be ``in flight'' in the network at any instant:
+
+\[
+  \text{BDP} = \text{Bandwidth} \times \text{RTT}
+\]
+
+It represents the size of the ``pipe.'' To fully utilize a link, the congestion window (cwnd) must be at least as large as the BDP. If cwnd $<$ BDP, the sender will be idle waiting for ACKs, wasting capacity.
+
+\textit{Example:} A 1 Gbps link with RTT = 100 ms has BDP = $1 \times 10^9 \times 0.1 = 10^8$ bits = \textbf{100 Mb} $\approx$ \textbf{12.5 MB}. The TCP window must be $\geq$ 12.5 MB to saturate this link.
+
+% ── Worked Example 1 ─────────────────────────────────────────────────────────
+\section*{Worked Example 1 -- Single Link Throughput}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Problem}, arc=3pt, boxrule=1pt]
+Two hosts are connected by a link with a bandwidth of \textbf{1 Gbps} and a round-trip time (RTT) of \textbf{100 ms}. Using a stop-and-wait protocol, what is the maximum throughput?
+\end{tcolorbox}
+
+\textbf{Solution:}
+
+First, determine the packet size. For a 1500-byte (12,000-bit) Ethernet-sized packet:
+\[
+  d_{\text{trans}} = \frac{L}{R} = \frac{12{,}000 \text{ bits}}{1 \times 10^9 \text{ bps}} = 1.2 \times 10^{-5} \text{ s} = 0.012 \text{ ms}
+\]
+
+The sender waits one full RTT before receiving the ACK:
+\[
+  \text{Cycle time} = d_{\text{trans}} + \text{RTT} = 0.012 \text{ ms} + 100 \text{ ms} \approx 100.012 \text{ ms}
+\]
+
+\[
+  \text{Throughput} = \frac{L}{\text{Cycle time}} = \frac{12{,}000 \text{ bits}}{100.012 \times 10^{-3} \text{ s}} \approx 120 \text{ Kbps}
+\]
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Result:} $\approx$ \textbf{120 Kbps} -- only about \textbf{0.012\%} of the 1 Gbps capacity! \\
+This illustrates why stop-and-wait is catastrophically inefficient on high-bandwidth, high-latency links, and why TCP uses a large window size and pipelining. To fully utilize this link, the sender needs to have $\text{BDP} = 1 \text{ Gbps} \times 0.1 \text{ s} = 100 \text{ Mb}$ of data in flight simultaneously.
+\end{tcolorbox}
+
+% ── Worked Example 2 ─────────────────────────────────────────────────────────
+\section*{Worked Example 2 -- Router with Finite Buffers}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Problem}, arc=3pt, boxrule=1pt]
+A router has finite buffers and an outgoing link with a bandwidth of \textbf{100 Mbps}. The buffer can hold \textbf{10 packets}, each of \textbf{1,500 bytes}. What is the maximum throughput through this router?
+\end{tcolorbox}
+
+\textbf{Step 1: Transmission time per packet}
+\[
+  d_{\text{trans}} = \frac{L}{R} = \frac{1{,}500 \times 8 \text{ bits}}{100 \times 10^6 \text{ bps}} = \frac{12{,}000}{10^8} = 0.00012 \text{ s} = 0.12 \text{ ms}
+\]
+
+\textbf{Step 2: Time to drain the entire buffer}
+\[
+  t_{\text{drain}} = 10 \times 0.12 \text{ ms} = 1.2 \text{ ms}
+\]
+
+\textbf{Step 3: Maximum throughput}
+\[
+  \text{Throughput} = \frac{10 \times 1{,}500 \times 8 \text{ bits}}{1.2 \times 10^{-3} \text{ s}} = \frac{120{,}000}{0.0012} = 100{,}000{,}000 \text{ bps} = \textbf{100 Mbps}
+\]
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Interpretation:} The throughput equals the full link bandwidth -- as long as the router buffer is always kept full (no gaps in arrival), the router can forward at line rate. In practice, bursty arrivals cause the buffer to fluctuate, resulting in throughput below line rate.
+\end{tcolorbox}
+
+% ── Worked Example 3 ─────────────────────────────────────────────────────────
+\section*{Worked Example 3 -- Multi-Sender Throughput}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Problem}, arc=3pt, boxrule=1pt]
+\textbf{4 sender hosts} each have a path to a single receiver host. Each sender's access link has a bandwidth of \textbf{10 Mbps} and the round-trip time (RTT) is \textbf{50 ms}. Assume a stop-and-wait protocol with 1500-byte packets. What is the per-sender throughput and the aggregate throughput?
+\end{tcolorbox}
+
+\textbf{Step 1: Transmission delay per packet}
+\[
+  d_{\text{trans}} = \frac{1{,}500 \times 8}{10 \times 10^6} = \frac{12{,}000}{10^7} = 0.0012 \text{ s} = 1.2 \text{ ms}
+\]
+
+\textbf{Step 2: Cycle time (stop-and-wait)}
+\[
+  t_{\text{cycle}} = d_{\text{trans}} + \text{RTT} = 1.2 \text{ ms} + 50 \text{ ms} = 51.2 \text{ ms}
+\]
+
+\textbf{Step 3: Per-sender throughput}
+\[
+  \text{Throughput}_{\text{per sender}} = \frac{L}{t_{\text{cycle}}} = \frac{12{,}000 \text{ bits}}{0.0512 \text{ s}} \approx 234 \text{ Kbps}
+\]
+
+\textbf{Step 4: Aggregate throughput}
+\[
+  \text{Throughput}_{\text{total}} = 4 \times 234 \text{ Kbps} \approx \textbf{937 Kbps}
+\]
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Key insight:} Each 10 Mbps sender achieves only $\sim$234 Kbps ($\approx$ 2.3\% efficiency) because of the 50 ms RTT. The large RTT dominates the cycle time. With TCP windowing and pipelining (e.g., cwnd = BDP $\approx$ 10 Mbps $\times$ 50 ms = 62.5 KB $\approx$ 42 packets), each sender could theoretically reach near 10 Mbps.
+\end{tcolorbox}
+
+% ── Additional Formulas ───────────────────────────────────────────────────────
+\section*{Additional Formula Reference}
+
+\noindent
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\centering\arraybackslash}p{4.2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Quantity} & \textbf{Formula} & \textbf{Notes} \\
+\midrule
+\rowcolor{rowTe} Total packet delay       & $d_{\text{total}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}$ & Sum of all four delay components. \\
+\rowcolor{rowA}  Transmission delay       & $d_{\text{trans}} = L / R$ & $L$ = bits; $R$ = bps. \\
+\rowcolor{rowTe} Propagation delay        & $d_{\text{prop}} = d / s$ & $d$ = meters; $s \approx 2\text{--}3 \times 10^8$ m/s. \\
+\rowcolor{rowA}  Bandwidth-delay product  & $\text{BDP} = R \times \text{RTT}$ & Min.\ window size to saturate a link. \\
+\rowcolor{rowTe} Traffic intensity        & $\rho = \lambda L / R$ & Must be $< 1$ to avoid queue overflow. \\
+\rowcolor{rowA}  Stop-and-wait throughput & $L / (L/R + \text{RTT})$ & Very inefficient when RTT $\gg d_{\text{trans}}$. \\
+\rowcolor{rowTe} Efficiency (stop-and-wait) & $1 / (1 + 2a)$ where $a = d_{\text{prop}} / d_{\text{trans}}$ & Fraction of time the link carries useful data. \\
+\rowcolor{rowA}  Link utilization (sliding window) & $\min(1,\, W / (1 + 2a))$ & $W$ = window size in packets; improves efficiency. \\
+\bottomrule
+\end{tabularx}}
+
+
+\newpage
+
+%% ===========================================================================
+%%  PART IVb – IP Datagram Structure, ICMP & Network Diagnostics
+%% ===========================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART IVb \textemdash\ IP Datagram, ICMP \& Diagnostics}}
+\addcontentsline{toc}{subsection}{The IP Datagram Structure}
+\addcontentsline{toc}{subsection}{Fragmentation \& MTU}
+\addcontentsline{toc}{subsection}{ICMP --- Internet Control Message Protocol}
+\addcontentsline{toc}{subsection}{Ping}
+\addcontentsline{toc}{subsection}{Traceroute}
+\addcontentsline{toc}{subsection}{TCP Cubic, TCP Fairness \& QUIC}
+\partbanner{part5bg}{sectionteal}{Part IVb \quad IP Datagram, ICMP \& Diagnostics}
+
+\vspace{8pt}
+
+% ── IP Datagram Structure ─────────────────────────────────────────────────────
+\section*{The IP Datagram Structure}
+
+Every packet sent on the Internet is an \textbf{IP datagram}: a header (minimum
+20 bytes) followed by a payload carrying a transport-layer segment (TCP, UDP, ICMP, etc.).
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Header Field} & \textbf{Size} & \textbf{Purpose} \\
+\midrule
+\rowcolor{rowTe} Version           & 4 bits  & IP version: 4 for IPv4, 6 for IPv6. \\
+\rowcolor{rowA}  Header Length     & 4 bits  & Length of header in 32-bit words (min = 5, meaning 20 bytes). \\
+\rowcolor{rowTe} Type of Service (DSCP) & 8 bits & Quality-of-Service priority marking (e.g., voice traffic before bulk data). \\
+\rowcolor{rowA}  Total Length      & 16 bits & Total datagram size in bytes (header + payload). Max = 65,535 bytes. \\
+\rowcolor{rowTe} Identification    & 16 bits & Used to group fragments of the same original datagram. \\
+\rowcolor{rowA}  Flags + Fragment Offset & 16 bits & Control fragmentation (DF = Don't Fragment; MF = More Fragments) and reassembly order. \\
+\rowcolor{rowTe} TTL (Time to Live) & 8 bits & Decremented at each hop; packet discarded when TTL = 0. Prevents infinite routing loops. \\
+\rowcolor{rowA}  Protocol          & 8 bits & Identifies the encapsulated protocol: 6 = TCP, 17 = UDP, 1 = ICMP. \\
+\rowcolor{rowTe} Header Checksum   & 16 bits & Error detection for the header only (not payload). Recomputed at every router (TTL changes). \\
+\rowcolor{rowA}  Source IP Address & 32 bits & IP address of the sender. Used for replies and diagnostics. \\
+\rowcolor{rowTe} Destination IP Address & 32 bits & IP address of the intended recipient. Used by routers to forward the packet. \\
+\rowcolor{rowA}  Options           & Variable & Rarely used; e.g., record route, timestamp. If present, header $>$ 20 bytes. \\
+\rowcolor{rowTe} Payload (Data)    & Variable & The transport-layer segment (TCP/UDP/ICMP) being carried. \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{How a router uses the IP header:}
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item Reads the \textbf{Destination IP} to look up the next hop in its routing table.
+  \item Decrements \textbf{TTL} by 1. If TTL reaches 0, drops the packet and sends an ICMP
+        ``Time Exceeded'' message back to the source (this is how \texttt{traceroute} works).
+  \item Recomputes the \textbf{Header Checksum} (because TTL changed).
+  \item Rewrites the Layer-2 frame header (new source/dest MAC) and forwards it out the
+        appropriate interface.
+\end{enumerate}
+The router never looks at the payload --- it only processes the IP header (Layer 3) and
+the frame header (Layer 2). This is why routers support ``up to 3 layers'': Physical,
+Data Link, and Network.
+\end{tcolorbox}
+
+% ── Fragmentation & MTU ───────────────────────────────────────────────────────
+\section*{Fragmentation \& MTU}
+
+The \textbf{Maximum Transmission Unit (MTU)} is the largest payload a link can carry in a
+single frame. Ethernet's MTU is \textbf{1,500 bytes}. If an IP datagram is larger than
+the MTU of the outgoing link, the router must \textbf{fragment} it.
+
+\begin{itemize}[noitemsep]
+  \item The original datagram is split into smaller fragments, each with its own IP header.
+  \item The \textbf{Identification} field is the same in all fragments (so the receiver knows
+        they belong together).
+  \item The \textbf{Fragment Offset} field tells the receiver where each fragment fits in the
+        original datagram.
+  \item The \textbf{MF (More Fragments)} flag is set on all fragments except the last.
+  \item \textbf{Reassembly happens only at the final destination host}, not at intermediate
+        routers.
+\end{itemize}
+
+\textbf{Why fragmentation is undesirable:} Losing one fragment means the entire datagram
+must be retransmitted (TCP will retransmit the segment). Modern practice uses
+\textbf{Path MTU Discovery} to find the smallest MTU along a path so the sender never
+sends datagrams that need fragmentation.
+
+% ── ICMP ──────────────────────────────────────────────────────────────────────
+\section*{ICMP --- Internet Control Message Protocol}
+
+\textbf{ICMP} is a helper protocol that IP uses to send \textbf{error messages and
+operational information} between routers and hosts. ICMP messages are encapsulated inside
+IP packets (Protocol field = 1) but are considered a Network Layer protocol.
+
+\textbf{ICMP is not used to carry user data.} It only carries control messages.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{ICMP Message Type} & \textbf{Type/Code} & \textbf{Meaning \& When Sent} \\
+\midrule
+\rowcolor{rowTe} Echo Request / Reply      & 8/0 and 0/0 & Used by \texttt{ping}. Sender sends Request; receiver replies with Reply. \\
+\rowcolor{rowA}  Time Exceeded            & 11/0 & Sent by a router when TTL reaches 0. Used by \texttt{traceroute}. \\
+\rowcolor{rowTe} Destination Unreachable  & 3/*  & Sent when a packet cannot be delivered (host down, port closed, no route). \\
+\rowcolor{rowA}  Redirect                 & 5/*  & Router tells a host to use a better route for future packets. \\
+\rowcolor{rowTe} Source Quench (deprecated) & 4/0 & Old congestion signal; no longer used. \\
+\bottomrule
+\end{tabularx}}
+
+% ── Ping ──────────────────────────────────────────────────────────────────────
+\section*{Ping}
+
+\texttt{ping} is the most basic network diagnostic tool. It sends \textbf{ICMP Echo Request}
+messages to a target and listens for \textbf{ICMP Echo Reply} messages back, measuring the
+round-trip time (RTT).
+
+\textbf{What ping tells you:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Reachability:} Is the target host alive and reachable from here?
+  \item \textbf{RTT (latency):} How long does a packet take to make the round trip? Low RTT
+        ($<$ 20 ms on a LAN, $<$ 100 ms across continents) is good.
+  \item \textbf{Packet loss:} Are packets being dropped along the path? Any loss $>$ 0\% on
+        a wired network indicates a problem.
+  \item \textbf{Jitter:} Variability in RTT between successive pings signals an unstable path.
+\end{itemize}
+
+\textbf{What ping does NOT tell you:}
+\begin{itemize}[noitemsep]
+  \item It cannot tell you which router along the path is the bottleneck (use traceroute).
+  \item A failed ping does not always mean the host is down --- firewalls commonly block ICMP.
+\end{itemize}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Security note:} Ping can be abused. A \textbf{ping flood} overwhelms a target with
+rapid Echo Requests (DDoS). A \textbf{Smurf attack} sends pings with a spoofed source IP
+to a broadcast address, causing all hosts on that network to reply to the victim. A
+\textbf{ping sweep} scans a subnet (e.g., \texttt{192.168.1.0/24}) to discover which hosts
+are alive --- a standard first step in network reconnaissance. This is why many firewalls
+and enterprise routers block inbound ICMP by default.
+\end{tcolorbox}
+
+% ── Traceroute ────────────────────────────────────────────────────────────────
+\section*{Traceroute}
+
+\texttt{traceroute} (Linux/Mac) / \texttt{tracert} (Windows) maps the \textbf{exact path}
+packets take from your machine to a destination, showing every router (hop) along the way
+and the RTT to each.
+
+\textbf{How it works --- the TTL trick:}
+\begin{enumerate}[noitemsep]
+  \item Send a packet with \textbf{TTL = 1}. The first router decrements TTL to 0, drops the
+        packet, and sends back an ICMP ``Time Exceeded'' message. Record its IP address and RTT.
+  \item Send a packet with \textbf{TTL = 2}. It survives the first router (TTL becomes 1) but
+        dies at the second router, which sends back ``Time Exceeded.'' Record hop 2.
+  \item Continue incrementing TTL until the packet reaches the destination, which responds
+        with an ICMP Echo Reply (or a port-unreachable, depending on implementation).
+\end{enumerate}
+
+The output shows each hop's IP address, hostname (if resolvable), and RTT for three probe
+packets. \textbf{Asterisks (*)} mean a router didn't respond --- common when routers
+de-prioritize or drop ICMP to reduce load or for security.
+
+\textbf{Traceroute is useful for:}
+\begin{itemize}[noitemsep]
+  \item Identifying \textbf{where} in a path high latency is introduced.
+  \item Finding \textbf{routing loops} (same IP appearing multiple times).
+  \item Confirming a packet is taking the expected route (e.g., through a VPN or a specific ISP).
+\end{itemize}
+
+% ── TCP Cubic, Fairness & QUIC ────────────────────────────────────────────────
+\section*{TCP Cubic, TCP Fairness \& QUIC}
+
+\subsection*{TCP Fairness}
+
+\textbf{TCP is fair.} If $K$ TCP connections share a bottleneck link of bandwidth $R$, each
+connection will converge to approximately $R/K$ throughput in steady state. This is a
+consequence of the \textbf{AIMD (Additive Increase, Multiplicative Decrease)} mechanism:
+\begin{itemize}[noitemsep]
+  \item When a connection loses a packet, it cuts its cwnd in half (multiplicative decrease).
+  \item Connections with larger cwnd lose more when they cut, automatically converging to
+        equal shares.
+\end{itemize}
+
+\textit{Caveat: UDP applications do not participate in TCP's fairness mechanism. A UDP
+stream can consume as much bandwidth as it wants, potentially starving TCP connections ---
+which is why applications like video calls must implement their own rate control (e.g., RTCP).}
+
+\subsection*{TCP Reno vs.\ TCP Cubic}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Feature} & \textbf{TCP Reno} & \textbf{TCP Cubic} \\
+\midrule
+\rowcolor{rowTe} Congestion avoidance growth & Linear (+1 MSS per RTT) --- AIMD & Cubic function of time since last loss event \\
+\rowcolor{rowA}  Far from saturation point & Slow linear climb & Aggressive cubic growth (fast recovery) \\
+\rowcolor{rowTe} Near saturation point & Same linear rate & Cautious plateau (probes gently) \\
+\rowcolor{rowA}  High-BDP performance & Underutilizes ``long fat'' pipes & Much better; dominant on modern Linux \\
+\rowcolor{rowTe} RTT dependence & Throughput $\propto 1/\text{RTT}$ (unfair to long-distance) & Largely RTT-independent (fairer) \\
+\rowcolor{rowA}  Default OS & Older systems & Linux (since 2.6.19), Android, macOS \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Why Cubic is better for high-bandwidth, high-latency paths:} Reno's linear growth
+means a connection on a 10 Gbps link with 100 ms RTT would take an impractically long time
+to fill the pipe after a loss event. Cubic's time-based cubic function grows much faster
+when far from the congestion point, then slows as it approaches the last saturation point ---
+finding maximum bandwidth quickly without causing excessive loss.
+\end{tcolorbox}
+
+\subsection*{QUIC --- Quick UDP Internet Connections}
+
+\textbf{QUIC} is a modern transport protocol developed by Google, now standardized as
+\textbf{RFC 9000}. It runs over \textbf{UDP} at the OS level but re-implements
+connection-oriented, reliable delivery at the application level.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Feature} & \textbf{How QUIC improves on TCP} \\
+\midrule
+\rowcolor{rowTe} Connection setup & \textbf{0-RTT or 1-RTT} setup (vs.\ TCP's 1-RTT handshake + TLS 1-RTT = 2 RTTs). Returning clients can send data in the first packet. \\
+\rowcolor{rowA}  Head-of-line blocking & TCP stalls \emph{all} streams if one segment is lost (one byte stream). QUIC has \textbf{independent multiplexed streams} --- a lost packet blocks only one stream, not others. \\
+\rowcolor{rowTe} Encryption & TLS 1.3 is baked in and mandatory. Impossible to use QUIC without encryption. \\
+\rowcolor{rowA}  Connection migration & QUIC connections are identified by a \textbf{Connection ID}, not by IP/port. When you switch from Wi-Fi to cellular, the connection survives (no reconnect). \\
+\rowcolor{rowTe} Congestion control & Pluggable; defaults to Cubic-like behavior. Google uses BBR internally. \\
+\rowcolor{rowA}  Used by & \textbf{HTTP/3} (the latest version of HTTP runs on QUIC). YouTube, Google Search, Google Drive, Cloudflare. \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{Why UDP as the base? UDP is a minimal wrapper that lets QUIC bypass the OS TCP
+stack entirely. QUIC implements its own reliability, ordering, and flow control in userspace,
+allowing faster iteration and deployment than waiting for OS-level TCP changes.}
+
+
+
+\newpage
+
+%% ===========================================================================
+%%  PART V – Quick Reference Cheat Sheet
+%% ===========================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART V \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part V \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape One page. Everything essential. Great for last-minute review.\end{center}
+\vspace{4pt}
+
+% ── OSI vs TCP/IP ─────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries OSI (7) vs.\ TCP/IP (5) Models}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{OSI (top to bottom):}
+\begin{enumerate}[noitemsep, leftmargin=*, label=\textbf{\arabic*.}]
+  \setcounter{enumi}{6}
+  \item[\textbf{7.}] Application -- user-facing protocols
+  \item[\textbf{6.}] Presentation -- encrypt, compress, translate
+  \item[\textbf{5.}] Session -- manage connections
+  \item[\textbf{4.}] Transport -- end-to-end, TCP/UDP
+  \item[\textbf{3.}] Network -- routing, IP
+  \item[\textbf{2.}] Data Link -- MAC, frames, Ethernet
+  \item[\textbf{1.}] Physical -- bits, cables, signals
+\end{enumerate}
+\columnbreak
+\textbf{TCP/IP (top to bottom):}
+\begin{enumerate}[noitemsep, leftmargin=*, label=\textbf{\arabic*.}]
+  \item[\textbf{5.}] Application (covers OSI 5/6/7)
+  \item[\textbf{4.}] Transport -- TCP, UDP
+  \item[\textbf{3.}] Network -- IP, routers
+  \item[\textbf{2.}] Data Link -- MAC, switches
+  \item[\textbf{1.}] Physical -- hardware, signals
+\end{enumerate}
+\end{multicols}
+\textbf{Memory:} OSI top $\to$ bottom: ``All People Seem To Need Data Processing'' | TCP/IP top $\to$ bottom: ``All Tigers Need Data Processing''
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── TCP vs UDP ────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries TCP vs.\ UDP}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{TCP:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Connection-oriented (3-way handshake)
+  \item Reliable; ordered; ACKs + retransmission
+  \item Flow control (rwnd) + congestion control (cwnd)
+  \item Use: HTTP, SSH, FTP, email
+\end{itemize}
+\columnbreak
+\textbf{UDP:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Connectionless; fire-and-forget
+  \item No delivery/order guarantees; 8-byte header
+  \item No flow or congestion control
+  \item Use: DNS, VoIP, video streaming, gaming
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Congestion Control ────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries TCP Congestion Control (Reno)}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Slow Start:} cwnd starts small; doubles each RTT (exponential) until cwnd $\geq$ ssthresh
+  \item \textbf{Congestion Avoidance:} cwnd $+1$ per RTT (linear/additive)
+  \item \textbf{Timeout:} ssthresh $=$ cwnd$/2$; cwnd $= 1$; restart slow start
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{3 dup ACKs $\Rightarrow$ Fast Retransmit:} resend missing segment immediately
+  \item \textbf{Fast Recovery:} ssthresh $=$ cwnd$/2$; cwnd $=$ ssthresh $+ 3$; skip slow start
+  \item Effective rate $\leq \min(\text{cwnd, rwnd}) / \text{RTT}$
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Delay & Formulas ──────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Delay, Throughput \& Key Formulas}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Four delay types:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Processing} -- router header check ($<$1 ms)
+  \item \textbf{Queuing} -- wait in buffer (variable)
+  \item \textbf{Transmission} -- $L/R$ (size / bandwidth)
+  \item \textbf{Propagation} -- $d/s$ (distance / signal speed)
+\end{itemize}
+\columnbreak
+\textbf{Key formulas:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item $d_{\text{total}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}$
+  \item $\text{BDP} = R \times \text{RTT}$ (pipe size; min window to saturate)
+  \item $\rho = \lambda L / R$ (traffic intensity; must be $< 1$)
+  \item Stop-and-wait efficiency $= 1/(1+2a)$ where $a = d_{\text{prop}}/d_{\text{trans}}$
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Protocols Quick Reference ─────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries Must-Know Protocols \& Ports}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{HTTP} -- port 80, TCP (web)
+  \item \textbf{HTTPS} -- port 443, TCP (secure web)
+  \item \textbf{SSH} -- port 22, TCP (secure shell)
+  \item \textbf{SMTP} -- port 25, TCP (email send)
+  \item \textbf{DNS} -- port 53, UDP/TCP (name resolution)
+  \item \textbf{DHCP} -- ports 67/68, UDP (IP assignment)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{ARP} -- resolves IP $\to$ MAC (Layer 2)
+  \item \textbf{ICMP} -- error messages, ping (Layer 3)
+  \item \textbf{BGP} -- inter-AS routing on the Internet
+  \item \textbf{OSPF} -- intra-AS link-state routing
+  \item \textbf{TTL} -- decremented at each hop; 0 $\Rightarrow$ discard
+  \item \textbf{NAT} -- maps private IPs to a public IP
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+
+
+
+\vspace{4pt}
+
+% ── IP Addressing & Subnetting ────────────────────────────────────────────────
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries IP Addressing, Subnetting \& Network Devices}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item IPv4 = 32 bits, 4 octets, dotted decimal (\texttt{192.168.1.1})
+  \item IPv6 = 128 bits; hex colons; no NAT needed; fixed 40-byte header
+  \item Subnet mask separates network prefix from host bits via bitwise AND
+  \item \textbf{/24} = 255.255.255.0; 254 hosts; \textbf{/26} = 62 hosts
+  \item Hosts = $2^{\text{host bits}} - 2$ (subtract network + broadcast)
+  \item Network addr: all host bits = 0; Broadcast: all host bits = 1
+  \item Block size = $256 - \text{mask octet}$; subnets are multiples of block
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Hub} (L1): broadcasts to all ports; one collision domain
+  \item \textbf{Switch} (L2): MAC table; one collision domain per port; same subnet
+  \item \textbf{Router} (L3): IP routing; connects different subnets; separates broadcast domains
+  \item \textbf{Modem}: digital $\leftrightarrow$ analog; connects to ISP
+  \item Private ranges: \texttt{10/8}, \texttt{172.16/12}, \texttt{192.168/16}
+  \item CIDR /n = first $n$ bits are network; route aggregation reduces table size
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── ICMP, Diagnostics & TCP Variants ─────────────────────────────────────────
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries ICMP, Diagnostics \& Modern Transport}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{ICMP}: Network layer error/control messages; not user data
+  \item \textbf{Ping}: ICMP Echo Request/Reply; tests reachability \& RTT
+  \item \textbf{Traceroute}: increments TTL 1$\to$N; each router sends ``Time Exceeded''; maps path
+  \item \textbf{IP datagram}: 20-byte header (version, TTL, protocol, src/dst IP) + payload
+  \item TTL decremented at each hop; 0 = discard + send ICMP back
+  \item MTU = 1500 bytes (Ethernet); fragmentation if larger; reassembled at destination
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{TCP Reno}: AIMD; linear growth; throughput $\propto 1/\text{RTT}$
+  \item \textbf{TCP Cubic}: cubic time function; RTT-independent; default Linux/Android
+  \item \textbf{TCP fairness}: $K$ flows on $R$ bps link each get $\approx R/K$
+  \item \textbf{QUIC} (RFC 9000): runs over UDP; 0-RTT setup; multiplexed streams; TLS built-in; no head-of-line blocking; connection migration
+  \item HTTP/3 runs on QUIC; used by YouTube, Google, Cloudflare
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+
+\newpage
+
+%% ===========================================================================
+%%  PART VI -- Problem Set: Complex Worked Examples
+%% ===========================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART VI \textemdash\ Problem Set: Complex Worked Examples}}
+\addcontentsline{toc}{subsection}{Formula Reference Card}
+\addcontentsline{toc}{subsection}{Category A --- Delay \& Performance}
+\addcontentsline{toc}{subsection}{Category B --- IP Addressing \& Subnetting}
+\addcontentsline{toc}{subsection}{Category C --- Challenge Problems}
+\partbanner{part4bg}{sectionorange}{Part VI \quad Problem Set: Complex Worked Examples}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  These problems require combining multiple formulas, inverting equations, and working
+  across categories. Every step is shown so you can see exactly which formula to reach
+  for and why.
+\end{center}
+\vspace{4pt}
+
+% -- Formula Reference Card ---------------------------------------------------
+\begin{tcolorbox}[colback=notebg, colframe=noteborder,
+  title={\bfseries Formula Reference Card --- Keep This Visible While Solving}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{Delay components:}
+\[d_{\text{total}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}\]
+\[d_{\text{trans}} = \frac{L}{R} \quad d_{\text{prop}} = \frac{d}{s}\]
+\textit{$L$ = bits, $R$ = bps, $d$ = meters, $s \approx 2\times10^8$ m/s}\\[4pt]
+\textbf{Efficiency \& window sizing:}
+\[a = \frac{d_{\text{prop}}}{d_{\text{trans}}} \quad \text{Eff} = \frac{1}{1+2a}\]
+\[W_{\min} = 1 + 2a \quad \text{(packets in flight to saturate)}\]
+\columnbreak
+\textbf{Bandwidth-Delay Product:}
+\[\text{BDP} = R \times \text{RTT} \quad \text{(bits)}\]
+\textbf{Traffic intensity:}
+\[\rho = \frac{\lambda L}{R} \quad \rho < 1\text{ required};\quad \lambda_{\max} = \frac{R}{L}\]
+\textbf{Stop-and-wait throughput:}
+\[\text{TP} = \frac{L}{d_{\text{trans}} + \text{RTT}}\]
+\textbf{Inverse formulas to memorize:}
+\[R = \frac{L}{d_{\text{trans}}} \quad d = d_{\text{prop}} \times s \quad h = 32 - \text{prefix}\]
+\textbf{Hosts per subnet:}
+\[H = 2^h - 2 \quad \Longrightarrow \quad h_{\min} = \lceil\log_2(N+2)\rceil\]
+\end{multicols}
+\end{tcolorbox}
+
+\newpage
+
+% ============================================================
+%  CATEGORY A: Delay & Performance
+% ============================================================
+\section*{Category A \quad Delay \& Performance}
+
+% --- Problem A1 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A1 --- Inverse Formula: Solve for Required Bandwidth}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} A link must deliver a 1{,}500-byte packet in a total one-way delay of
+at most \textbf{50 ms}. Measurements show: propagation delay $= 20$ ms, processing delay
+$= 0.5$ ms, queuing delay $= 2$ ms. What is the \textbf{minimum bandwidth} $R$?
+\end{tcolorbox}
+
+\textbf{Step 1 --- Isolate the only unknown: $d_{\text{trans}}$.}
+
+Rearrange the total delay equation:
+\[d_{\text{trans}} = d_{\text{total}} - d_{\text{proc}} - d_{\text{queue}} - d_{\text{prop}}
+   = 50 - 0.5 - 2 - 20 = \mathbf{27.5\text{ ms}}\]
+
+\textbf{Step 2 --- Invert $d_{\text{trans}} = L/R$ to solve for $R$.}
+\[R = \frac{L}{d_{\text{trans}}} = \frac{1{,}500 \times 8 \text{ bits}}{0.0275 \text{ s}}
+   = \frac{12{,}000}{0.0275} \approx \mathbf{436{,}364 \text{ bps} \approx 437 \text{ Kbps}}\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} A \textbf{437 Kbps} link is the absolute minimum; in practice the engineer
+would provision a 1 Mbps link to absorb queuing spikes. The key move: subtract all the
+known delay components to find how much budget remains for transmission delay, then
+invert $d_{\text{trans}} = L/R$ to get $R = L/d_{\text{trans}}$.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem A2 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A2 --- Solve for Distance from Efficiency}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} A stop-and-wait link has efficiency $= 20\%$, bandwidth $= 1$ Mbps,
+and packet size $= 1{,}000$ bytes. Signal speed $s = 2 \times 10^8$ m/s.
+\textbf{How far apart} are the two nodes?
+\end{tcolorbox}
+
+\textbf{Step 1 --- Invert the efficiency formula to find $a$.}
+\[0.20 = \frac{1}{1+2a} \quad\Longrightarrow\quad 1+2a = 5 \quad\Longrightarrow\quad a = 2\]
+
+\textbf{Step 2 --- Compute $d_{\text{trans}}$, then find $d_{\text{prop}}$.}
+\[d_{\text{trans}} = \frac{1{,}000 \times 8}{1 \times 10^6} = 8 \text{ ms}\]
+\[a = \frac{d_{\text{prop}}}{d_{\text{trans}}} \quad\Longrightarrow\quad
+   d_{\text{prop}} = a \times d_{\text{trans}} = 2 \times 8 = 16 \text{ ms}\]
+
+\textbf{Step 3 --- Invert $d_{\text{prop}} = d/s$ to find the physical distance.}
+\[d = d_{\text{prop}} \times s = 0.016 \times 2\times10^8 = \mathbf{3{,}200 \text{ km}}\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} The nodes are 3{,}200 km apart --- about New York to Los Angeles.
+This problem chains \textbf{three inversions}: efficiency $\to$ $a$, $a$ $\to$
+$d_{\text{prop}}$, $d_{\text{prop}}$ $\to$ distance. Each step isolates one unknown
+using the previous answer as input.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem A3 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A3 --- Window Sizing: How Many Packets Must Be In Flight?}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} A TCP connection uses $R = 100$ Mbps with RTT $= 80$ ms and
+1{,}500-byte packets.\\
+(a) What is the BDP?\quad
+(b) What minimum window $W$ fully utilizes the link?\quad
+(c) At $W = 50$ packets, what is actual throughput?
+\end{tcolorbox}
+
+\textbf{(a) BDP.}
+\[\text{BDP} = R \times \text{RTT} = 100 \times 10^6 \times 0.080 = 8{,}000{,}000 \text{ bits} = 1{,}000{,}000 \text{ bytes} = \mathbf{1 \text{ MB}}\]
+
+\textbf{(b) Minimum window.}
+\[d_{\text{trans}} = \frac{12{,}000}{100 \times 10^6} = 0.12 \text{ ms}\]
+\[a = \frac{\text{RTT}/2}{d_{\text{trans}}} = \frac{40}{0.12} = 333.3\]
+\[W_{\min} = 1 + 2a = 1 + 666.6 = \mathbf{668 \text{ packets}}\]
+\textit{Verify via BDP: } $1{,}000{,}000 / 1{,}500 \approx 667$ packets. Same answer.
+
+\textbf{(c) Throughput at $W = 50$.}
+\[\text{Eff} = \frac{W}{1+2a} = \frac{50}{668} \approx 7.5\%\]
+\[\text{Throughput} = 0.075 \times 100 \text{ Mbps} = \mathbf{7.5 \text{ Mbps}}\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} With only 50 packets in flight, \textbf{92.5\% of the bandwidth is wasted}
+waiting for ACKs. You need 668 packets (about 1 MB) in flight simultaneously to saturate a
+100 Mbps / 80 ms RTT link. This is why the TCP receive window must be large.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem A4 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A4 --- Multi-Hop End-to-End Delay with a Bottleneck}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} Host A sends a 1{,}500-byte packet to Host B through two routers:
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Link} & \textbf{Bandwidth} & \textbf{Distance} \\
+\midrule
+A $\to$ R1 & 10 Mbps  & 500 km \\
+R1 $\to$ R2 & 1 Mbps  & 100 km \\
+R2 $\to$ B  & 100 Mbps & 10 km  \\
+\bottomrule
+\end{tabular}
+\end{center}
+Each router adds 2 ms processing delay. $s = 2\times10^8$ m/s. Find total delay.
+\end{tcolorbox}
+
+$L = 12{,}000$ bits.
+
+\textbf{Transmission delays:}
+\[d_{\text{trans}}(A\to R1) = \frac{12{,}000}{10^7} = 1.2\text{ ms}\]
+\[d_{\text{trans}}(R1\to R2) = \frac{12{,}000}{10^6} = 12\text{ ms}\]
+\[d_{\text{trans}}(R2\to B) = \frac{12{,}000}{10^8} = 0.12\text{ ms}\]
+
+\textbf{Propagation delays:}
+\[d_{\text{prop}}(A\to R1) = \frac{500{,}000}{2\times10^8} = 2.5\text{ ms}\]
+\[d_{\text{prop}}(R1\to R2) = \frac{100{,}000}{2\times10^8} = 0.5\text{ ms}\]
+\[d_{\text{prop}}(R2\to B) = \frac{10{,}000}{2\times10^8} = 0.05\text{ ms}\]
+
+\textbf{Total:}
+\[d_{\text{total}} = \underbrace{(1.2 + 12 + 0.12)}_{\text{transmission: 13.32 ms}}
+ + \underbrace{(2.5 + 0.5 + 0.05)}_{\text{propagation: 3.05 ms}}
+ + \underbrace{(2 + 2)}_{\text{processing: 4 ms}} = \mathbf{20.37\text{ ms}}\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} The \textbf{R1$\to$R2 link at 1 Mbps} contributes 12 ms of the 13.32 ms
+total transmission delay --- it is the bottleneck. Even though the other links are 10$\times$
+and 100$\times$ faster, this single slow link dominates. Upgrading it would cut total delay by
+nearly half.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem A5 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A5 --- Traffic Intensity: Is This Link Going to Collapse?}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} $R = 5$ Mbps, packets arrive at $\lambda = 400$/s, each 1{,}250 bytes.\\
+(a) Current traffic intensity $\rho$?\quad
+(b) Maximum safe arrival rate $\lambda_{\max}$?\quad
+(c) Traffic spikes to 520 packets/s. What is $\rho$?
+\end{tcolorbox}
+
+$L = 1{,}250 \times 8 = 10{,}000$ bits.
+
+\textbf{(a) Current $\rho$:}
+\[\rho = \frac{\lambda L}{R} = \frac{400 \times 10{,}000}{5 \times 10^6}
+  = \frac{4{,}000{,}000}{5{,}000{,}000} = \mathbf{0.80}\]
+Link is 80\% loaded --- queuing delay is non-trivial but the link is stable.
+
+\textbf{(b) $\lambda_{\max}$: set $\rho = 1$ and solve for $\lambda$.}
+\[\lambda_{\max} = \frac{R}{L} = \frac{5 \times 10^6}{10{,}000} = \mathbf{500 \text{ packets/s}}\]
+
+\textbf{(c) Spike to 520 packets/s:}
+\[\rho = \frac{520 \times 10{,}000}{5 \times 10^6} = 1.04\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} $\rho = 1.04 > 1$ --- the buffer \textbf{grows without bound}. Packets
+arrive 4\% faster than the link drains them. In practice the buffer fills, packets drop,
+TCP triggers retransmissions and congestion control. Only 20 extra packets/second above
+$\lambda_{\max} = 500$ is enough to cause instability.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem A6 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Problem A6 --- File Transfer: Stop-and-Wait vs.\ Pipelining}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} Transfer a \textbf{5 MB file} over a 10 Mbps link, RTT $= 30$ ms,
+1{,}500-byte packets.\\
+(a) How many packets?\quad
+(b) Stop-and-wait total time?\quad
+(c) Minimum window for full utilization?\quad
+(d) Actual time with that window?
+\end{tcolorbox}
+
+\textbf{(a) Packets:}
+\[\left\lceil \frac{5 \times 10^6}{1{,}500} \right\rceil = \lceil 3{,}333.3 \rceil = \mathbf{3{,}334}\]
+
+\textbf{(b) Stop-and-wait time:}
+\[d_{\text{trans}} = \frac{12{,}000}{10^7} = 1.2 \text{ ms}\]
+\[\text{Cycle} = 1.2 + 30 = 31.2 \text{ ms per packet}\]
+\[\text{Total} = 3{,}334 \times 31.2 = 104{,}021 \text{ ms} \approx \mathbf{104 \text{ seconds}}\]
+
+\textit{Raw transmission alone would be $5\times10^6\times8 / 10^7 = 4$ s. Stop-and-wait
+is \textbf{26}$\times$ slower!}
+
+\textbf{(c) Minimum window for full utilization:}
+\[a = \frac{15\text{ ms}}{1.2\text{ ms}} = 12.5 \quad\Longrightarrow\quad
+  W_{\min} = 1 + 2(12.5) = \mathbf{26 \text{ packets}}\]
+
+\textbf{(d) Transfer time at $W = 26$:}
+\[\text{Eff} = \frac{26}{26} = 100\% \quad\Longrightarrow\quad \text{Throughput} = 10\text{ Mbps}\]
+\[\text{Time} = \frac{40{,}000{,}000\text{ bits}}{10^7} = \mathbf{4 \text{ seconds}}\]
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Result:} Increasing $W$ from 1 to 26 reduces transfer time from 104 s to 4 s ---
+a \textbf{26$\times$ speedup}. You only needed 26 packets simultaneously in flight on a
+10 Mbps / 30 ms link. TCP's sliding window exists precisely for this reason.
+\end{tcolorbox}
+
+\newpage
+
+% ============================================================
+%  CATEGORY B: IP Addressing & Subnetting
+% ============================================================
+\section*{Category B \quad IP Addressing \& Subnetting}
+
+% --- Problem B1 --------------------------------------------------------------
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Problem B1 --- Inverse Host Count: What Prefix Do I Need?}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} A company needs a subnet that holds at least \textbf{500 devices},
+starting from block \texttt{10.20.0.0}. Find the smallest (tightest) prefix that works
+and give the full network details.
+\end{tcolorbox}
+
+\textbf{Step 1 --- Invert $H = 2^h - 2$ to find the minimum host bits.}
+\[2^h - 2 \geq 500 \quad\Longrightarrow\quad 2^h \geq 502\]
+$2^8 = 256$ (too small). $2^9 = 512 \geq 502$. So $h = 9$.
+
+\textbf{Step 2 --- Find the prefix.}
+\[\text{Prefix} = 32 - 9 = \mathbf{/23}\]
+\textbf{Mask:} 23 ones then 9 zeros. Third octet uses 7 bits: $128+64+32+16+8+4+2 = 254$.
+So mask is \texttt{255.255.254.0}.
+
+\textbf{Step 3 --- Fill in network details.}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{ll}
+\toprule
+Network address & \texttt{10.20.0.0} \\
+Subnet mask     & \texttt{255.255.254.0} \\
+Broadcast       & \texttt{10.20.1.255} \quad (all 9 host bits $= 1 \to$ last two octets are \texttt{01.11111111}) \\
+First host      & \texttt{10.20.0.1} \\
+Last host       & \texttt{10.20.1.254} \\
+Usable hosts    & $2^9 - 2 = 510$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Result:} \texttt{10.20.0.0/23} gives 510 usable addresses. A \texttt{/24} only
+gives 254. Notice the broadcast spans two third-octet values (\texttt{.0.x} and \texttt{.1.x})
+because a \texttt{/23} is exactly two class-C blocks stitched together.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem B2 --------------------------------------------------------------
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Problem B2 --- Longest Prefix Match: How a Router Decides}, arc=3pt, boxrule=1pt]
+\textbf{Routing table:}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Destination Prefix} & \textbf{Mask} & \textbf{Interface} \\
+\midrule
+\texttt{192.168.1.0}  & \texttt{/24} & 0 (LAN) \\
+\texttt{192.168.0.0}  & \texttt{/16} & 1 (WAN) \\
+\texttt{192.168.1.64} & \texttt{/26} & 2 (Server VLAN) \\
+\texttt{0.0.0.0}      & \texttt{/0}  & 3 (Default/Internet) \\
+\bottomrule
+\end{tabular}
+\end{center}
+Where does each packet go?
+(a) \texttt{192.168.1.45}\quad
+(b) \texttt{192.168.1.80}\quad
+(c) \texttt{192.168.5.200}\quad
+(d) \texttt{10.0.0.1}
+\end{tcolorbox}
+
+\textbf{Rule:} A packet matches any prefix whose range contains the destination.
+Always forward via the \textbf{longest} (most specific) match.
+
+\textbf{(a) \texttt{.1.45}:} Matches \texttt{/24} (.1.0--.1.255), \texttt{/16} (.x.x), \texttt{/0}. NOT \texttt{/26} (.1.64--.1.127). Longest = \texttt{/24} $\to$ \textbf{Int. 0}
+
+\textbf{(b) \texttt{.1.80}:} Matches \texttt{/26} (.1.64--.1.127 yes, 80$\in$[64,127]), \texttt{/24}, \texttt{/16}, \texttt{/0}. Longest = \texttt{/26} $\to$ \textbf{Int. 2}
+
+\textbf{(c) \texttt{.5.200}:} NOT \texttt{/24} (only \texttt{.1.x}). NOT \texttt{/26}. Matches \texttt{/16} (.x.x) and \texttt{/0}. Longest = \texttt{/16} $\to$ \textbf{Int. 1}
+
+\textbf{(d) \texttt{10.0.0.1}:} No \texttt{192.168.x.x} entry matches. Only \texttt{/0} $\to$ \textbf{Int. 3 (default)}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Key rule:} The default route \texttt{0.0.0.0/0} matches everything but always
+loses to any more-specific entry. \texttt{/26} beats \texttt{/24} beats \texttt{/16} beats
+\texttt{/0}. More prefix bits = higher specificity = wins.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem B3 --------------------------------------------------------------
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Problem B3 --- VLSM: Carve One Block for Multiple Departments}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} You are assigned \texttt{172.16.0.0/20}. Allocate using VLSM:
+\begin{itemize}[noitemsep]
+  \item Dept A: 500 hosts \quad Dept B: 200 hosts \quad Dept C: 60 hosts \quad P2P link: 2 hosts
+\end{itemize}
+\textbf{VLSM rule:} Allocate \textbf{largest first} to avoid fragmentation.
+\end{tcolorbox}
+
+\textbf{Step 1 --- Confirm the available space.}
+\texttt{/20}: $32-20=12$ host bits $\Rightarrow 2^{12} = 4{,}096$ addresses.
+
+\textbf{Step 2 --- Find prefix for each (invert $2^h-2 \geq N$):}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Requirement} & \textbf{Needed} & \textbf{$h$ bits} & \textbf{Prefix} & \textbf{Capacity} \\
+\midrule
+Dept A & 500 & 9 ($2^9=512$) & /23 & 510 usable \\
+Dept B & 200 & 8 ($2^8=256$) & /24 & 254 usable \\
+Dept C & 60  & 6 ($2^6=64$)  & /26 & 62 usable  \\
+P2P    & 2   & 2 ($2^2=4$)   & /30 & 2 usable   \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Step 3 --- Allocate sequentially, largest first.}
+
+\textbf{Dept A} (\texttt{/23}): starts at \texttt{172.16.0.0}. Block size in 3rd octet:
+$256 - 254 = 2$. Spans octets .0 and .1.\\
+Network \texttt{172.16.0.0/23} \quad Broadcast \texttt{172.16.1.255} \quad Hosts: \texttt{.0.1} to \texttt{.1.254}
+
+\textbf{Dept B} (\texttt{/24}): next free $= $ \texttt{172.16.2.0}.\\
+Network \texttt{172.16.2.0/24} \quad Broadcast \texttt{172.16.2.255} \quad Hosts: \texttt{.2.1} to \texttt{.2.254}
+
+\textbf{Dept C} (\texttt{/26}): next free $= $ \texttt{172.16.3.0}. Block size $= 256-192 = 64$.\\
+Network \texttt{172.16.3.0/26} \quad Broadcast \texttt{172.16.3.63} \quad Hosts: \texttt{.3.1} to \texttt{.3.62}
+
+\textbf{P2P} (\texttt{/30}): next free $= $ \texttt{172.16.3.64}. Block size $= 256-252 = 4$.\\
+Network \texttt{172.16.3.64/30} \quad Broadcast \texttt{172.16.3.67} \quad Hosts: \texttt{.3.65} and \texttt{.3.66}
+
+\textbf{Total used:} $512 + 256 + 64 + 4 = 836$ of 4{,}096 addresses. \textbf{3{,}260 remain} for future growth.
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Result:} Four non-overlapping subnets, each exactly sized. Assigning a flat
+\texttt{/24} to the P2P link would waste 252 addresses. VLSM assigns only what is
+needed and preserves the rest.
+\end{tcolorbox}
+
+\newpage
+
+% ============================================================
+%  CATEGORY C: Challenge Problems
+% ============================================================
+\section*{Category C \quad Challenge Problems}
+
+% --- Problem C1 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries Problem C1 --- Congestion Control Trace: cwnd Over Time}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} TCP Reno starts with \texttt{ssthresh = 16} segments, \texttt{cwnd = 1}
+segment (MSS = 1{,}500 bytes), $R = 200$ Mbps, RTT $= 50$ ms.\\
+(a) Trace \texttt{cwnd} through 8 RTTs with no congestion.\\
+(b) Timeout detected at end of RTT 7 (when cwnd = 19). New ssthresh and cwnd?\\
+(c) What is the BDP in segments? How does cwnd at RTT 8 compare?
+\end{tcolorbox}
+
+\textbf{(a) cwnd trace.}
+
+While \texttt{cwnd $<$ ssthresh}: \textbf{double each RTT} (slow start).
+Once \texttt{cwnd $\geq$ ssthresh}: \textbf{$+1$ per RTT} (congestion avoidance).
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{ccl}
+\toprule
+\textbf{End of RTT} & \textbf{cwnd} & \textbf{Phase} \\
+\midrule
+0 & 1  & Initial \\
+1 & 2  & Slow start ($1\times2$) \\
+2 & 4  & Slow start ($2\times2$) \\
+3 & 8  & Slow start ($4\times2$) \\
+4 & 16 & Slow start hits ssthresh $\to$ switch to CA \\
+5 & 17 & Congestion avoidance ($+1$) \\
+6 & 18 & Congestion avoidance ($+1$) \\
+7 & 19 & CA ($+1$) \quad \textit{--- timeout detected here ---} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{(b) Timeout response.}
+\[\text{ssthresh} \leftarrow \lfloor 19/2 \rfloor = \mathbf{9} \quad\text{cwnd} \leftarrow \mathbf{1}\]
+RTT 8 begins: \texttt{cwnd = 1}, \texttt{ssthresh = 9}. Slow start restarts.
+
+\textbf{(c) BDP comparison.}
+\[\text{BDP} = 200\times10^6 \times 0.05 = 10^7 \text{ bits} = 1{,}250{,}000 \text{ bytes}\]
+\[\text{BDP in segments} = \frac{1{,}250{,}000}{1{,}500} \approx 834 \text{ segments}\]
+
+At RTT 8, \texttt{cwnd = 1} --- the connection uses approximately $1/834 \approx 0.1\%$
+of the link's capacity.
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Result:} After a timeout, cwnd crashes from 19 to 1 and ssthresh drops to 9.
+Full recovery to the BDP-sized window (834 segments) will take many RTTs. Compare this
+to a \textbf{3 dup-ACK} event (fast recovery): ssthresh $= 9$, but cwnd $= 12$ (not 1),
+so the connection stays in congestion avoidance and recovers much faster. This is exactly
+why fast recovery was invented.
+\end{tcolorbox}
+
+\vspace{8pt}
+
+% --- Problem C2 --------------------------------------------------------------
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries Problem C2 --- Full End-to-End: Subnet Check + Delay + Efficiency Inversion}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} A host at \texttt{10.4.77.130/25} sends a 500-byte UDP packet to
+\texttt{10.4.77.200}. The uplink is 50 Mbps with propagation delay $= 35$ ms.
+There are 3 routers, each adding 1 ms processing delay.\\
+(a) Are source and destination on the \textbf{same subnet}?\\
+(b) What is the \textbf{total one-way delay}?\\
+(c) A colleague says stop-and-wait on this 50 Mbps link gives only \textbf{0.1\% efficiency}.
+Prove it. Then find the bandwidth that would give \textbf{60\% efficiency} (RTT $= 70$ ms,
+same packet size).
+\end{tcolorbox}
+
+\textbf{(a) Subnet check.}
+
+\texttt{/25} mask = \texttt{255.255.255.128}. Two \texttt{/25} subnets:
+\begin{itemize}[noitemsep]
+  \item Subnet 0: \texttt{10.4.77.0/25} \quad range: \texttt{.0}--\texttt{.127}
+  \item Subnet 1: \texttt{10.4.77.128/25} \quad range: \texttt{.128}--\texttt{.255}
+\end{itemize}
+Source \texttt{.130} $\in$ Subnet 1. Destination \texttt{.200} $\in$ Subnet 1.
+\textbf{Same subnet} --- no router needed.
+
+\textbf{(b) One-way delay.} ($L = 500 \times 8 = 4{,}000$ bits)
+\[d_{\text{trans}} = \frac{4{,}000}{50 \times 10^6} = 0.08 \text{ ms}\]
+\[d_{\text{total}} = 0.08 + 35 + 3\times1 = \mathbf{38.08 \text{ ms}}\]
+\textit{Propagation dominates (35 ms out of 38.08 ms). Transmission is negligible on a
+fast link with a small packet.}
+
+\textbf{(c) Efficiency proof and bandwidth inversion.}
+
+With RTT $= 70$ ms (so $d_{\text{prop}} = 35$ ms):
+\[a = \frac{d_{\text{prop}}}{d_{\text{trans}}} = \frac{35}{0.08} = 437.5\]
+\[\text{Eff} = \frac{1}{1+2\times437.5} = \frac{1}{876} = 0.00114 \approx \mathbf{0.11\%}\]
+The colleague is correct. Now invert to find $R$ for 60\% efficiency:
+\[0.60 = \frac{1}{1+2a} \quad\Longrightarrow\quad a = \frac{1/0.60 - 1}{2} = \frac{0.667}{2} = 0.333\]
+\[d_{\text{trans}} = \frac{d_{\text{prop}}}{a} = \frac{35 \text{ ms}}{0.333} = 105 \text{ ms}\]
+\[R = \frac{L}{d_{\text{trans}}} = \frac{4{,}000}{0.105} \approx \mathbf{38{,}095 \text{ bps} \approx 38 \text{ Kbps}}\]
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Result:} (a) Same subnet. (b) 38.08 ms one-way. (c) The paradox:
+to hit 60\% efficiency with stop-and-wait and a 35 ms propagation delay, you need a
+\emph{slower} link ($\approx$38 Kbps) --- not a faster one. Stop-and-wait only works
+well when $d_{\text{trans}} \gg d_{\text{prop}}$, which requires a slow link or tiny
+packets. Fast links demand pipelining (large window). The entire point of TCP's sliding
+window is to escape this trap.
+\end{tcolorbox}
+
+
+\end{document}

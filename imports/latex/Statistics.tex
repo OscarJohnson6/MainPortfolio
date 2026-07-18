@@ -1,0 +1,999 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{graphicx}
+
+\tcbuselibrary{skins, breakable}
+
+% ── Colors ───────────────────────────────────────────────────────────────────
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+
+% ── Section format switchers ──────────────────────────────────────────────────
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+
+% ── Part banner ───────────────────────────────────────────────────────────────
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+% ── TOC styling ───────────────────────────────────────────────────────────────
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+%% =============================================================================
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────────────
+\begin{center}
+  {\Huge\bfseries Discrete Math, Statistics \& Probability}\\[6pt]
+  {\large Introductory Course Reference}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I – Foundations of Probability
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART I \textemdash\ Foundations of Probability}}
+\addcontentsline{toc}{subsection}{Sample Space \& Events}
+\addcontentsline{toc}{subsection}{Axioms of Probability}
+\addcontentsline{toc}{subsection}{Expected Value}
+\addcontentsline{toc}{subsection}{Variance \& Standard Deviation}
+\addcontentsline{toc}{subsection}{Conditional Probability \& Independence}
+\addcontentsline{toc}{subsection}{Bayes' Theorem}
+\partbanner{part3bg}{sectionpurple}{Part I \quad Foundations of Probability}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  The mathematical rules that govern uncertainty. Before analyzing data,
+  you must define the universe of possibilities.
+\end{center}
+\vspace{4pt}
+
+% ── Sample Space & Events ─────────────────────────────────────────────────────
+\section*{Sample Space \& Events}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Experiment:} Any process whose outcome is uncertain (e.g., rolling a die, flipping a coin, drawing a card).
+  \item \textbf{Sample Space ($S$):} The set of \emph{all} possible outcomes of an experiment.
+    \begin{itemize}[noitemsep]
+      \item Fair coin: $S = \{\text{H}, \text{T}\}$
+      \item One six-sided die: $S = \{1, 2, 3, 4, 5, 6\}$, \quad $|S| = 6$
+      \item Two dice: $|S| = 6^2 = 36$ ordered pairs
+    \end{itemize}
+  \item \textbf{Event ($E$):} Any subset of the sample space. An event \emph{occurs} if the outcome of the experiment is an element of $E$.
+    \begin{itemize}[noitemsep]
+      \item ``Rolling an even number'': $E = \{2, 4, 6\}$
+      \item The \textbf{complement} $E^c$ (or $\bar{E}$) is everything in $S$ that is \emph{not} in $E$: $P(E^c) = 1 - P(E)$.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Set operations on events:}
+\[
+  A \cup B \text{ (A or B)} \qquad A \cap B \text{ (A and B)} \qquad A^c \text{ (not A)}
+\]
+
+% ── Axioms of Probability ─────────────────────────────────────────────────────
+\section*{Axioms of Probability (Kolmogorov)}
+
+All of probability theory rests on three axioms:
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Non-negativity:} $P(E) \geq 0$ for any event $E$. Probabilities are never negative.
+  \item \textbf{Normalization:} $P(S) = 1$. The probability that \emph{something} happens is exactly 1.
+  \item \textbf{Additivity:} If $A$ and $B$ are \textbf{mutually exclusive} ($A \cap B = \emptyset$), then $P(A \cup B) = P(A) + P(B)$.
+\end{enumerate}
+\end{tcolorbox}
+
+\textbf{Derived rules:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Complement rule:} $P(A^c) = 1 - P(A)$
+  \item \textbf{Inclusion-exclusion:} $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ \quad (for non-mutually-exclusive events)
+  \item \textbf{Uniform probability:} If all outcomes are equally likely, $P(E) = \dfrac{|E|}{|S|}$
+\end{itemize}
+
+% ── Expected Value ────────────────────────────────────────────────────────────
+\section*{Expected Value}
+
+The \textbf{expected value} $E(X)$ (also written $\mu$) is the theoretical long-run average of a random variable -- the probability-weighted mean of all possible outcomes, not simply the midpoint of the range.
+
+\subsection*{General Formula}
+For a \textbf{discrete} random variable $X$ taking values $x_1, x_2, \ldots, x_n$ with probabilities $p_1, p_2, \ldots, p_n$:
+\[
+  E(X) = \sum_{i=1}^{n} x_i \cdot p_i
+\]
+
+\subsection*{Uniform Distribution (Special Case)}
+For outcomes $\{1, 2, \ldots, n\}$ each with probability $1/n$ (e.g., a fair $n$-sided die):
+\[
+  E(X) = \frac{1 + n}{2}
+\]
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Worked example: 20-sided die rolled 10 times}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item $E(X)$ per roll $= (1 + 20)/2 = 10.5$
+  \item Expected sum over 10 rolls $= 10 \times 10.5 = \mathbf{105}$ \quad (by linearity of expectation)
+  \item Total sample space $= 20^{10}$ (each roll is independent with replacement)
+  \item $P(\text{sum} > 100) \approx 59.8\%$, since the true mean is 105 and the CLT applies (see Part III)
+\end{itemize}
+\end{tcolorbox}
+
+\subsection*{Linearity of Expectation}
+A crucial and powerful property -- it holds even when $X$ and $Y$ are \emph{not} independent:
+\[
+  E(X + Y) = E(X) + E(Y) \qquad E(aX + b) = aE(X) + b
+\]
+
+% ── Variance & Standard Deviation ────────────────────────────────────────────
+\section*{Variance \& Standard Deviation}
+
+While $E(X)$ tells you the center, \textbf{variance} measures how spread out values are around that center.
+
+\[
+  \text{Var}(X) = \sigma^2 = E\!\left[(X - \mu)^2\right] = E(X^2) - [E(X)]^2
+\]
+\[
+  \text{Standard Deviation} = \sigma = \sqrt{\text{Var}(X)}
+\]
+
+\textbf{Useful properties:}
+\begin{itemize}[noitemsep]
+  \item $\text{Var}(aX + b) = a^2 \text{Var}(X)$ \quad (shifting by $b$ doesn't change spread; scaling by $a$ scales variance by $a^2$)
+  \item If $X$ and $Y$ are \textbf{independent}: $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y)$
+  \item For a fair $n$-sided die: $\text{Var}(X) = \dfrac{n^2 - 1}{12}$
+\end{itemize}
+
+\textit{Example: For a 20-sided die, $\text{Var}(X) = (400 - 1)/12 = 399/12 \approx 33.25$, so $\sigma \approx 5.77$. For 10 independent rolls, $\text{Var}(\text{sum}) = 10 \times 33.25 = 332.5$, so $\sigma_{\text{sum}} \approx 18.23$.}
+
+% ── Conditional Probability & Independence ────────────────────────────────────
+\section*{Conditional Probability \& Independence}
+
+\textbf{Conditional probability} is the probability of event $A$ given that event $B$ has already occurred:
+\[
+  P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \quad P(B) > 0
+\]
+
+\textbf{Independence:} $A$ and $B$ are \textbf{independent} if and only if:
+\[
+  P(A \cap B) = P(A) \cdot P(B) \qquad \Longleftrightarrow \qquad P(A \mid B) = P(A)
+\]
+Knowing that $B$ occurred provides \emph{no information} about whether $A$ occurred.
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Mutually exclusive vs.\ independent -- a common confusion:}\\
+\textbf{Mutually exclusive} ($A \cap B = \emptyset$): if $A$ happens, $B$ \emph{cannot} -- they share no outcomes.\\
+\textbf{Independent}: knowing $A$ happened tells you nothing about $B$.\\
+These are different concepts. Mutually exclusive events with $P(A), P(B) > 0$ are \emph{never} independent -- if $A$ occurs, $P(B \mid A) = 0 \neq P(B)$.
+\end{tcolorbox}
+
+\textbf{Multiplication rule} (general):
+\[
+  P(A \cap B) = P(A) \cdot P(B \mid A) = P(B) \cdot P(A \mid B)
+\]
+
+\textbf{Law of Total Probability:} If $\{B_1, B_2, \ldots, B_n\}$ partition $S$:
+\[
+  P(A) = \sum_{i=1}^{n} P(A \mid B_i) \cdot P(B_i)
+\]
+
+% ── Bayes' Theorem ────────────────────────────────────────────────────────────
+\section*{Bayes' Theorem}
+
+Bayes' Theorem is the gateway to updating beliefs with new evidence. It inverts conditional probability -- given that $A$ occurred, what is the probability that it was caused by $B_i$?
+
+\[
+  \boxed{P(B_i \mid A) = \frac{P(A \mid B_i) \cdot P(B_i)}{P(A)}}
+\]
+
+where $P(A) = \sum_j P(A \mid B_j) \cdot P(B_j)$ (Law of Total Probability).
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Worked example (Medical Test):}\\
+A disease affects 1\% of the population. A test is 99\% sensitive (correctly identifies sick patients) and 95\% specific (correctly identifies healthy patients). You test positive. What is the probability you actually have the disease?
+
+Let $D$ = has disease, $T^+$ = positive test result.
+\begin{align*}
+  P(D) &= 0.01, \quad P(D^c) = 0.99 \\
+  P(T^+ \mid D) &= 0.99 \quad \text{(sensitivity)} \\
+  P(T^+ \mid D^c) &= 0.05 \quad \text{(false positive rate = 1 - specificity)}
+\end{align*}
+\[
+  P(D \mid T^+) = \frac{0.99 \times 0.01}{0.99 \times 0.01 + 0.05 \times 0.99} = \frac{0.0099}{0.0099 + 0.0495} \approx \mathbf{16.7\%}
+\]
+\textit{Intuition: The disease is rare, so even a good test has many false positives. Despite a positive result, there is still only a 16.7\% chance you are sick. This is the base rate fallacy in action.}
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART II – Combinatorics & Counting
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART II \textemdash\ Combinatorics \& Counting}}
+\addcontentsline{toc}{subsection}{The Fundamental Counting Principle}
+\addcontentsline{toc}{subsection}{Permutations}
+\addcontentsline{toc}{subsection}{Combinations}
+\addcontentsline{toc}{subsection}{Permutations vs.\ Combinations -- Decision Guide}
+\addcontentsline{toc}{subsection}{The Binomial Theorem}
+\addcontentsline{toc}{subsection}{Counting with Repetition}
+\partbanner{partbg}{sectionblue}{Part II \quad Combinatorics \& Counting}
+
+\vspace{8pt}
+
+% ── Fundamental Counting Principle ────────────────────────────────────────────
+\section*{The Fundamental Counting Principle}
+
+If a task has $k$ independent steps, with $n_1$ choices for step 1, $n_2$ choices for step 2, \ldots, $n_k$ choices for step $k$, the total number of ways to complete the task is:
+\[
+  n_1 \times n_2 \times \cdots \times n_k
+\]
+\textit{Example: A password with 3 letters (26 options each) followed by 2 digits (10 options each) has $26^3 \times 10^2 = 17{,}576 \times 100 = 1{,}757{,}600$ possible combinations.}
+
+% ── Permutations ──────────────────────────────────────────────────────────────
+\section*{Permutations (Order Matters)}
+
+A \textbf{permutation} is an ordered arrangement. Use permutations when the \textbf{sequence matters} (e.g., first place, second place, third place are distinct outcomes).
+
+\subsection*{Without Replacement}
+The number of ways to arrange $k$ items chosen from $n$ distinct items:
+\[
+  P(n, k) = \frac{n!}{(n-k)!} = n \times (n-1) \times \cdots \times (n-k+1)
+\]
+
+\textit{Example: How many ways can a gold, silver, and bronze medal be awarded among 10 athletes?}
+\[
+  P(10, 3) = \frac{10!}{7!} = 10 \times 9 \times 8 = 720
+\]
+
+\subsection*{With Replacement}
+When each item can be chosen again, the count is simply:
+\[
+  n^k
+\]
+\textit{Example: A 4-digit PIN using digits 0--9 (with repetition allowed): $10^4 = 10{,}000$ possibilities.}
+
+\subsection*{Permutations of Items with Repetitions}
+If $n$ items contain groups of identical items ($n_1$ alike, $n_2$ alike, \ldots), the number of distinct arrangements is:
+\[
+  \frac{n!}{n_1!\, n_2!\, \cdots\, n_r!}
+\]
+\textit{Example: Arrangements of the letters in ``MISSISSIPPI'' (11 letters: M$\times$1, I$\times$4, S$\times$4, P$\times$2):}
+\[
+  \frac{11!}{1!\,4!\,4!\,2!} = \frac{39{,}916{,}800}{1 \times 24 \times 24 \times 2} = 34{,}650
+\]
+
+% ── Combinations ──────────────────────────────────────────────────────────────
+\section*{Combinations (Order Does Not Matter)}
+
+A \textbf{combination} is an unordered selection. Use combinations when you only care \emph{which} items are chosen, not the order they appear in.
+
+\[
+  C(n, k) = \binom{n}{k} = \frac{n!}{k!\,(n-k)!}
+\]
+
+\textit{Example: How many 5-card poker hands can be dealt from a 52-card deck?}
+\[
+  \binom{52}{5} = \frac{52!}{5!\,47!} = \frac{52 \times 51 \times 50 \times 49 \times 48}{120} = 2{,}598{,}960
+\]
+
+\textbf{Useful identities:}
+\[
+  \binom{n}{0} = 1 \qquad \binom{n}{n} = 1 \qquad \binom{n}{k} = \binom{n}{n-k} \qquad \binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}
+\]
+
+% ── Decision Guide ────────────────────────────────────────────────────────────
+\section*{Permutations vs.\ Combinations -- Decision Guide}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{Permutation $P(n,k)$} & \textbf{Combination $C(n,k)$} \\
+\midrule
+\rowcolor{rowA}  Order matters? & \textbf{Yes} & \textbf{No} \\
+\rowcolor{rowB}  Formula & $n!/(n-k)!$ & $n!/[k!(n-k)!]$ \\
+\rowcolor{rowA}  Relative size & Larger (more arrangements) & Smaller ($P = k! \times C$) \\
+\rowcolor{rowB}  Key words & rank, order, arrange, sequence, schedule & choose, select, committee, group, subset \\
+\rowcolor{rowA}  Example & 3 finalists from 10 athletes & 3-person committee from 10 people \\
+\rowcolor{rowB}  Answer & $P(10,3) = 720$ & $C(10,3) = 120$ \\
+\bottomrule
+\end{tabularx}}
+
+% ── Binomial Theorem ──────────────────────────────────────────────────────────
+\section*{The Binomial Theorem}
+
+The binomial coefficient $\binom{n}{k}$ appears naturally in the expansion of $(x + y)^n$:
+\[
+  (x + y)^n = \sum_{k=0}^{n} \binom{n}{k} x^{n-k} y^k
+\]
+
+In probability, this gives the \textbf{Binomial Distribution}: if a trial has probability $p$ of success and you run $n$ independent trials, the probability of exactly $k$ successes is:
+\[
+  P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}
+\]
+with mean $\mu = np$ and variance $\sigma^2 = np(1-p)$.
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{Worked example:} A fair coin is flipped 8 times. What is the probability of exactly 5 heads?
+\[
+  P(X=5) = \binom{8}{5}(0.5)^5(0.5)^3 = 56 \times \frac{1}{256} = \frac{56}{256} \approx 21.9\%
+\]
+\end{tcolorbox}
+
+% ── Counting with Repetition ──────────────────────────────────────────────────
+\section*{Counting with Repetition}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.8cm}
+                              >{\centering\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Scenario} & \textbf{Formula} & \textbf{Example} \\
+\midrule
+\rowcolor{rowA}  Permutation, no replacement & $n!/(n-k)!$ & Medals for 3 of 10 athletes \\
+\rowcolor{rowB}  Permutation, with replacement & $n^k$ & $k$-digit code from $n$ symbols \\
+\rowcolor{rowA}  Combination, no replacement & $\binom{n}{k}$ & 5-card hand from 52 cards \\
+\rowcolor{rowB}  Combination, with replacement & $\binom{n+k-1}{k}$ & Choose 3 scoops from 10 flavors (repeats OK) \\
+\rowcolor{rowA}  All arrangements of $n$ objects & $n!$ & Arrange 5 books on a shelf \\
+\rowcolor{rowB}  With identical groups & $n!/(n_1!\cdots n_r!)$ & Arrangements of ``MISSISSIPPI'' \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART III – Distributions & The Big Theorems
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART III \textemdash\ Distributions \& The Big Theorems}}
+\addcontentsline{toc}{subsection}{Common Discrete Distributions}
+\addcontentsline{toc}{subsection}{Common Continuous Distributions}
+\addcontentsline{toc}{subsection}{The Normal Distribution}
+\addcontentsline{toc}{subsection}{Law of Large Numbers (LLN)}
+\addcontentsline{toc}{subsection}{Central Limit Theorem (CLT)}
+\addcontentsline{toc}{subsection}{Applying the CLT -- Worked Example}
+\partbanner{part2bg}{sectiongreen}{Part III \quad Distributions \& The Big Theorems}
+
+\vspace{8pt}
+
+% ── Common Discrete Distributions ────────────────────────────────────────────
+\section*{Common Discrete Distributions}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.7}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.8cm}
+                              >{\raggedright\arraybackslash}p{4.2cm}
+                              >{\centering\arraybackslash}p{1.6cm}
+                              >{\centering\arraybackslash}p{1.6cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Distribution} & \textbf{PMF $P(X=k)$} & \textbf{Mean} & \textbf{Variance} & \textbf{Models\ldots} \\
+\midrule
+\rowcolor{rowA}  Uniform$(1,n)$   & $1/n$ & $(1+n)/2$ & $(n^2-1)/12$ & Fair dice, random integer \\
+\rowcolor{rowBg} Bernoulli$(p)$   & $p^k(1-p)^{1-k}$, $k\in\{0,1\}$ & $p$ & $p(1-p)$ & Single trial, success/fail \\
+\rowcolor{rowA}  Binomial$(n,p)$  & $\binom{n}{k}p^k(1-p)^{n-k}$ & $np$ & $np(1-p)$ & $k$ successes in $n$ trials \\
+\rowcolor{rowBg} Geometric$(p)$   & $(1-p)^{k-1}p$ & $1/p$ & $(1-p)/p^2$ & Trials until first success \\
+\rowcolor{rowA}  Poisson$(\lambda)$& $e^{-\lambda}\lambda^k/k!$ & $\lambda$ & $\lambda$ & Rare events per interval \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{Note: A Binomial$(n,p)$ random variable can be seen as the sum of $n$ independent Bernoulli$(p)$ random variables.}
+
+% ── Common Continuous Distributions ──────────────────────────────────────────
+\section*{Common Continuous Distributions}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.7}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.2cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Distribution} & \textbf{Mean} & \textbf{Variance} & \textbf{Models\ldots} \\
+\midrule
+\rowcolor{rowA}  Uniform$(a,b)$       & $(a+b)/2$ & $(b-a)^2/12$ & Equally likely outcomes over an interval \\
+\rowcolor{rowBg} Normal$(\mu, \sigma^2)$ & $\mu$ & $\sigma^2$ & Natural phenomena, measurement error, CLT limit \\
+\rowcolor{rowA}  Exponential$(\lambda)$ & $1/\lambda$ & $1/\lambda^2$ & Time between events in a Poisson process \\
+\rowcolor{rowBg} $t$-distribution$(v)$  & 0 & $v/(v-2)$ & Small-sample mean estimation (unknown $\sigma$) \\
+\rowcolor{rowA}  Chi-squared$(\nu)$     & $\nu$ & $2\nu$ & Goodness-of-fit tests, variance estimation \\
+\bottomrule
+\end{tabularx}}
+
+% ── The Normal Distribution ───────────────────────────────────────────────────
+\section*{The Normal Distribution}
+
+The \textbf{Normal (Gaussian) distribution} $N(\mu, \sigma^2)$ is defined by its bell-shaped probability density function:
+\[
+  f(x) = \frac{1}{\sigma\sqrt{2\pi}}\, e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+\]
+
+The \textbf{Standard Normal} $Z \sim N(0,1)$ is obtained by \textbf{standardizing}:
+\[
+  Z = \frac{X - \mu}{\sigma}
+\]
+This converts any normal random variable to one with mean 0 and standard deviation 1, allowing use of $z$-tables or calculators.
+
+\textbf{The Empirical Rule (68-95-99.7 rule):}
+\[
+  P(\mu - \sigma < X < \mu + \sigma) \approx 68\%
+\]
+\[
+  P(\mu - 2\sigma < X < \mu + 2\sigma) \approx 95\%
+\]
+\[
+  P(\mu - 3\sigma < X < \mu + 3\sigma) \approx 99.7\%
+\]
+
+% ── Law of Large Numbers ──────────────────────────────────────────────────────
+\section*{Law of Large Numbers (LLN)}
+
+The \textbf{Law of Large Numbers} is the bridge between theoretical probability and observed reality. It states that as the number of independent, identically distributed (i.i.d.) trials $n \to \infty$, the sample mean $\bar{X}_n$ converges to the true population mean $\mu$:
+
+\[
+  \bar{X}_n = \frac{X_1 + X_2 + \cdots + X_n}{n} \xrightarrow{\;n \to \infty\;} \mu = E(X)
+\]
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Weak LLN:} The sample mean converges \emph{in probability} to $\mu$ (for any $\varepsilon > 0$, the probability that $|\bar{X}_n - \mu| > \varepsilon$ goes to 0).
+  \item \textbf{Strong LLN:} The sample mean converges \emph{almost surely} to $\mu$ (the actual sequence of values converges with probability 1).
+\end{itemize}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen, arc=3pt, boxrule=1pt]
+\textbf{Why this matters:} The LLN is the theoretical foundation of Monte Carlo simulation. If you run an experiment a sufficiently large number of times and count outcomes, your observed frequency will converge to the true probability. The casino always wins in the long run -- and so does the simulator.
+\end{tcolorbox}
+
+% ── Central Limit Theorem ─────────────────────────────────────────────────────
+\section*{Central Limit Theorem (CLT)}
+
+The \textbf{Central Limit Theorem} is arguably the most important theorem in all of statistics. It states:
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Central Limit Theorem}, arc=3pt, boxrule=1pt]
+Let $X_1, X_2, \ldots, X_n$ be i.i.d.\ random variables with mean $\mu$ and finite variance $\sigma^2$. Then, as $n \to \infty$, the \textbf{sum} $S_n = X_1 + \cdots + X_n$ and the \textbf{sample mean} $\bar{X}_n = S_n/n$ approach a normal distribution:
+\[
+  \frac{S_n - n\mu}{\sigma\sqrt{n}} \;\xrightarrow{d}\; N(0,1)
+  \qquad \Longleftrightarrow \qquad
+  \bar{X}_n \approx N\!\left(\mu,\, \frac{\sigma^2}{n}\right)
+\]
+\textbf{regardless of the shape of the original distribution}.
+\end{tcolorbox}
+
+\textbf{Key points:}
+\begin{itemize}[noitemsep]
+  \item The original distribution can be uniform, exponential, skewed -- it doesn't matter. The sum (or mean) of enough of them is approximately normal.
+  \item A common rule of thumb: the CLT kicks in for $n \geq 30$, though this varies by how far the original distribution is from normal.
+  \item The \textbf{standard error} of the mean, $\sigma/\sqrt{n}$, shrinks as $n$ grows -- more data means a tighter estimate of $\mu$.
+\end{itemize}
+
+% ── Applying the CLT ──────────────────────────────────────────────────────────
+\section*{Applying the CLT -- Worked Example}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Problem: 20-sided die, 10 rolls}, arc=3pt, boxrule=1pt]
+A fair 20-sided die is rolled 10 times. What is $P(\text{sum} > 100)$?
+\end{tcolorbox}
+
+\textbf{Step 1: Parameters of one roll.}
+\[
+  \mu = \frac{1+20}{2} = 10.5, \qquad \sigma^2 = \frac{20^2-1}{12} = \frac{399}{12} = 33.25, \qquad \sigma \approx 5.77
+\]
+
+\textbf{Step 2: Parameters of the sum $S_{10}$.}
+\[
+  E(S_{10}) = 10 \times 10.5 = 105, \qquad \text{Var}(S_{10}) = 10 \times 33.25 = 332.5, \qquad \sigma_{S} \approx 18.23
+\]
+
+\textbf{Step 3: Standardize and apply the CLT.}
+\[
+  P(S_{10} > 100) = P\!\left(Z > \frac{100 - 105}{18.23}\right) = P(Z > -0.274) \approx P(Z < 0.274) \approx \mathbf{60.8\%}
+\]
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen, arc=3pt, boxrule=1pt]
+\textbf{Interpretation:} The expected sum is 105, which is \emph{above} 100. Therefore, more than 50\% of outcomes will exceed 100 -- specifically about 60.8\% by CLT approximation. This is more efficient than brute-forcing the $20^{10} = 10{,}240{,}000{,}000{,}000$ possibilities in the exact sample space.
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART IV – The Computer Science Bridge
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART IV \textemdash\ The CS Bridge: Simulation \& Complexity}}
+\addcontentsline{toc}{subsection}{Monte Carlo Simulation}
+\addcontentsline{toc}{subsection}{Algorithmic Time Complexity (Big O)}
+\addcontentsline{toc}{subsection}{Big O, Big Omega, Big Theta}
+\addcontentsline{toc}{subsection}{Complexity Class Reference Table}
+\addcontentsline{toc}{subsection}{Comparing Approaches: Exact vs.\ DP vs.\ CLT}
+\partbanner{part4bg}{sectionorange}{Part IV \quad The CS Bridge: Simulation \& Complexity}
+
+\vspace{8pt}
+
+% ── Monte Carlo ───────────────────────────────────────────────────────────────
+\section*{Monte Carlo Simulation}
+
+\textbf{Monte Carlo simulation} directly leverages the Law of Large Numbers. Instead of deriving a closed-form probability (which may be mathematically intractable), you:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Define the experiment} -- identify the random inputs and the event you want the probability of.
+  \item \textbf{Simulate} -- write a program that generates random inputs and checks whether the event occurred. Repeat $N$ times (typically $N \geq 10{,}000$ for accuracy).
+  \item \textbf{Estimate} -- by the LLN, the observed frequency converges to the true probability:
+  \[
+    \hat{p} = \frac{\text{number of trials where event occurred}}{N} \xrightarrow{N \to \infty} P(\text{event})
+  \]
+\end{enumerate}
+
+\textbf{Error of a Monte Carlo estimate:} By the CLT, the estimate $\hat{p}$ has standard error $\approx \sqrt{p(1-p)/N}$. To halve the error, you need \textbf{four times} as many trials.
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Classic examples of Monte Carlo:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Estimating $\pi$:} Randomly scatter points in a unit square; the fraction inside the inscribed circle approximates $\pi/4$.
+  \item \textbf{Option pricing:} Simulate thousands of stock price paths to estimate the expected payoff of a financial derivative.
+  \item \textbf{Risk analysis:} Simulate thousands of project scenarios to build a probability distribution over outcomes.
+  \item \textbf{The 20-sided die problem:} Run $10^6$ simulated sets of 10 rolls; count how many have sum $> 100$. The fraction $\approx 60.8\%$.
+\end{itemize}
+\end{tcolorbox}
+
+% ── Big O ─────────────────────────────────────────────────────────────────────
+\section*{Algorithmic Time Complexity (Big O)}
+
+When computing exact probabilities over large sample spaces, the \textbf{algorithm you choose} determines whether the problem is solvable in practice. Big O notation describes how an algorithm's runtime scales with input size $n$.
+
+\subsection*{Formal Definitions}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Big O, Big Omega, Big Theta}, arc=3pt, boxrule=1pt]
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item $\mathbf{O}(g(n))$ -- \textbf{Upper bound (worst case):} $f(n)$ grows \emph{no faster than} $g(n)$ asymptotically. ``This algorithm takes \emph{at most} this long.''
+  \[
+    f(n) = O(g(n)) \iff \exists\, c > 0,\, n_0 : f(n) \leq c \cdot g(n)\; \forall\, n \geq n_0
+  \]
+  \item $\mathbf{\Omega}(g(n))$ -- \textbf{Lower bound (best case):} $f(n)$ grows \emph{at least as fast as} $g(n)$. ``This algorithm takes \emph{at least} this long.''
+  \item $\mathbf{\Theta}(g(n))$ -- \textbf{Tight bound:} $f(n) = O(g(n))$ \emph{and} $f(n) = \Omega(g(n))$. The algorithm's runtime is \emph{exactly} $g(n)$ up to constants. Used when best and worst case match.
+\end{itemize}
+\end{tcolorbox}
+
+% ── Complexity Reference Table ────────────────────────────────────────────────
+\section*{Complexity Class Reference Table}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{2.8cm}
+                              >{\centering\arraybackslash}p{1.6cm}
+                              >{\centering\arraybackslash}p{1.5cm}
+                              >{\centering\arraybackslash}p{1.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Class} & \textbf{$n=10$} & \textbf{$n=100$} & \textbf{$n=10^3$} & \textbf{Example} \\
+\midrule
+\rowcolor{rowOr} $O(1)$ Constant      & 1        & 1        & 1           & Hash table lookup; CLT formula \\
+\rowcolor{rowA}  $O(\log n)$ Log      & 3        & 7        & 10          & Binary search \\
+\rowcolor{rowOr} $O(n)$ Linear        & 10       & 100      & 1K          & Single scan of an array \\
+\rowcolor{rowA}  $O(n \log n)$ Linearithmic & 33  & 664      & 10K         & Merge sort, heap sort \\
+\rowcolor{rowOr} $O(n^2)$ Quadratic   & 100      & 10K      & 1M          & Bubble sort, naive matrix multiply \\
+\rowcolor{rowA}  $O(n \cdot s \cdot T)$ DP & varies & varies & varies & Dynamic programming for dice sums \\
+\rowcolor{rowOr} $O(2^n)$ Exponential & 1K       & $10^{30}$ & $10^{301}$ & Brute-force subset enumeration \\
+\rowcolor{rowA}  $O(s^n)$ Exponential & $s^{10}$ & $s^{100}$& ---         & Brute-force all $n$ dice rolls \\
+\bottomrule
+\end{tabularx}}
+
+% ── Three Approaches Compared ─────────────────────────────────────────────────
+\section*{Comparing Approaches: Exact vs.\ DP vs.\ CLT}
+
+The three ways to answer ``$P(\text{sum} > 100)$ for ten 20-sided dice'' illustrate the tradeoffs:
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\centering\arraybackslash}p{2.4cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Method} & \textbf{Complexity} & \textbf{Exact?} & \textbf{Notes} \\
+\midrule
+\rowcolor{rowOr} Brute force (enumerate all outcomes) & $O(s^n)$ & Yes & $20^{10} \approx 10^{13}$ cases -- infeasible. \\
+\rowcolor{rowA}  Dynamic programming (count sums) & $O(n \cdot s \cdot T)$ & Yes & Build a 2D table: rolls $\times$ possible sums. Feasible. \\
+\rowcolor{rowOr} CLT approximation & $O(1)$ & No (approx.) & Compute $\mu$, $\sigma$, standardize, look up $z$-table. Instant. \\
+\rowcolor{rowA}  Monte Carlo simulation & $O(N)$ & No (approx.) & Simulate $N$ trials; converges by LLN. Flexible and general. \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{When to use each:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Brute force:} Only when the sample space is tiny (e.g., $\leq$ a few thousand).
+  \item \textbf{Dynamic programming:} When you need an exact answer and the problem has \emph{overlapping subproblems} (e.g., counting integer sums or partitions).
+  \item \textbf{CLT/formula:} When $n$ is large and the original distribution has finite mean and variance. Gives an instant, reasonably accurate answer.
+  \item \textbf{Monte Carlo:} When the distribution is complex, multi-dimensional, or the formula is unknown. Accuracy improves with more simulations.
+\end{itemize}
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART V – Calculus-Based Statistics
+%% =============================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART V \textemdash\ Calculus-Based Statistics}}
+\addcontentsline{toc}{subsection}{Maximum Likelihood Estimation (MLE)}
+\addcontentsline{toc}{subsection}{MLE Worked Example -- Coin Bias}
+\addcontentsline{toc}{subsection}{Moment Generating Functions (MGFs)}
+\addcontentsline{toc}{subsection}{Using MGFs to Find Mean and Variance}
+\addcontentsline{toc}{subsection}{Confidence Intervals}
+\addcontentsline{toc}{subsection}{Hypothesis Testing}
+\partbanner{part5bg}{sectionteal}{Part V \quad Calculus-Based Statistics}
+
+\vspace{8pt}
+
+% ── MLE ───────────────────────────────────────────────────────────────────────
+\section*{Maximum Likelihood Estimation (MLE)}
+
+\textbf{MLE} is a method for estimating the parameters of a probability distribution from observed data. The idea: find the parameter values $\hat{\theta}$ that make your observed data \emph{most probable}.
+
+\subsection*{The Likelihood Function}
+
+Given data $x_1, x_2, \ldots, x_n$ drawn i.i.d.\ from a distribution with unknown parameter $\theta$, the \textbf{likelihood function} is:
+\[
+  L(\theta) = \prod_{i=1}^{n} f(x_i;\, \theta)
+\]
+where $f(x;\theta)$ is the PDF or PMF. We want to \textbf{maximize} $L(\theta)$ over all possible $\theta$.
+
+\subsection*{Log-Likelihood}
+
+Products are hard to differentiate. Taking the \textbf{log} converts the product to a sum and doesn't change the location of the maximum (since $\ln$ is monotone increasing):
+\[
+  \ell(\theta) = \ln L(\theta) = \sum_{i=1}^{n} \ln f(x_i;\,\theta)
+\]
+
+\textbf{MLE procedure:}
+\begin{enumerate}[noitemsep]
+  \item Write down $L(\theta)$ (or $\ell(\theta)$).
+  \item Differentiate with respect to $\theta$ and set the derivative equal to zero:
+  \[
+    \frac{d\ell}{d\theta} = 0
+  \]
+  \item Solve for $\hat{\theta}$ (check it is a maximum, not minimum, via the second derivative).
+\end{enumerate}
+
+% ── MLE Worked Example ────────────────────────────────────────────────────────
+\section*{MLE Worked Example -- Coin Bias}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Problem}, arc=3pt, boxrule=1pt]
+A coin is flipped $n$ times. We observe $k$ heads. The coin has unknown bias $p$ (probability of heads). Find the MLE estimate $\hat{p}$.
+\end{tcolorbox}
+
+The probability of observing $k$ heads in $n$ flips is Binomial:
+\[
+  L(p) = \binom{n}{k} p^k (1-p)^{n-k}
+\]
+
+Take the log (the constant $\binom{n}{k}$ drops out when we differentiate):
+\[
+  \ell(p) = k \ln p + (n-k) \ln(1-p)
+\]
+
+Differentiate and set to zero:
+\[
+  \frac{d\ell}{dp} = \frac{k}{p} - \frac{n-k}{1-p} = 0
+\]
+
+Solve:
+\[
+  k(1-p) = (n-k)p \implies k - kp = np - kp \implies k = np \implies \boxed{\hat{p} = \frac{k}{n}}
+\]
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Result:} The MLE estimate for the coin's bias is simply the observed proportion of heads -- the most intuitive answer, now derived rigorously from calculus. MLE often recovers the ``common sense'' estimator, but its power lies in handling complex multi-parameter distributions where intuition fails.
+\end{tcolorbox}
+
+% ── MGFs ──────────────────────────────────────────────────────────────────────
+\section*{Moment Generating Functions (MGFs)}
+
+The \textbf{Moment Generating Function} (MGF) of a random variable $X$ is defined as:
+\[
+  M_X(t) = E\!\left[e^{tX}\right]
+\]
+where $t$ is an auxiliary variable (not a probability). The MGF encodes \emph{all moments} of $X$ in a single function.
+
+\subsection*{Using MGFs to Find Mean and Variance}
+
+The $n$-th moment of $X$ can be extracted by taking the $n$-th derivative of $M_X(t)$ at $t = 0$:
+\[
+  E(X^n) = M_X^{(n)}(0) = \left.\frac{d^n}{dt^n} M_X(t)\right|_{t=0}
+\]
+
+In particular:
+\[
+  E(X) = M_X'(0) \qquad E(X^2) = M_X''(0) \qquad \text{Var}(X) = M_X''(0) - [M_X'(0)]^2
+\]
+
+\subsection*{MGF Example -- Binomial$(n,p)$}
+\[
+  M_X(t) = \left(1 - p + pe^t\right)^n
+\]
+Taking derivatives at $t=0$ recovers $E(X) = np$ and $\text{Var}(X) = np(1-p)$.
+
+\subsection*{Key Properties of MGFs}
+\begin{itemize}[noitemsep]
+  \item \textbf{Uniqueness:} If two distributions have the same MGF, they are the same distribution.
+  \item \textbf{Independence:} If $X$ and $Y$ are independent, $M_{X+Y}(t) = M_X(t) \cdot M_Y(t)$.
+  \item \textbf{CLT via MGFs:} The CLT can be formally proven using MGFs by showing that the MGF of the standardized sum converges to $e^{t^2/2}$, which is the MGF of $N(0,1)$.
+\end{itemize}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.2cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\centering\arraybackslash}p{1.8cm}
+                              >{\centering\arraybackslash}p{1.8cm}}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Distribution} & \textbf{MGF $M_X(t)$} & \textbf{Mean} & \textbf{Variance} \\
+\midrule
+\rowcolor{rowTe} Bernoulli$(p)$     & $1-p+pe^t$ & $p$ & $p(1-p)$ \\
+\rowcolor{rowA}  Binomial$(n,p)$    & $(1-p+pe^t)^n$ & $np$ & $np(1-p)$ \\
+\rowcolor{rowTe} Poisson$(\lambda)$ & $e^{\lambda(e^t - 1)}$ & $\lambda$ & $\lambda$ \\
+\rowcolor{rowA}  Normal$(\mu,\sigma^2)$ & $e^{\mu t + \sigma^2 t^2/2}$ & $\mu$ & $\sigma^2$ \\
+\rowcolor{rowTe} Exponential$(\lambda)$ & $\lambda/(\lambda - t)$, $t < \lambda$ & $1/\lambda$ & $1/\lambda^2$ \\
+\bottomrule
+\end{tabularx}}
+
+% ── Confidence Intervals ──────────────────────────────────────────────────────
+\section*{Confidence Intervals}
+
+A \textbf{confidence interval (CI)} provides a range of plausible values for an unknown population parameter, rather than a single point estimate.
+
+\textbf{$(1-\alpha)\times 100\%$ CI for the population mean $\mu$} (large $n$, by CLT):
+\[
+  \bar{X} \pm z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}
+\]
+where $z_{\alpha/2}$ is the critical value from the standard normal table. For a 95\% CI, $z_{0.025} = 1.96$.
+
+For \textbf{small $n$} or unknown $\sigma$, use the $t$-distribution with $\nu = n - 1$ degrees of freedom:
+\[
+  \bar{X} \pm t_{\alpha/2,\,n-1} \cdot \frac{s}{\sqrt{n}}
+\]
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Common misinterpretation:} A 95\% CI does \emph{not} mean ``there is a 95\% probability that $\mu$ lies in this interval'' (the true $\mu$ is a fixed number, not random). It means: if you repeated this procedure many times, 95\% of the intervals you construct would contain the true $\mu$. The randomness is in the procedure, not the parameter.
+\end{tcolorbox}
+
+% ── Hypothesis Testing ────────────────────────────────────────────────────────
+\section*{Hypothesis Testing}
+
+Hypothesis testing is a formal framework for deciding whether data provides sufficient evidence to reject a default assumption.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Null hypothesis $H_0$:} The default claim (e.g., ``the coin is fair,'' $p = 0.5$). Assumed true until evidence suggests otherwise.
+  \item \textbf{Alternative hypothesis $H_a$:} What you want to show (e.g., ``the coin is biased,'' $p \neq 0.5$).
+  \item \textbf{Test statistic:} A standardized summary of the data (e.g., a $z$-score or $t$-score) measuring how far the observed data is from what $H_0$ predicts.
+  \item \textbf{$p$-value:} The probability of observing data at least as extreme as yours, \emph{assuming $H_0$ is true}. A small $p$-value is evidence against $H_0$.
+  \item \textbf{Significance level $\alpha$:} The threshold below which we reject $H_0$ (commonly $\alpha = 0.05$).
+\end{itemize}
+
+\textbf{Type I and Type II errors:}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{} & \textbf{$H_0$ is actually True} & \textbf{$H_0$ is actually False} \\
+\midrule
+\rowcolor{rowTe} \textbf{Reject $H_0$} & \textbf{Type I Error} ($\alpha$, false positive) & Correct decision (Power $= 1-\beta$) \\
+\rowcolor{rowA}  \textbf{Fail to reject $H_0$} & Correct decision & \textbf{Type II Error} ($\beta$, false negative) \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART VI – Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART VI \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part VI \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape One page. Everything essential. Great for last-minute review.\end{center}
+\vspace{4pt}
+
+% ── Probability Fundamentals ──────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple,
+  title={\bfseries Probability Fundamentals}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item $P(A^c) = 1 - P(A)$
+  \item $P(A \cup B) = P(A) + P(B) - P(A\cap B)$
+  \item $P(A \mid B) = P(A \cap B) / P(B)$
+  \item Independent: $P(A \cap B) = P(A) \cdot P(B)$
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Bayes:} $P(B\mid A) = P(A\mid B)P(B)/P(A)$
+  \item $E(X) = \sum x_i p_i$ \quad (discrete)
+  \item $\text{Var}(X) = E(X^2) - [E(X)]^2$
+  \item Uniform die $n$ sides: $\mu = (1+n)/2$, $\sigma^2 = (n^2-1)/12$
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Combinatorics ─────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Combinatorics}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Permutation} (order matters, no replacement): $P(n,k) = n!/(n-k)!$
+  \item \textbf{Combination} (order irrelevant, no replacement): $C(n,k) = n!/[k!(n-k)!]$
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item With replacement: $n^k$ arrangements
+  \item Identical items: $n!/(n_1!\cdots n_r!)$
+  \item Binomial PMF: $\binom{n}{k}p^k(1-p)^{n-k}$; mean $np$; var $np(1-p)$
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Big Theorems ──────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries LLN, CLT \& Normal Distribution}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{LLN:} $\bar{X}_n \to \mu$ as $n\to\infty$. Basis for Monte Carlo.
+  \item \textbf{CLT:} Sum/mean of $n$ i.i.d.\ r.v.'s $\to N(\mu, \sigma^2/n)$ as $n\to\infty$; any original distribution.
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Standardize: $Z = (X - \mu)/\sigma \sim N(0,1)$
+  \item Empirical rule: 68\% within $\pm\sigma$; 95\% within $\pm 2\sigma$; 99.7\% within $\pm 3\sigma$
+  \item SE of mean $= \sigma/\sqrt{n}$ (shrinks with more data)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Complexity ────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Algorithmic Complexity \& Simulation}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item $O$ = worst case; $\Omega$ = best case; $\Theta$ = tight (both match)
+  \item $O(1) < O(\log n) < O(n) < O(n\log n) < O(n^2) < O(2^n) < O(n!)$
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Brute force:} $O(s^n)$ -- infeasible for large spaces
+  \item \textbf{Dynamic programming:} $O(n \cdot s \cdot T)$ -- exact, feasible
+  \item \textbf{CLT formula:} $O(1)$ -- approximate, instant
+  \item \textbf{Monte Carlo:} $O(N)$ -- approximate, general
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── MLE & MGFs ────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries MLE, MGFs, CIs \& Hypothesis Testing}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{MLE:} Maximize $\ell(\theta) = \sum\ln f(x_i;\theta)$; set $d\ell/d\theta = 0$
+  \item \textbf{MGF:} $M_X(t)=E[e^{tX}]$; $E(X^n) = M_X^{(n)}(0)$
+  \item Mean $= M'(0)$; Var $= M''(0) - [M'(0)]^2$
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{95\% CI:} $\bar{X} \pm 1.96\,\sigma/\sqrt{n}$ (large $n$)
+  \item \textbf{$p$-value:} $P(\text{data this extreme} \mid H_0)$; reject if $< \alpha$
+  \item \textbf{Type I:} Reject true $H_0$ (false positive, rate $= \alpha$)
+  \item \textbf{Type II:} Fail to reject false $H_0$ (false negative, rate $= \beta$)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}

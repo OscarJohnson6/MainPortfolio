@@ -1,0 +1,1352 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{listings}
+\usepackage{courier}
+
+\tcbuselibrary{skins, breakable}
+
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{sectiongrey}{RGB}{70, 70, 70}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{tableheadergrey}{RGB}{230, 230, 230}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowGr}{RGB}{242, 242, 242}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{part7bg}{RGB}{242, 242, 242}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+\definecolor{codebg}{RGB}{245, 245, 250}
+\definecolor{codeborder}{RGB}{100, 100, 140}
+\definecolor{vulnbg}{RGB}{255, 240, 240}
+\definecolor{vulnborder}{RGB}{180, 40, 40}
+\definecolor{safebg}{RGB}{240, 252, 240}
+\definecolor{safeborder}{RGB}{40, 140, 40}
+\definecolor{talkbg}{RGB}{240, 248, 255}
+\definecolor{talkborder}{RGB}{30, 80, 160}
+
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+\newcommand{\greysections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongrey}}{}{0em}{}[\color{sectiongrey}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongrey!80!black}}{}{0em}{}%
+}
+
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\newcommand{\talkingpoint}[1]{%
+  \begin{tcolorbox}[colback=talkbg, colframe=talkborder,
+    title={\bfseries Interview Talking Point}, arc=3pt, boxrule=1pt]
+  #1
+  \end{tcolorbox}%
+}
+
+\lstdefinestyle{shell}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single, rulecolor=\color{codeborder},
+  commentstyle=\itshape\color{sectiongreen},
+  comment=[l]{\#},
+  breaklines=true, showstringspaces=false,
+  numbers=left, numberstyle=\tiny\color{gray},
+  numbersep=6pt, xleftmargin=16pt, tabsize=2
+}
+\lstdefinestyle{vuln}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{vulnbg},
+  frame=single, rulecolor=\color{vulnborder},
+  commentstyle=\itshape\color{sectiongreen},
+  comment=[l]{\#},
+  breaklines=true, showstringspaces=false,
+  numbers=left, numberstyle=\tiny\color{gray},
+  numbersep=6pt, xleftmargin=16pt, tabsize=2
+}
+\lstdefinestyle{safe}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{safebg},
+  frame=single, rulecolor=\color{safeborder},
+  commentstyle=\itshape\color{sectiongreen},
+  comment=[l]{\#},
+  breaklines=true, showstringspaces=false,
+  numbers=left, numberstyle=\tiny\color{gray},
+  numbersep=6pt, xleftmargin=16pt, tabsize=2
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries Application Security Reference}\\[6pt]
+  {\large Cybersecurity Fundamentals for Developers}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I -- Web Application Security (The OWASP Pillar)
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART I \textemdash\ Web Application Security}}
+\addcontentsline{toc}{subsection}{OWASP Top 10 --- 2021 Reference}
+\addcontentsline{toc}{subsection}{Injection Attacks}
+\addcontentsline{toc}{subsection}{Cross-Site Scripting (XSS)}
+\addcontentsline{toc}{subsection}{Cross-Site Request Forgery (CSRF)}
+\addcontentsline{toc}{subsection}{Broken Access Control \& IDOR}
+\addcontentsline{toc}{subsection}{Server-Side Request Forgery (SSRF)}
+\addcontentsline{toc}{subsection}{Security Misconfigurations \& HTTP Headers}
+\partbanner{part6bg}{sectionred}{Part I \quad Web Application Security}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  The OWASP Top 10 covers the most critical risks to web applications.
+  Every entry represents a class of vulnerability that attackers actively exploit.
+\end{center}
+
+\section*{OWASP Top 10 --- 2021 Reference}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1cm}
+                              >{\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{\#} & \textbf{Category} & \textbf{What it means in practice} \\
+\midrule
+\rowcolor{rowRe} A01 & Broken Access Control   & Unauthorized users access other users' data, admin features, or restricted resources. \\
+\rowcolor{rowA}  A02 & Cryptographic Failures  & Sensitive data exposed due to weak encryption, cleartext storage, or deprecated algorithms. \\
+\rowcolor{rowRe} A03 & Injection               & Untrusted data sent to interpreters (SQL, OS, LDAP) as commands. \\
+\rowcolor{rowA}  A04 & Insecure Design         & Architectural flaws where threats were never modeled or mitigated in the design phase. \\
+\rowcolor{rowRe} A05 & Security Misconfiguration & Default credentials, verbose errors, missing headers, unpatched systems. \\
+\rowcolor{rowA}  A06 & Vulnerable Components   & Using libraries, frameworks, or OS components with known CVEs. \\
+\rowcolor{rowRe} A07 & Auth Failures           & Broken session management, weak passwords, missing MFA, credential stuffing. \\
+\rowcolor{rowA}  A08 & Software/Data Integrity & CI/CD pipelines and update mechanisms not verified (supply chain attacks). \\
+\rowcolor{rowRe} A09 & Logging/Monitoring Failures & Attacks not detected; incident response impossible without audit trail. \\
+\rowcolor{rowA}  A10 & SSRF                    & Server makes outbound requests to attacker-controlled locations or internal resources. \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Injection Attacks}
+
+\textbf{The root cause of all injection attacks is the same:} untrusted user input is interpreted as code or commands rather than data. The fix is always the same: \textbf{separate data from instructions at the protocol level}.
+
+\subsection*{SQL Injection (SQLi)}
+
+\begin{lstlisting}[style=vuln, caption={VULNERABLE: string concatenation -- never do this}]
+# Python/Flask -- attacker input: username = "' OR '1'='1"
+query = "SELECT * FROM users WHERE username = '" + username + "'"
+# Resulting SQL: SELECT * FROM users WHERE username = '' OR '1'='1'
+# This returns ALL users -- authentication bypass
+\end{lstlisting}
+
+\begin{lstlisting}[style=safe, caption={SECURE: parameterized queries separate code from data}]
+# Python with parameterized query -- the DB driver handles escaping
+cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+# OR with SQLAlchemy ORM:
+user = db.session.query(User).filter_by(username=username).first()
+# The SQL engine receives username as DATA, never as SQL syntax
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\textbf{Types of SQLi beyond classic:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Blind SQLi:} No error output. Attacker infers data from boolean responses (\texttt{AND 1=1} vs \texttt{AND 1=2}).
+  \item \textbf{Time-Based Blind:} Uses \texttt{SLEEP(5)} or \texttt{WAITFOR DELAY} to exfiltrate data via response timing.
+  \item \textbf{Out-of-Band:} Exfiltrates data via DNS lookups or HTTP requests to an attacker-controlled server.
+  \item \textbf{Second-Order:} Payload stored safely but executed when retrieved and used in another query later.
+\end{itemize}
+\end{tcolorbox}
+
+\subsection*{Command Injection}
+
+\begin{lstlisting}[style=vuln, caption={VULNERABLE: shell=True passes input directly to the shell}]
+# Attacker input: filename = "report.pdf; cat /etc/passwd"
+import subprocess
+subprocess.run("convert " + filename + " output.png", shell=True)
+# Executes: convert report.pdf; cat /etc/passwd output.png
+\end{lstlisting}
+
+\begin{lstlisting}[style=safe, caption={SECURE: pass arguments as a list, never shell=True with user input}]
+import subprocess
+# Each element is a separate argument -- no shell interpretation
+subprocess.run(["convert", filename, "output.png"], shell=False)
+\end{lstlisting}
+
+\subsection*{Log Injection \& LDAP Injection}
+
+\textbf{Log Injection:} An attacker inserts newlines (\texttt{\textbackslash n}) into log entries to forge log records. Input \texttt{admin\textbackslash nINFO: Login successful as root} creates a fake log line. \textbf{Fix:} Sanitize or escape newlines before logging.
+
+\textbf{LDAP Injection:} Like SQLi but for LDAP directory queries. Input \texttt{*)(uid=*))(|(uid=*} can bypass authentication in \texttt{(uid=\{user\})(password=\{pass\})} queries. \textbf{Fix:} Use an LDAP library that escapes special characters (\texttt{*}, \texttt{(}, \texttt{)}, \texttt{\textbackslash}, \texttt{NUL}).
+
+\talkingpoint{``Parameterized queries aren't just sanitization---they fundamentally separate code from data at the protocol level. The database driver serializes the parameter as a typed value that the SQL engine never parses as syntax. This is why ORMs don't prevent injection if you drop to raw string queries with \texttt{format()} or concatenation. The fix is architectural, not cosmetic.''}
+
+\section*{Cross-Site Scripting (XSS)}
+
+XSS injects malicious scripts into web pages viewed by other users. The browser trusts scripts that appear to come from the legitimate origin.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.2cm}}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Type} & \textbf{How it works} & \textbf{Risk Level} \\
+\midrule
+\rowcolor{rowRe} Stored (Persistent) & Payload saved in the database (e.g., a comment field). Every user who views the page executes it. & \textbf{Critical} --- one injection, thousands of victims \\
+\rowcolor{rowA}  Reflected (Non-Persistent) & Payload in the URL or request, reflected back in the response. Victim must click a crafted link. & High --- phishing + link sharing \\
+\rowcolor{rowRe} DOM-Based & Payload never hits the server. JavaScript reads from \texttt{location.hash}, \texttt{document.URL}, or other DOM sources and writes to \texttt{innerHTML} unsafely. & High --- bypasses server-side filtering \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textbf{What XSS can do:} steal session cookies, redirect users to phishing pages, keylog input, make API calls as the victim, install browser-based cryptominers.
+
+\textbf{Prevention:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Output encoding:} Encode all user data before inserting into HTML (\texttt{\&lt;} instead of \texttt{<}). Framework templating engines (React, Jinja2, Thymeleaf) do this automatically when used correctly.
+  \item \textbf{Content Security Policy (CSP):} HTTP header that tells the browser which script sources are trusted. \texttt{Content-Security-Policy: default-src 'self'; script-src 'self'} blocks all inline scripts and external sources.
+  \item \textbf{HttpOnly cookies:} Cookies with \texttt{HttpOnly} flag cannot be read by JavaScript, limiting cookie theft.
+  \item \textbf{Never use \texttt{innerHTML} with user data.} Use \texttt{textContent} instead, or a sanitization library like DOMPurify.
+\end{itemize}
+
+\talkingpoint{``Stored XSS is categorically more dangerous than reflected XSS because it removes the attacker's biggest obstacle: getting the victim to click a link. A single stored payload on a popular page can silently compromise thousands of sessions. DOM-based XSS is especially tricky because server-side WAFs don't see it -- the payload exists only in the URL fragment (\texttt{\#...}) which is never sent to the server.''}
+
+\section*{Cross-Site Request Forgery (CSRF)}
+
+CSRF exploits the fact that browsers automatically include cookies (including session cookies) with every request to a domain. An attacker can trick a logged-in user into making unintended requests.
+
+\textbf{Attack flow:} Victim is logged into \texttt{bank.com}. Attacker serves a page with \texttt{<img src="https://bank.com/transfer?to=attacker\&amount=5000">}. The browser fetches the URL, automatically attaching the victim's session cookie. The bank processes the transfer.
+
+\textbf{Defenses:}
+\begin{itemize}[noitemsep]
+  \item \textbf{SameSite cookie attribute} (modern, preferred): controls when cookies are sent cross-origin.
+  \item \textbf{Anti-CSRF tokens}: a random secret embedded in every form, verified server-side. An attacker's page cannot read it (same-origin policy).
+  \item \textbf{Verify the \texttt{Origin}/\texttt{Referer} header} (defense-in-depth, not sufficient alone).
+\end{itemize}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{SameSite Value} & \textbf{Behavior} & \textbf{CSRF Protection?} \\
+\midrule
+\rowcolor{rowRe} \texttt{Strict} & Cookie never sent on cross-origin requests at all. & Full -- but may break login flows via external links \\
+\rowcolor{rowA}  \texttt{Lax} (modern default) & Cookie sent on top-level navigations (clicking a link); blocked on cross-origin subrequests (images, AJAX). & Good for most cases \\
+\rowcolor{rowRe} \texttt{None} & Cookie always sent cross-origin. Must be paired with \texttt{Secure}. & None -- requires Anti-CSRF tokens \\
+\bottomrule
+\end{tabularx}}
+
+\talkingpoint{``\texttt{SameSite=Lax} became the browser default (Chrome 80+) in 2020 and provides meaningful CSRF protection for the vast majority of use cases. However, \texttt{Lax} still allows cookies on cross-origin GET navigations -- so any state-changing GET endpoint (which violates REST principles anyway) remains vulnerable. The defense-in-depth approach is both \texttt{SameSite=Lax} AND Anti-CSRF tokens for sensitive state-changing operations.''}
+
+\section*{Broken Access Control \& IDOR}
+
+\textbf{Broken Access Control} (OWASP \#1) means the application doesn't properly enforce what authenticated users are allowed to do.
+
+\textbf{IDOR (Insecure Direct Object Reference):} An attacker modifies a parameter that directly references an object (like a database ID) to access data they shouldn't.
+
+\begin{lstlisting}[style=vuln, caption={VULNERABLE: trusts user-supplied ID without authorization check}]
+# GET /api/invoices/1047  -- but user is actually customer ID 2
+@app.route("/api/invoices/<int:invoice_id>")
+def get_invoice(invoice_id):
+    return Invoice.query.get(invoice_id)  # Returns ANY invoice -- no ownership check
+\end{lstlisting}
+
+\begin{lstlisting}[style=safe, caption={SECURE: always verify the requesting user owns the resource}]
+@app.route("/api/invoices/<int:invoice_id>")
+@login_required
+def get_invoice(invoice_id):
+    invoice = Invoice.query.filter_by(id=invoice_id, customer_id=current_user.id).first()
+    if not invoice:
+        abort(404)  # Don't reveal 403 -- use 404 to avoid enumeration
+    return invoice
+\end{lstlisting}
+
+\textbf{Horizontal vs Vertical Privilege Escalation:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Horizontal:} Accessing \emph{another user's} data at the same privilege level (user A reads user B's records).
+  \item \textbf{Vertical:} Accessing functionality above your privilege level (regular user accessing admin endpoints).
+\end{itemize}
+
+\talkingpoint{``The fix for IDOR is never to trust user-supplied identifiers without an authorization check. A common mistake is using sequential integer IDs -- switching to UUIDs makes IDs harder to guess but does not fix the underlying authorization flaw. The correct fix is always: filter queries to include the authenticated user's ownership constraint. Return 404 (not 403) so attackers can't enumerate which IDs exist.''}
+
+\section*{Server-Side Request Forgery (SSRF)}
+
+SSRF tricks the server into making HTTP requests to locations the attacker specifies -- including internal services that are not exposed to the internet.
+
+\textbf{Classic attack against cloud metadata services:}
+
+\begin{lstlisting}[style=vuln, caption={VULNERABLE: server fetches a URL provided by the user}]
+# Attacker provides url = "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+# 169.254.169.254 is the AWS EC2 instance metadata service -- never accessible from outside
+@app.route("/fetch")
+def fetch_url():
+    url = request.args.get("url")
+    return requests.get(url).text  # Returns AWS credentials to the attacker
+\end{lstlisting}
+
+\textbf{What an attacker can reach via SSRF:}
+\begin{itemize}[noitemsep]
+  \item Cloud metadata endpoints (\texttt{169.254.169.254} on AWS/GCP, \texttt{169.254.169.254/metadata} on Azure)
+  \item Internal services behind firewalls (databases, admin panels, Kubernetes API)
+  \item Internal network scanning (probe \texttt{192.168.x.x} ranges)
+  \item Local file inclusion via \texttt{file:///etc/passwd}
+\end{itemize}
+
+\textbf{Prevention:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Allowlist} permitted domains/IPs (never a blocklist -- attackers use DNS rebinding to bypass blocklists)
+  \item Block requests to RFC-1918 private ranges, loopback (\texttt{127.0.0.1}), and link-local (\texttt{169.254.x.x})
+  \item Use IMDSv2 on AWS (requires a token, not accessible via SSRF redirect)
+  \item Don't forward raw server responses to the client
+\end{itemize}
+
+\talkingpoint{``SSRF is categorically underestimated because developers think of it as a server fetching a URL -- but in cloud environments it's often a direct path to credential exfiltration. The Capital One breach (2019) was SSRF against the AWS metadata service, leading to IAM credentials and the exfiltration of 100 million records. Blocklisting \texttt{169.254.169.254} is insufficient -- DNS rebinding can resolve an allowed hostname to that IP after the allowlist check passes.''}
+
+\section*{Security Misconfigurations \& HTTP Security Headers}
+
+Security misconfiguration is the most common issue found in web applications -- it's not a single vulnerability but a category of ``things that should have been turned off or turned on.''
+
+\subsection*{HTTP Security Headers Reference}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\ttfamily\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Header} & \textbf{Purpose \& Recommended Value} \\
+\midrule
+\rowcolor{rowRe} Strict-Transport-Security & Forces HTTPS for the specified duration. \texttt{max-age=31536000; includeSubDomains; preload} prevents SSL stripping. \\
+\rowcolor{rowA}  Content-Security-Policy   & Whitelist of allowed script, style, and media sources. Blocks inline scripts and XSS. Start with \texttt{default-src 'self'}. \\
+\rowcolor{rowRe} X-Content-Type-Options    & \texttt{nosniff} --- prevents MIME-type sniffing that could execute uploaded files as scripts. \\
+\rowcolor{rowA}  X-Frame-Options           & \texttt{DENY} or \texttt{SAMEORIGIN} --- blocks clickjacking (embedding your page in an \texttt{<iframe>} on an attacker's site). \\
+\rowcolor{rowRe} Referrer-Policy           & \texttt{no-referrer-when-downgrade} or \texttt{strict-origin} --- limits how much URL info is sent to external sites. \\
+\rowcolor{rowA}  Permissions-Policy        & Restricts browser features (camera, mic, geolocation) per page. Replaces Feature-Policy. \\
+\rowcolor{rowRe} Cache-Control             & \texttt{no-store} for sensitive pages (prevent caching of account pages in shared browsers). \\
+\bottomrule
+\end{tabularx}}
+
+\subsection*{Other Common Misconfigurations}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Default credentials:} Admin interfaces (\texttt{/admin}, \texttt{/phpmyadmin}) left with \texttt{admin/admin} or \texttt{root/root}. Always change on first deployment.
+  \item \textbf{Verbose error messages:} Stack traces in production responses leak file paths, framework versions, and internal logic. \textbf{Log details server-side; return generic messages to users.}
+  \item \textbf{Directory listing enabled:} Nginx/Apache serving file listings of \texttt{/uploads} exposes all uploaded content. Disable \texttt{autoindex}.
+  \item \textbf{Debug mode in production:} Django \texttt{DEBUG=True} in production exposes all environment variables, installed packages, and full stack traces.
+  \item \textbf{Exposed \texttt{.git} directory:} If \texttt{/.git/config} is accessible, the entire source code can be reconstructed. Block access in web server config.
+\end{itemize}
+
+\begin{lstlisting}[style=shell, caption={Check headers and misconfigurations from the command line}]
+# Check what security headers a site returns
+curl -I https://example.com | grep -i "strict\|content-security\|x-content\|x-frame"
+
+# Test for exposed .git directory
+curl -s https://target.com/.git/config
+
+# Check TLS configuration and certificate chain
+openssl s_client -connect example.com:443 -servername example.com
+
+# Run Mozilla Observatory scan (online)
+# https://observatory.mozilla.org
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART II -- Cryptography & Data Integrity
+%% =============================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART II \textemdash\ Cryptography \& Data Integrity}}
+\addcontentsline{toc}{subsection}{Symmetric vs.\ Asymmetric Encryption}
+\addcontentsline{toc}{subsection}{Hashing vs.\ Encryption}
+\addcontentsline{toc}{subsection}{Password Storage: Salting \& Peppering}
+\addcontentsline{toc}{subsection}{Public Key Infrastructure (PKI)}
+\addcontentsline{toc}{subsection}{Digital Signatures \& Non-Repudiation}
+\partbanner{part5bg}{sectionteal}{Part II \quad Cryptography \& Data Integrity}
+
+\vspace{8pt}
+
+\section*{Symmetric vs.\ Asymmetric Encryption}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Feature} & \textbf{Symmetric (e.g., AES-256-GCM)} & \textbf{Asymmetric (e.g., RSA-2048, ECC)} \\
+\midrule
+\rowcolor{rowTe} Keys      & One shared secret key for both encrypt \& decrypt & Public/private key pair: encrypt with public, decrypt with private \\
+\rowcolor{rowA}  Speed     & Very fast -- hardware-accelerated on modern CPUs & 100--1000x slower; not suitable for bulk data \\
+\rowcolor{rowTe} Key distribution problem & How do you securely share the secret key? & No problem -- public keys can be freely distributed \\
+\rowcolor{rowA}  Use case  & Encrypting data at rest and bulk data in transit & Key exchange, signatures, TLS handshake, certificate issuance \\
+\rowcolor{rowTe} Real usage & AES-256-GCM for file/DB encryption; ChaCha20 for mobile & RSA for legacy key exchange; ECDH (P-256/X25519) for modern TLS \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal, arc=3pt, boxrule=1pt]
+\textbf{Hybrid Encryption (how TLS works):} Asymmetric cryptography solves the key distribution problem, but is too slow for data. Modern TLS uses both:
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Asymmetric} (ECDH): Securely establish a shared secret between client and server.
+  \item \textbf{Symmetric} (AES-256-GCM): Use that shared secret to encrypt all subsequent data at full speed.
+\end{enumerate}
+Neither alone is sufficient. Together, they provide security AND performance.
+\end{tcolorbox}
+
+\talkingpoint{``The distinction between RSA and ECC is important: both are asymmetric, but ECC provides equivalent security at much smaller key sizes (256-bit ECC $\approx$ 3072-bit RSA). TLS 1.3 deprecated RSA key exchange entirely, requiring ephemeral Diffie-Hellman (ECDHE) for all key exchanges. This enforces \textbf{forward secrecy}: even if the server's long-term private key is compromised later, past sessions cannot be decrypted.''}
+
+\section*{Hashing vs.\ Encryption}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Encryption} is two-way: a key can decrypt ciphertext back to plaintext.
+  \item \textbf{Hashing} is one-way: a mathematical function produces a fixed-size digest. There is no key and no reverse operation. Given a hash, you cannot derive the input.
+\end{itemize}
+
+\textbf{Why you must use purpose-built password hashing algorithms} (not SHA256/SHA512):
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\centering\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Algorithm} & \textbf{Speed (hashes/sec)} & \textbf{Status \& Notes} \\
+\midrule
+\rowcolor{rowRe} MD5       & $\sim$10 billion/s & \textbf{Broken.} Collisions demonstrated. Never use for anything. \\
+\rowcolor{rowRe} SHA-1     & $\sim$5 billion/s  & \textbf{Deprecated.} Collisions demonstrated (SHAttered, 2017). \\
+\rowcolor{rowOr} SHA-256   & $\sim$1 billion/s  & Cryptographically sound for integrity/signatures, but far too fast for passwords. \\
+\rowcolor{rowA}  bcrypt    & $\sim$5/s          & \textbf{Good.} Work factor (cost) adjustable. Designed to be slow. \\
+\rowcolor{rowBg} Argon2id  & $\sim$2/s          & \textbf{Best current.} Memory-hard, time-hard. Winner of Password Hashing Competition. \\
+\rowcolor{rowA}  scrypt    & $\sim$1/s          & Memory-hard; good alternative to Argon2. Used in Litecoin, WPA3. \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{Speed figures are approximate on a consumer GPU. An attacker with a modern GPU can attempt billions of SHA-256 hashes per second. The entire point of bcrypt/Argon2 is to make each guess computationally expensive.}
+
+\talkingpoint{``The danger of using SHA-256 for passwords isn't that it's broken -- it's that it's \emph{too fast}. A GPU can compute over a billion SHA-256 hashes per second, making brute-force practical against any password under 12 characters. Argon2id is the correct modern choice: it's configurable in both time (iterations) and memory, so as hardware gets faster, you raise the parameters. OWASP currently recommends Argon2id with m=47104 KB, t=1, p=1 as a minimum starting point.''}
+
+\section*{Password Storage: Salting \& Peppering}
+
+\textbf{The Rainbow Table problem:} An attacker precomputes a massive table of hash $\to$ password mappings. Without a salt, finding all users with password ``password123'' requires one lookup.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Salt:} A random, unique value generated per user and prepended/appended to the password before hashing. Stored in plaintext alongside the hash.\\
+  \texttt{hash = argon2id(password + salt)} where \texttt{salt = random\_bytes(32)}\\
+  \textit{Effect:} Two users with the same password get completely different hashes. Rainbow tables become computationally infeasible --- the attacker must crack each hash individually.
+
+  \item \textbf{Pepper:} A server-side secret (stored in a secrets vault, NOT in the database) added to all passwords before hashing.\\
+  \texttt{hash = argon2id(password + salt + pepper)}\\
+  \textit{Effect:} Even if the entire database is dumped (SQL injection attack), the attacker cannot crack any hashes without also knowing the pepper. Provides defense-in-depth if the DB is compromised but the application secrets are not.
+\end{itemize}
+
+\begin{lstlisting}[style=safe, caption={Python: correct password hashing with argon2-cffi}]
+from argon2 import PasswordHasher
+
+ph = PasswordHasher(
+    time_cost=2,       # Number of iterations
+    memory_cost=65536, # 64 MB memory (in KiB)
+    parallelism=2,     # Number of threads
+    hash_len=32,
+    salt_len=16
+)
+
+# Hash a password (salt is generated automatically and stored in the hash string)
+hashed = ph.hash("user_password_here")
+# Stored value looks like: $argon2id$v=19$m=65536,t=2,p=2$...
+
+# Verify -- raises VerifyMismatchError if wrong
+try:
+    ph.verify(hashed, "provided_password")  # True if correct
+    if ph.check_needs_rehash(hashed):      # Rehash if parameters are outdated
+        hashed = ph.hash("provided_password")
+except Exception:
+    pass  # Invalid password
+\end{lstlisting}
+
+\section*{Public Key Infrastructure (PKI)}
+
+PKI is the system of trust that makes HTTPS work. It answers: ``How do I know I'm talking to the real bank.com and not an attacker?''
+
+\textbf{Chain of Trust:}
+\[
+  \underbrace{\text{Root CA}}_{\text{Trusted by OS/Browser}} \;\longrightarrow\;
+  \underbrace{\text{Intermediate CA}}_{\text{Issued by Root}} \;\longrightarrow\;
+  \underbrace{\text{End-Entity Certificate}}_{\text{bank.com's actual cert}}
+\]
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Root CA:} A Certificate Authority whose root certificate is pre-installed in your OS or browser. (DigiCert, Let's Encrypt ISRG Root, Comodo, etc.) If you trust the Root CA, you trust everything it signs.
+  \item \textbf{Intermediate CA:} Root CAs don't directly sign end-entity certs --- they sign intermediate certificates which sign website certs. This limits damage if an intermediate is compromised.
+  \item \textbf{End-Entity Certificate:} The certificate \texttt{bank.com} presents during the TLS handshake. Contains the domain name, public key, validity period, and the Intermediate CA's signature.
+  \item \textbf{Certificate Validation (browser steps):} (1) Verify the cert is signed by a trusted CA chain. (2) Verify the domain in the cert matches the URL. (3) Verify the cert is not expired. (4) Check the CRL/OCSP for revocation.
+\end{itemize}
+
+\begin{lstlisting}[style=shell, caption={Inspect a certificate from the command line}]
+# View full certificate chain
+openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -text -noout
+
+# Check expiration date only
+echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -enddate
+
+# Verify certificate chain manually
+openssl verify -CAfile ca-bundle.crt server.crt
+\end{lstlisting}
+
+\section*{Digital Signatures \& Non-Repudiation}
+
+A digital signature proves: (1) the message came from you (\textbf{authentication}), (2) it hasn't been altered (\textbf{integrity}), and (3) you can't deny sending it (\textbf{non-repudiation}).
+
+\[
+  \underbrace{\text{Sign with PRIVATE key}}_{\text{only the owner can do this}}
+  \quad\longrightarrow\quad \text{Signature}
+  \quad\longrightarrow\quad
+  \underbrace{\text{Verify with PUBLIC key}}_{\text{anyone can verify}}
+\]
+
+\textbf{Real-world uses:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Code signing:} Software releases signed with the developer's private key. OS/package manager verifies before installing.
+  \item \textbf{TLS certificates:} The CA signs the server's certificate with the CA's private key.
+  \item \textbf{JWTs:} Server signs the token payload; any verifier can check authenticity.
+  \item \textbf{Git commit signing:} \texttt{git commit -S} signs commits with your GPG key, proving authorship.
+  \item \textbf{Email (S/MIME, PGP):} Signing emails proves they came from you and weren't modified in transit.
+\end{itemize}
+
+\talkingpoint{``The asymmetry is critical: signing with your private key lets \emph{anyone} with your public key verify authenticity. Non-repudiation is legally significant -- a signed document cannot be denied. This is why code signing matters: in the SolarWinds supply chain attack (2020), attackers signed malicious updates with the legitimate vendor's certificate, which caused all security tools to trust the payload. Protecting private signing keys is as critical as protecting the systems they protect.''}
+
+\newpage
+
+%% =============================================================================
+%%  PART III -- Identity & Access Management (IAM)
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART III \textemdash\ Identity \& Access Management}}
+\addcontentsline{toc}{subsection}{Multi-Factor Authentication (MFA)}
+\addcontentsline{toc}{subsection}{OAuth 2.0 \& OpenID Connect (OIDC)}
+\addcontentsline{toc}{subsection}{JWT Deep Dive \& Common Attacks}
+\addcontentsline{toc}{subsection}{Principle of Least Privilege (PoLP)}
+\addcontentsline{toc}{subsection}{RBAC vs.\ ABAC}
+\partbanner{partbg}{sectionblue}{Part III \quad Identity \& Access Management}
+
+\vspace{8pt}
+
+\section*{Multi-Factor Authentication (MFA)}
+
+Authentication factors come in three categories: \textbf{something you know} (password), \textbf{something you have} (phone, hardware key), \textbf{something you are} (biometric). MFA requires at least two different categories.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\centering\arraybackslash}p{2cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Method} & \textbf{How it works \& Weaknesses} & \textbf{Security Level} \\
+\midrule
+\rowcolor{rowB}  SMS / Phone call & OTP sent via text. Vulnerable to SIM swapping (attacker convinces carrier to transfer your number), SS7 protocol interception, and phishing in real-time. & Low \\
+\rowcolor{rowA}  Email OTP & Similar to SMS but now also requires email account compromise. Not significantly better. & Low \\
+\rowcolor{rowB}  TOTP (e.g., Google Authenticator) & 30-second rotating code generated by a shared secret (RFC 6238). Can be phished in real-time. If backup codes or seed leaked, fully compromised. & Medium \\
+\rowcolor{rowA}  Push Notification (e.g., Duo) & App approval required for login. Vulnerable to ``MFA fatigue'' attacks: flood user with push requests until they accidentally approve. & Medium \\
+\rowcolor{rowB}  FIDO2 / WebAuthn / Passkeys & Cryptographic challenge-response using on-device hardware (TPM, Secure Enclave) or hardware security key (YubiKey). Not phishable -- bound to the origin domain. & \textbf{High} \\
+\rowcolor{rowA}  Hardware Security Key (FIDO2) & Physical device (YubiKey, Titan Key). Impossible to phish remotely. Even if attacker has password + TOTP, they cannot authenticate without the physical key. & \textbf{Highest} \\
+\bottomrule
+\end{tabularx}}
+
+\talkingpoint{``SMS MFA is dramatically better than no MFA, but for high-value accounts the correct direction is FIDO2/WebAuthn. The key property of FIDO2 is that the cryptographic response is \emph{origin-bound} -- the hardware key generates a different response for \texttt{bank.com} vs \texttt{bank-login.com}. A phishing site cannot replay or forward the response. This is why Google reported zero successful phishing attacks on employees after mandating hardware keys in 2017, despite sophisticated ongoing targeting.''}
+
+\section*{OAuth 2.0 \& OpenID Connect (OIDC)}
+
+\textbf{OAuth 2.0} is an authorization framework: it lets a user grant a third-party application limited access to their resources at another service, without sharing their password.
+
+\textbf{Actors:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Resource Owner:} The user (you).
+  \item \textbf{Client:} The third-party app requesting access (e.g., a Spotify app wanting your Contacts).
+  \item \textbf{Authorization Server:} Issues tokens after the user consents (Google, GitHub, Auth0).
+  \item \textbf{Resource Server:} The API that holds the user's data (Google Contacts API).
+\end{itemize}
+
+\textbf{Authorization Code + PKCE Flow} (the modern secure flow for web and mobile apps):
+\[
+  \text{User} \to \text{Client} \to \underbrace{\text{Auth Server}}_{\text{login + consent}} \to \underbrace{\text{Code}}_{\text{short-lived}} \to \text{Client} \to \underbrace{\text{Access Token}}_{\text{client exchanges code}}
+\]
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{PKCE (Proof Key for Code Exchange):} Prevents authorization code interception attacks in public clients (mobile apps, SPAs). The client generates a \texttt{code\_verifier} (random string) and sends a hashed \texttt{code\_challenge} with the auth request. When exchanging the code for a token, it sends the original \texttt{code\_verifier}, which the auth server verifies. An intercepted code is useless without the verifier.
+
+\textbf{OIDC:} Built on top of OAuth 2.0 for \emph{authentication}. OAuth is authorization (``can this app access X?''); OIDC adds an \textbf{ID Token} (JWT) that says ``the user is who they claim to be.'' Use OIDC when you need to know \emph{who the user is}; use OAuth when you need to access \emph{their resources}.
+\end{tcolorbox}
+
+\section*{JWT Deep Dive \& Common Attacks}
+
+A \textbf{JWT (JSON Web Token)} is a self-contained token encoding claims about a user. The server doesn't need to look up a database on each request --- it verifies the signature.
+
+\textbf{Structure:} Three Base64URL-encoded parts separated by dots:
+\[
+  \underbrace{\text{Header}}_{\texttt{eyJ...}} \; . \;
+  \underbrace{\text{Payload}}_{\texttt{eyJ...}} \; . \;
+  \underbrace{\text{Signature}}_{\texttt{SflKx...}}
+\]
+
+\begin{lstlisting}[style=shell, caption={Decoded JWT structure (use jwt.io to inspect)}]
+# Header (base64 decoded):
+{"alg": "HS256", "typ": "JWT"}
+
+# Payload (base64 decoded -- NOT encrypted, just encoded):
+{"sub": "1234567890", "name": "Oscar", "role": "admin", "iat": 1716000000, "exp": 1716003600}
+
+# Signature (HMAC-SHA256 of header.payload using the secret key):
+HMACSHA256(base64(header) + "." + base64(payload), secretKey)
+\end{lstlisting}
+
+\textbf{Critical Security Issues:}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Attack 1: The \texttt{alg: none} Attack}, arc=3pt, boxrule=1pt]
+An attacker changes the header to \texttt{\{"alg": "none"\}} and removes the signature. Vulnerable JWT libraries that trust the header's \texttt{alg} field will accept the token as valid because ``no algorithm'' means no verification.\\[4pt]
+\textbf{Fix:} Never trust the \texttt{alg} field from the token. Always enforce the expected algorithm server-side, regardless of what the header says.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Attack 2: Sensitive Data in Payload}, arc=3pt, boxrule=1pt]
+JWT payloads are \textbf{Base64-encoded, not encrypted}. Anyone who intercepts the token can decode and read the payload. Never store passwords, SSNs, credit card numbers, or other sensitive data in a JWT payload.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Attack 3: Long-Lived Tokens Without Refresh}, arc=3pt, boxrule=1pt]
+If a JWT is stolen (XSS, network interception), a server cannot invalidate it -- there's no revocation list. A JWT is valid until its \texttt{exp} claim expires.\\[4pt]
+\textbf{Fix:} Short-lived access tokens (15 min) + a refresh token system. Store refresh tokens server-side (allowing revocation). Access tokens stay in memory; refresh tokens in \texttt{httpOnly} cookies.
+\end{tcolorbox}
+
+\talkingpoint{``The stateless nature of JWTs is both their power and their risk. Stateful sessions can be revoked instantly (delete the session record); JWTs cannot. The industry solution is short-lived access tokens with a refresh token that can be revoked. For logout, you rotate or revoke the refresh token -- the access token expires on its own. Some organizations also maintain a token blocklist for critical operations (password change, account compromise), accepting the database lookup cost for high-security actions.''}
+
+\section*{Principle of Least Privilege (PoLP)}
+
+Every user, service, and process should have the \textbf{minimum permissions required to do its job} -- nothing more.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Database users:} Your web app's DB user should have only \texttt{SELECT, INSERT, UPDATE, DELETE} on specific tables -- never \texttt{DROP TABLE}, \texttt{CREATE USER}, or admin privileges.
+  \item \textbf{Cloud IAM:} An EC2 instance running your API should have an IAM role with exactly the S3 buckets and DynamoDB tables it needs to access -- not \texttt{AdministratorAccess}.
+  \item \textbf{Service accounts:} A CI/CD pipeline deploying to production doesn't need read access to customer data or the ability to delete infrastructure.
+  \item \textbf{API tokens:} Issue scoped tokens with specific permissions rather than root API keys.
+\end{itemize}
+
+\textbf{Why it matters:} When a breach occurs (SQL injection, SSRF, supply chain attack), the attacker is limited to what the compromised component is authorized to do. A database user with only \texttt{SELECT} on one table cannot drop the entire database or read the payments table.
+
+\section*{Role-Based Access Control (RBAC) vs.\ Attribute-Based Access Control (ABAC)}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{RBAC} & \textbf{ABAC} \\
+\midrule
+\rowcolor{rowA}  Basis of decision & User's assigned role (admin, editor, viewer) & Attributes of user, resource, environment, and action \\
+\rowcolor{rowB}  Flexibility & Lower -- roles are coarse-grained & Higher -- policies can express complex rules \\
+\rowcolor{rowA}  Complexity & Simple to implement and understand & Complex to design and audit \\
+\rowcolor{rowB}  Example rule & ``Admins can delete posts'' & ``Users can edit documents they own, created in the last 30 days, in their department'' \\
+\rowcolor{rowA}  Best for & Most web apps, small-to-medium teams & Healthcare (HIPAA), financial systems, government, fine-grained multi-tenant SaaS \\
+\rowcolor{rowB}  Frameworks & Built into Spring Security, Django, Rails & OPA (Open Policy Agent), AWS IAM, Casbin \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART IV -- Network & Infrastructure Security
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART IV \textemdash\ Network \& Infrastructure Security}}
+\addcontentsline{toc}{subsection}{The TLS 1.3 Handshake}
+\addcontentsline{toc}{subsection}{Zero Trust Architecture}
+\addcontentsline{toc}{subsection}{Firewalls vs.\ WAFs}
+\addcontentsline{toc}{subsection}{Man-in-the-Middle (MITM) Attacks}
+\addcontentsline{toc}{subsection}{DDoS Mitigation}
+\partbanner{part4bg}{sectionorange}{Part IV \quad Network \& Infrastructure Security}
+
+\vspace{8pt}
+
+\section*{The TLS 1.3 Handshake}
+
+TLS (Transport Layer Security) provides \textbf{confidentiality} (encryption), \textbf{integrity} (tamper detection via HMAC), and \textbf{authentication} (the server is who it claims to be via certificate).
+
+\textbf{TLS 1.3 Handshake} (simplified -- only 1 round trip):
+\begin{enumerate}[noitemsep]
+  \item \textbf{ClientHello:} Client sends supported cipher suites, TLS version, and a list of key share values (Diffie-Hellman public values for each supported group, e.g., X25519, P-256).
+  \item \textbf{ServerHello + Key Exchange:} Server picks a cipher suite and DH group, sends its DH public value. Both sides now independently compute the same \textbf{shared secret} (DH key agreement). Server sends its certificate and a Finished message, both encrypted with the derived session key.
+  \item \textbf{Client Finished:} Client verifies the certificate chain (against trusted CAs), verifies the Finished MAC, sends its own Finished. The application data channel is now open.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{TLS 1.3 improvements over 1.2:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Mandatory forward secrecy:} Removed RSA key exchange. Every handshake uses ephemeral ECDHE (Elliptic Curve Diffie-Hellman Ephemeral), so past sessions cannot be decrypted even if the server's private key is later compromised.
+  \item \textbf{Fewer round trips:} 1-RTT handshake (down from 2 in TLS 1.2). 0-RTT is possible for resuming sessions (but has replay attack risks).
+  \item \textbf{Removed weak ciphers:} RC4, 3DES, MD5, SHA-1, all export-grade ciphers, static RSA, and Diffie-Hellman without elliptic curves removed.
+  \item \textbf{Encrypted more of the handshake:} Server's certificate is now encrypted in TLS 1.3 (was plaintext in 1.2).
+\end{itemize}
+\end{tcolorbox}
+
+\talkingpoint{``Forward secrecy is the critical property that makes TLS 1.3 categorically more secure than TLS 1.2 with RSA key exchange. In TLS 1.2, a passive attacker could record all traffic and then, upon obtaining the server's private key years later, decrypt all historical sessions. With ephemeral DH, each session uses a fresh key pair that is discarded after the handshake. The NSA's bulk traffic collection makes this distinction very concrete.''}
+
+\section*{Zero Trust Architecture}
+
+Traditional security assumed: ``Everything inside the network perimeter is trusted; everything outside is hostile.'' \textbf{Zero Trust assumes the perimeter doesn't exist.}
+
+\textbf{Core principles:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Never trust, always verify:} Every request -- even from internal services -- must be authenticated and authorized. Being on the corporate VPN grants no implicit access.
+  \item \textbf{Least privilege:} Grant only the minimum access required for the current operation.
+  \item \textbf{Assume breach:} Design systems assuming an attacker is already inside. Segment networks, encrypt internal traffic, monitor east-west traffic.
+  \item \textbf{Micro-segmentation:} Divide the network into small zones. A compromised web server cannot directly reach the database server without authorization.
+  \item \textbf{Continuous verification:} Authentication is not a one-time gate. Re-evaluate trust continuously based on device health, user behavior, and location.
+\end{itemize}
+
+\textbf{Real implementations:} Google BeyondCorp (the original Zero Trust model), Cloudflare Access, Tailscale, HashiCorp Vault's identity-based access.
+
+\section*{Firewalls vs.\ Web Application Firewalls (WAFs)}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Feature} & \textbf{Network Firewall (L3/L4)} & \textbf{Web Application Firewall (L7)} \\
+\midrule
+\rowcolor{rowOr} OSI Layer & Layers 3--4 (IP, TCP/UDP) & Layer 7 (HTTP/HTTPS content) \\
+\rowcolor{rowA}  What it sees & Source/dest IP, port, protocol, connection state & HTTP method, URL, headers, request/response body \\
+\rowcolor{rowOr} What it blocks & Port scans, unauthorized connections, IP ranges & SQLi, XSS, CSRF, SSRF, malformed requests, bots \\
+\rowcolor{rowA}  Examples & iptables, AWS Security Groups, pfSense & AWS WAF, Cloudflare WAF, ModSecurity, NGINX ModSec \\
+\rowcolor{rowOr} Limitation & Cannot see inside HTTPS; doesn't understand application logic & Can be bypassed via obfuscation; generates false positives \\
+\bottomrule
+\end{tabularx}}
+
+\textit{A WAF is a useful layer of defense but is \textbf{not a substitute} for secure coding. A skilled attacker can often bypass WAF rules through encoding tricks. The WAF buys time and filters automated attacks; it does not prevent determined manual exploitation of logic flaws.}
+
+\section*{Man-in-the-Middle (MITM) Attacks}
+
+MITM attacks position an attacker between two communicating parties, allowing them to intercept, read, or modify traffic.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{ARP Spoofing (LAN):} ARP has no authentication. An attacker broadcasts fake ARP replies claiming their MAC address corresponds to the default gateway's IP. All traffic on the LAN is now routed through the attacker. \textit{Defense: Dynamic ARP Inspection (DAI) on managed switches; VPNs that encrypt all traffic regardless of local network.}
+
+  \item \textbf{DNS Poisoning:} Attacker corrupts DNS resolver cache to return a malicious IP for a legitimate domain. Victims are directed to a fake site. \textit{Defense: DNSSEC (cryptographic signing of DNS records); DNS-over-HTTPS (DoH) to prevent ISP-level tampering.}
+
+  \item \textbf{SSL Stripping:} When a user types \texttt{http://bank.com}, the attacker (acting as a proxy) connects to the real site over HTTPS but serves the user over HTTP. The user sees no lock icon but may not notice. \textit{Defense: \textbf{HTTP Strict Transport Security (HSTS)} header with \texttt{preload} -- the browser will always use HTTPS, even on first visit, because the domain is hardcoded in the browser's HSTS preload list. This completely defeats SSL stripping.}
+
+  \item \textbf{Rogue Access Point (Evil Twin):} An attacker creates a Wi-Fi network with the same SSID as a trusted network. Users connect and all their traffic passes through the attacker. \textit{Defense: VPN; certificate pinning in apps; HTTPS-only.}
+\end{itemize}
+
+\section*{DDoS Mitigation}
+
+\textbf{Distributed Denial of Service (DDoS)} floods a target with traffic to exhaust resources (bandwidth, connections, CPU) and deny service to legitimate users.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Type} & \textbf{Method} & \textbf{Mitigation} \\
+\midrule
+\rowcolor{rowOr} Volumetric & Raw bandwidth flood (UDP flood, ICMP flood). Measured in Gbps/Tbps. & Anycast routing; upstream scrubbing centers (Cloudflare, Akamai) \\
+\rowcolor{rowA}  Protocol   & Exploits TCP handshake (SYN flood fills connection table). Measured in packets/sec. & SYN cookies (server-side); rate limiting at firewall level \\
+\rowcolor{rowOr} Application (L7) & HTTP flood -- valid-looking requests that exhaust server CPU/DB. Hard to distinguish from real traffic. & WAF rate limiting; CAPTCHA; bot detection; connection limits \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Rate Limiting} is the first line of defense for application-layer attacks. Limit requests by IP per second, by user per hour, by endpoint type. Use \texttt{nginx limit\_req\_zone} or middleware like \texttt{express-rate-limit}.
+
+\talkingpoint{``A volumetric DDoS of 1 Tbps overwhelms any single server. The defense is \textbf{Anycast routing}: multiple data centers worldwide share the same IP address. Incoming traffic is routed to the nearest data center, distributing the attack load. Cloudflare's network can absorb over 100 Tbps precisely because there are hundreds of nodes absorbing traffic simultaneously. This is why small companies can defend against nation-state DDoS: they're not protecting a single IP, they're spreading traffic across a global network.''}
+
+\newpage
+
+%% =============================================================================
+%%  PART V -- Low-Level & Memory Security
+%% =============================================================================
+\greysections
+\addcontentsline{toc}{section}{\textcolor{sectiongrey}{PART V \textemdash\ Low-Level \& Memory Security}}
+\addcontentsline{toc}{subsection}{Buffer Overflows}
+\addcontentsline{toc}{subsection}{Memory Safety: The Rust Model}
+\addcontentsline{toc}{subsection}{Stack Canaries, ASLR \& DEP}
+\addcontentsline{toc}{subsection}{TOCTOU Race Conditions}
+\partbanner{part7bg}{sectiongrey}{Part V \quad Low-Level \& Memory Security}
+
+\vspace{8pt}
+
+\section*{Buffer Overflows}
+
+A \textbf{buffer overflow} occurs when a program writes more data into a fixed-size memory buffer than it can hold, overwriting adjacent memory including control data.
+
+\begin{lstlisting}[style=vuln, caption={Classic stack buffer overflow in C}]
+#include <string.h>
+void vulnerable(char *input) {
+    char buffer[64];  // Fixed 64-byte buffer on the stack
+    strcpy(buffer, input);  // strcpy has NO bounds checking
+}
+// If input is 200 bytes, it overwrites:
+// [buffer][other stack variables][saved frame pointer][return address]
+// An attacker crafts input to overwrite the return address
+// with the address of their shellcode (or a gadget in ROP chains)
+\end{lstlisting}
+
+\begin{lstlisting}[style=safe, caption={Safe alternatives in C -- always use size-bounded functions}]
+strncpy(buffer, input, sizeof(buffer) - 1);  // Bounded copy
+snprintf(buffer, sizeof(buffer), "%s", input); // Size-bounded formatting
+// Or better: use a memory-safe language (Rust, Go, Java, Python)
+\end{lstlisting}
+
+\textbf{The exploitation path:}
+\begin{enumerate}[noitemsep]
+  \item Overflow a stack buffer to overwrite the \textbf{saved return address} (EIP on x86, RIP on x86-64).
+  \item Point the return address to attacker-controlled shellcode (classic) or a chain of existing code gadgets (\textbf{ROP -- Return-Oriented Programming}).
+  \item When the function returns, execution jumps to the attacker's code.
+\end{enumerate}
+
+\textbf{Categories of memory vulnerabilities:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Stack overflow:} Overflows local variables on the call stack.
+  \item \textbf{Heap overflow:} Overflows heap-allocated memory (more complex to exploit but equally dangerous).
+  \item \textbf{Use-After-Free (UAF):} Accessing heap memory after it has been freed; the freed memory may have been reallocated to an attacker-controlled value.
+  \item \textbf{Integer overflow:} Arithmetic wraps around (e.g., \texttt{uint8\_t x = 255; x++;} gives 0) leading to miscalculated allocation sizes.
+  \item \textbf{Format string vulnerabilities:} \texttt{printf(user\_input)} instead of \texttt{printf("\%s", user\_input)} allows arbitrary memory reads/writes.
+\end{itemize}
+
+\section*{Memory Safety: The Rust Model}
+
+Rust guarantees memory safety \textbf{at compile time}, without a garbage collector, through its ownership and borrow checking system.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\centering\arraybackslash}p{2.2cm}}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Vulnerability Class} & \textbf{How Rust prevents it} & \textbf{Possible in Rust?} \\
+\midrule
+\rowcolor{rowGr} Buffer overflow    & Bounds checking on all slice accesses; no pointer arithmetic by default & No (safe) \\
+\rowcolor{rowA}  Use-After-Free     & Ownership rules: a value is dropped exactly when its owner goes out of scope & No (safe) \\
+\rowcolor{rowGr} Double-Free        & Only one owner; memory freed exactly once when owner drops & No (safe) \\
+\rowcolor{rowA}  Data race          & Borrow checker: either one mutable reference OR many immutable references, never both & No (safe) \\
+\rowcolor{rowGr} Null pointer deref & No null pointers; use \texttt{Option<T>}; compiler forces handling of \texttt{None} case & No (safe) \\
+\rowcolor{rowA}  Dangling pointer   & References cannot outlive the data they point to (lifetime system) & No (safe) \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{\texttt{unsafe} blocks exist in Rust for low-level code that requires raw pointers (e.g., OS drivers, FFI), but they are lexically scoped and auditable. The vast majority of Rust code is safe.}
+
+\talkingpoint{``Memory safety bugs account for approximately 70\% of Microsoft's high-severity CVEs (per their 2019 study) and approximately 70\% of Chrome's high-severity bugs (per Google's Project Zero). This is not a fixable C problem -- it requires either a language with a garbage collector (Go, Java) or Rust's borrow checker. The Android team reported that as Rust adoption grew in the OS codebase, the fraction of memory-safety vulnerabilities in new code dropped from 76\% to 35\%. This is the strongest empirical evidence for a language choice in security history.''}
+
+\section*{Stack Canaries, ASLR \& DEP/NX}
+
+Modern operating systems add several layers of mitigation to make exploiting memory bugs harder:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Stack Canary:} A random value placed between the local variables and the return address on the stack at function entry. Before returning, the program checks if the canary is intact. If it was overwritten (indicating a stack overflow), the program terminates. \textit{Limitation: an attacker who can read the canary value (via a format string bug or info leak) can write the correct value back.}
+
+  \item \textbf{ASLR (Address Space Layout Randomization):} The OS randomizes the base addresses of the stack, heap, and libraries on every execution. An attacker who wants to jump to shellcode or a libc function must first determine where that memory is. \textit{Limitation: Brute-forceable on 32-bit systems (1/1024 chance per guess); partially defeated by info leaks; not effective against ROP chains that use relative offsets.}
+
+  \item \textbf{DEP / NX (Data Execution Prevention / No-Execute):} Memory pages are marked either writable (data) OR executable (code), never both. Injected shellcode in a writable data region cannot be executed. \textit{Limitation: Does not prevent ROP (Return-Oriented Programming), which reuses existing executable code in chains.}
+
+  \item \textbf{PIE (Position-Independent Executable):} The executable itself is also loaded at a random address (requires ASLR to be useful). Without PIE, the executable's code is at a fixed address even with ASLR enabled.
+
+  \item \textbf{RELRO (RELocation Read-Only):} Marks the Global Offset Table (GOT) as read-only after startup, preventing attacker overwrites of function pointers.
+\end{itemize}
+
+\section*{TOCTOU Race Conditions}
+
+\textbf{TOCTOU (Time-of-Check to Time-of-Use):} A vulnerability where a resource's state changes between the time it is verified and the time it is actually used.
+
+\begin{lstlisting}[style=vuln, caption={Classic TOCTOU with a file}]
+import os, time
+
+def read_secure_file(filename):
+    # CHECK: is this file safe to read?
+    if not filename.startswith("/safe/"):
+        raise PermissionError("Access denied")
+    time.sleep(0.001)  # Even 1ms is enough for a race
+    # USE: read the file -- but filename may now be a symlink!
+    with open(filename) as f:
+        return f.read()
+
+# Attack: attacker creates /safe/legit.txt, passes the check,
+# then symlinks it to /etc/shadow before the open() call.
+\end{lstlisting}
+
+\textbf{Mitigations:}
+\begin{itemize}[noitemsep]
+  \item Use \textbf{atomic operations} where the check and use happen together (e.g., \texttt{open()} with \texttt{O\_NOFOLLOW} on Linux prevents symlink traversal).
+  \item In databases: use transactions with proper isolation levels so no other process can modify the row between your SELECT and UPDATE.
+  \item Avoid ``check then act'' patterns; prefer ``try and handle failure.''
+\end{itemize}
+
+\talkingpoint{``TOCTOU is a class of concurrency bug but it's a \emph{security} vulnerability when the race can be triggered by an attacker. The classic example is \texttt{setuid} programs on Unix: a privileged program checks if you own a file, then opens it. An attacker racing a symlink swap between those two operations escalates to reading root-owned files. Modern Rust libraries use \texttt{openat()}-based APIs that operate on directory file descriptors rather than paths, eliminating the symlink race entirely.''}
+
+\newpage
+
+%% =============================================================================
+%%  PART VI -- DevSecOps & Operational Security
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART VI \textemdash\ DevSecOps \& Operational Security}}
+\addcontentsline{toc}{subsection}{Secret Management}
+\addcontentsline{toc}{subsection}{CI/CD Security (SAST, DAST, SCA)}
+\addcontentsline{toc}{subsection}{Social Engineering}
+\addcontentsline{toc}{subsection}{Incident Response Phases}
+\addcontentsline{toc}{subsection}{Threat Modeling (STRIDE)}
+\partbanner{part2bg}{sectiongreen}{Part VI \quad DevSecOps \& Operational Security}
+
+\vspace{8pt}
+
+\section*{Secret Management}
+
+\textbf{The \#1 rule: secrets never belong in source code or Git.} This includes passwords, API keys, JWT signing secrets, database credentials, and private keys.
+
+\textbf{Why this keeps happening and how to prevent it:}
+
+\begin{lstlisting}[style=vuln, caption={VULNERABLE: hardcoded credentials -- found via GitHub search in minutes}]
+# This is in thousands of public GitHub repos right now
+DATABASE_URL = "postgresql://admin:SuperSecret123@prod.db.company.com:5432/customers"
+AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+STRIPE_SECRET_KEY = "sk_live_4eC39HqLyjWDarjtT1zdp7dc"
+\end{lstlisting}
+
+\begin{lstlisting}[style=safe, caption={SECURE: secrets from environment / vault at runtime}]
+import os
+DATABASE_URL = os.environ["DATABASE_URL"]  # Injected by deployment system
+# OR from a secrets vault:
+import boto3
+client = boto3.client("secretsmanager")
+secret = client.get_secret_value(SecretId="prod/myapp/database")["SecretString"]
+\end{lstlisting}
+
+\textbf{The secrets management hierarchy} (from weakest to strongest):
+\begin{enumerate}[noitemsep]
+  \item \textbf{.env files} (acceptable for local dev, never commit): Still a plaintext file, but not in git.
+  \item \textbf{OS environment variables} set by CI/CD (e.g., GitHub Actions Secrets): Good for most applications.
+  \item \textbf{AWS Secrets Manager / Parameter Store / Azure Key Vault}: Secrets are versioned, access-controlled by IAM, rotatable, and audited. Recommended for production.
+  \item \textbf{HashiCorp Vault}: Self-hosted, dynamic secrets (generates short-lived DB credentials per request), lease-based access, full audit log. Gold standard for large orgs.
+\end{enumerate}
+
+\begin{lstlisting}[style=shell, caption={Prevent committing secrets to git}]
+# Install git-secrets (AWS) or gitleaks
+brew install git-secrets        # macOS
+git secrets --install           # Set up hooks in current repo
+git secrets --register-aws      # Add AWS key patterns
+
+# Scan for secrets already in history
+gitleaks detect --source . --log-opts="HEAD~5..HEAD"
+
+# If a secret is already committed: rotate it FIRST, then clean history
+git filter-repo --path secret_file --invert-paths  # Remove file from all history
+# Then force-push and invalidate the old secret at the service
+\end{lstlisting}
+
+\section*{CI/CD Security: SAST, DAST, and SCA}
+
+\textbf{Shift Left Security:} Find vulnerabilities as early as possible -- ideally during development, not after deployment.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{1.5cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3cm}}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Type} & \textbf{Full Name} & \textbf{What it does} & \textbf{Tools} \\
+\midrule
+\rowcolor{rowA}  SAST & Static Application Security Testing & Analyzes source code without executing it. Finds: SQL injection patterns, hardcoded secrets, buffer overflows, unsafe function calls. & CodeQL, Semgrep, SonarQube, Bandit (Python) \\
+\rowcolor{rowBg} DAST & Dynamic Application Security Testing & Attacks a running application from the outside (black-box). Finds: XSS, injection, auth issues, misconfigurations. & OWASP ZAP, Burp Suite, Nikto \\
+\rowcolor{rowA}  SCA  & Software Composition Analysis & Scans dependencies for known CVEs. Checks your \texttt{package.json}, \texttt{Cargo.toml}, \texttt{requirements.txt}. & \texttt{npm audit}, \texttt{cargo audit}, Snyk, Dependabot \\
+\rowcolor{rowBg} Secrets Scanning & --- & Scans code and history for accidentally committed secrets. & gitleaks, truffleHog, GitHub Secret Scanning \\
+\rowcolor{rowA}  Container Scanning & --- & Scans Docker images for OS and package vulnerabilities. & Trivy, Grype, Docker Scout \\
+\bottomrule
+\end{tabularx}}
+
+\begin{lstlisting}[style=shell, caption={Quick security scans from the command line}]
+# Scan npm project for known CVEs
+npm audit
+npm audit fix          # Auto-fix where possible
+npm audit fix --force  # Allow breaking changes (review manually)
+
+# Scan Rust project
+cargo audit
+
+# Python dependency scan
+pip install safety
+safety check -r requirements.txt
+
+# Scan Docker image for vulnerabilities (requires trivy installed)
+trivy image myapp:latest
+trivy image --severity HIGH,CRITICAL myapp:latest  # Only show serious ones
+\end{lstlisting}
+
+\talkingpoint{``SCA is the easiest win in DevSecOps because it's fully automated and catches real vulnerabilities with zero false positives. The Log4Shell vulnerability (CVE-2021-44228, CVSS 10.0) was in a Java logging library that tens of thousands of applications used without realizing it. Organizations with SCA integrated into CI/CD had a list of affected services within hours. Organizations without it spent days manually searching codebases. The ROI of automated dependency scanning is immediate and concrete.''}
+
+\section*{Social Engineering}
+
+No amount of technical security prevents a human from being tricked. Social engineering bypasses technical controls by targeting people.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Phishing:} Mass-sent fraudulent emails impersonating trusted entities to harvest credentials or install malware. The most common attack vector for initial access.
+  \item \textbf{Spear Phishing:} Targeted phishing using researched personal details (LinkedIn, social media) to appear more credible. Much higher success rate.
+  \item \textbf{Pretexting:} Creating a fabricated scenario to manipulate a target. ``Hi, I'm from IT, I need your password to fix a critical issue.''
+  \item \textbf{Vishing:} Voice phishing -- calling targets pretending to be tech support, HR, or executives.
+  \item \textbf{Baiting:} Leaving infected USB drives in parking lots labeled ``Payroll 2025'' -- curiosity gets them plugged in.
+  \item \textbf{Business Email Compromise (BEC):} Attacker impersonates an executive to instruct finance to wire money to a fraudulent account. $\sim$\$3 billion/year in losses per FBI.
+\end{itemize}
+
+\textbf{Defenses:} Security awareness training, phishing simulations, MFA (mitigates credential theft), email authentication (SPF, DKIM, DMARC), out-of-band verification for wire transfers.
+
+\section*{Incident Response Phases (NIST SP 800-61)}
+
+When a breach occurs, a structured response minimizes damage, aids recovery, and provides evidence for legal action.
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries The 6 Phases of Incident Response}, arc=3pt, boxrule=1pt]
+\begin{enumerate}[leftmargin=*, noitemsep]
+  \item \textbf{Prepare:} Build the IR team, establish communication channels, create playbooks, deploy monitoring (SIEM, EDR). Happens before any incident.
+  \item \textbf{Identify:} Detect the incident (alerts, user reports, anomaly detection). Determine scope: which systems, what data, when it started. Declare an incident if warranted.
+  \item \textbf{Contain:} Stop the bleeding. Short-term: isolate affected systems (network segmentation, disable accounts). Long-term: patch the vulnerability before restoring service. \textit{Document everything -- logs, screenshots, timeline.}
+  \item \textbf{Eradicate:} Remove the root cause: delete malware, close the exploited vulnerability, revoke compromised credentials, patch the CVE.
+  \item \textbf{Recover:} Restore systems from known-good backups. Verify integrity. Gradually restore service under enhanced monitoring. Confirm the attacker no longer has access.
+  \item \textbf{Learn (Post-Incident Review):} Timeline of events, what worked and what didn't, root cause, preventive measures for the future. Share findings with the team. Update playbooks.
+\end{enumerate}
+\end{tcolorbox}
+
+\section*{Threat Modeling (STRIDE)}
+
+\textbf{Threat modeling} is the process of identifying potential security threats before you build the system. \textbf{STRIDE} is a framework for categorizing threats systematically.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{0.8cm}
+                              >{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{2.5cm}}
+\toprule
+\rowcolor{tableheadergreen}
+& \textbf{Threat} & \textbf{Description} & \textbf{Violates} \\
+\midrule
+\rowcolor{rowA}  \textbf{S} & Spoofing & Pretending to be someone else (forged tokens, IP spoofing) & Authentication \\
+\rowcolor{rowBg} \textbf{T} & Tampering & Modifying data in transit or at rest & Integrity \\
+\rowcolor{rowA}  \textbf{R} & Repudiation & Denying an action occurred (no audit log) & Non-repudiation \\
+\rowcolor{rowBg} \textbf{I} & Information Disclosure & Exposing data to unauthorized parties (data leak) & Confidentiality \\
+\rowcolor{rowA}  \textbf{D} & Denial of Service & Making a service unavailable & Availability \\
+\rowcolor{rowBg} \textbf{E} & Elevation of Privilege & Gaining unauthorized permissions (privilege escalation) & Authorization \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART VII -- Security Tools Reference
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART VII \textemdash\ Security Tools Reference}}
+\addcontentsline{toc}{subsection}{Tools Quick Reference Table}
+\addcontentsline{toc}{subsection}{Common Commands \& Workflows}
+\partbanner{part3bg}{sectionpurple}{Part VII \quad Security Tools Reference}
+
+\vspace{8pt}
+
+\section*{Tools Quick Reference Table}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\ttfamily\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Tool} & \textbf{Key Command} & \textbf{Purpose \& Critical Risk It Finds} \\
+\midrule
+\rowcolor{rowPu} nmap & nmap -sV -p- target & Port scanning and service version detection. Finds: open unnecessary ports, running services with known CVEs. \\
+\rowcolor{rowA}  Burp Suite & (GUI proxy) & Intercept and modify HTTP/HTTPS traffic. Finds: logic flaws, IDOR, auth bypass, injection. \\
+\rowcolor{rowPu} OWASP ZAP & zap-baseline.py -t URL & Automated web app scanner. Finds: XSS, injection, misconfigs, CORS issues. \\
+\rowcolor{rowA}  openssl & openssl s\_client -connect & SSL/TLS inspection. Finds: expired/weak certs, deprecated TLS versions, missing HSTS. \\
+\rowcolor{rowPu} Hashcat & hashcat -m 0 hashes.txt wordlist.txt & Password hash cracking. Identifies: weak hashing algorithms (MD5, SHA1), weak passwords. \\
+\rowcolor{rowA}  John the Ripper & john --format=bcrypt hashes.txt & Password auditing. Tests password strength against common wordlists. \\
+\rowcolor{rowPu} Wireshark & (GUI) / tshark & Packet capture and protocol analysis. Finds: cleartext credentials, insecure protocols (HTTP, FTP, Telnet). \\
+\rowcolor{rowA}  Metasploit & msfconsole & Penetration testing framework. Validates exploitability of CVEs in a controlled environment. \\
+\rowcolor{rowPu} Nessus / OpenVAS & (GUI scan) & Vulnerability scanner. Finds: CVEs in OS/software across an entire network. \\
+\rowcolor{rowA}  gitleaks & gitleaks detect & Secret detection in git history. Finds: committed API keys, passwords, private keys. \\
+\rowcolor{rowPu} Trivy & trivy image myapp:latest & Container/filesystem vulnerability scanner. Finds: CVEs in OS packages and app dependencies. \\
+\rowcolor{rowA}  sqlmap & sqlmap -u "url?id=1" & Automated SQLi detection and exploitation (for authorized testing only). \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Common Commands \& Workflows}
+
+\begin{lstlisting}[style=shell, caption={nmap: common scanning patterns}]
+# Quick scan -- top 1000 ports
+nmap 192.168.1.1
+
+# Full port scan with service/version detection
+nmap -sV -p- 192.168.1.1
+
+# OS detection + scripts (requires root/sudo)
+sudo nmap -A 192.168.1.0/24
+
+# Scan for specific CVE-related services (e.g., SMB for EternalBlue)
+nmap -p 445 --script smb-vuln-ms17-010 192.168.1.0/24
+
+# Stealth SYN scan (does not complete TCP handshake)
+sudo nmap -sS -p- 192.168.1.1
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={openssl: certificate and TLS inspection}]
+# Inspect a remote server's certificate and TLS config
+openssl s_client -connect example.com:443 -servername example.com
+
+# Show only the certificate details
+echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -text -noout
+
+# Check expiration
+echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -dates
+
+# Generate a self-signed certificate (for local dev)
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+
+# Test specific TLS version support
+openssl s_client -connect example.com:443 -tls1_2
+openssl s_client -connect example.com:443 -tls1_3
+\end{lstlisting}
+
+\begin{lstlisting}[style=shell, caption={curl: API security testing}]
+# Test CORS headers (simulated cross-origin request)
+curl -I -H "Origin: https://evil.com" https://api.example.com/users
+
+# Test with a specific token
+curl -H "Authorization: Bearer eyJ..." https://api.example.com/admin
+
+# Send a crafted POST body for injection testing (on authorized targets only)
+curl -X POST https://api.example.com/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "'"'"' OR '"'"'1'"'"'='"'"'1"}'
+
+# Follow redirects and show verbose headers
+curl -Lv https://example.com 2>&1 | grep -E "< |> |HTTP"
+\end{lstlisting}
+
+\newpage
+
+%% =============================================================================
+%%  PART VIII -- Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART VIII \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part VIII \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape One page. Everything essential. Great for last-minute review.\end{center}
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Web Application Security (OWASP)}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{SQLi:} parameterized queries, never string concat
+  \item \textbf{Command injection:} list args to subprocess, never shell=True
+  \item \textbf{XSS}: output encode; use textContent not innerHTML; CSP header
+  \item \textbf{Stored XSS} is the most dangerous (persists; no phishing needed)
+  \item \textbf{CSRF:} SameSite=Lax (default) + Anti-CSRF token for state changes
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{IDOR:} always filter queries by authenticated user's ownership
+  \item Return 404, not 403, to avoid ID enumeration
+  \item \textbf{SSRF:} allowlist permitted domains; block 169.254.169.254
+  \item \textbf{Headers:} HSTS (force HTTPS), CSP (script sources), X-Frame (clickjack), X-Content-Type-Options (MIME sniff)
+  \item Debug mode OFF in prod; no stack traces to users
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Cryptography \& Authentication}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Passwords: \textbf{Argon2id} (best) or bcrypt. NEVER MD5, SHA-1, SHA-256 alone
+  \item Salt = per-user random (stops rainbow tables)
+  \item Pepper = server-side secret (not in DB)
+  \item Symmetric: AES-256-GCM for data; asymmetric for key exchange
+  \item TLS 1.3: forward secrecy via ECDHE; 1-RTT; encrypted handshake
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{JWT:} never trust header alg field; short TTL; no sensitive data in payload
+  \item \textbf{MFA hierarchy:} SMS < TOTP < FIDO2/WebAuthn (phishing-proof)
+  \item OAuth2: use Authorization Code + PKCE for public clients
+  \item OIDC = OAuth2 + identity (ID Token)
+  \item PKI: Root CA -> Intermediate CA -> End-entity cert (chain of trust)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Network Security \& Low-Level}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Zero Trust: never trust, always verify; micro-segment networks
+  \item MITM defenses: HSTS preload (SSL stripping); DNSSEC; VPN
+  \item DDoS: rate limiting (app layer); Anycast (volumetric); SYN cookies (protocol)
+  \item Firewall (L3/4) blocks IPs/ports; WAF (L7) inspects HTTP payloads
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Buffer overflow: no bounds checking in C; use safe functions or Rust
+  \item ASLR randomizes memory layout; Stack canaries detect overflow
+  \item Use-After-Free, double-free: Rust ownership prevents these entirely
+  \item TOCTOU: atomic operations; avoid check-then-act patterns
+  \item $\sim$70\% of Microsoft/Chrome CVEs are memory safety bugs
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries DevSecOps \& Operations}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Secrets: never in git; use Vault / Secrets Manager / env vars
+  \item \texttt{git secrets} or \texttt{gitleaks} to scan for leaks
+  \item SAST = static code analysis (CodeQL, Semgrep)
+  \item DAST = dynamic black-box scanning (OWASP ZAP, Burp)
+  \item SCA = dependency CVE scanning (\texttt{npm audit}, \texttt{cargo audit})
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item IR phases: Prepare, Identify, Contain, Eradicate, Recover, Learn
+  \item STRIDE: Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Elevation
+  \item Least Privilege: min permissions for every user, service, and token
+  \item RBAC = role-based; ABAC = attribute-based (fine-grained)
+  \item Social eng. defenses: MFA, awareness training, out-of-band verification
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part7bg, colframe=sectiongrey,
+  title={\bfseries Security Tools at a Glance}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{nmap -sV -p-} target: port/service scan
+  \item \textbf{openssl s\_client -connect} host:443: TLS/cert inspection
+  \item \textbf{npm audit} / \textbf{cargo audit}: dep CVE scan
+  \item \textbf{trivy image} myapp: container CVE scan
+  \item \textbf{gitleaks detect}: secret scanning
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Burp Suite / OWASP ZAP}: web app testing proxy
+  \item \textbf{Hashcat}: hash cracking (test password strength)
+  \item \textbf{Wireshark}: packet capture (find cleartext creds)
+  \item \textbf{curl -I -H "Origin: evil.com"}: test CORS
+  \item \textbf{curl -v https://}: check response headers
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}

@@ -1,0 +1,186 @@
+# OJ Builds — root .gitignore
+# One file at the repo root. Patterns are scoped to subdirectories where needed.
+# This covers the frontend/, backend/, and rust/ subtrees.
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Environment / secrets — NEVER commit these
+# ────────────────────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# Keep example files if you have them
+!.env.example
+!.env.local.example
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Frontend — Node / Next.js
+# ────────────────────────────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Vercel (if you ever deploy there)
+.vercel/
+frontend/.vercel/
+
+# Next.js cache
+frontend/.next/cache/
+
+# npm / yarn / pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# TypeScript build info
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+
+# Testing
+frontend/coverage/
+frontend/.jest-cache/
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Frontend — WASM build output
+# The compiled .wasm and .js files are generated from Rust source.
+# They are large and should be rebuilt from source, not committed.
+# ────────────────────────────────────────────────────────────────────────────────
+# frontend/public/wasm/
+# Exception: if you want to commit a pre-built WASM for convenience, remove the line
+
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Backend — Python
+# ────────────────────────────────────────────────────────────────────────────────
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Python test/coverage
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# pyvenv config contains machine-specific paths
+backend/.venv/pyvenv.cfg
+pyvenv.cfg
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Generated/runtime files — do not commit
+# ────────────────────────────────────────────────────────────────────────────────
+# Current TexVoice router writes these at the repo root.
+# These folders are recreated automatically by the backend.
+/exports/
+/uploads/
+
+# Older/backend-scoped runtime folders, kept ignored in case they get recreated.
+backend/exports/
+backend/uploads/
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Curated imports
+# ────────────────────────────────────────────────────────────────────────────────
+# Keep imports/latex/*.tex as curated project examples.
+# Ignore generated/heavy sidecar files.
+/imports/latex/*.mp3
+/imports/latex/*.wav
+/imports/latex/*-chapters.json
+/imports/latex/*-highlight-map.json
+/imports/latex/*.pdf
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Rust
+# ────────────────────────────────────────────────────────────────────────────────
+rust/target/
+# Cargo.lock: keep for binaries (comment this out if rust/ is a binary crate)
+# rust/Cargo.lock
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# OS and system files
+# ────────────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# IDEs and editors
+# ────────────────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+
+# VS Code — ignore user-specific settings but keep shared workspace settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# JetBrains
+.idea/
+*.iml
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.#*
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Logs
+# ────────────────────────────────────────────────────────────────────────────────
+*.log
+logs/
+backend/logs/
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Pi / deployment
+# ────────────────────────────────────────────────────────────────────────────────
+# Ignore any local nginx configs you might draft in the repo
+nginx.local.conf
+
+# Ignore Pi-specific systemd service files if they contain machine paths
+# commit generic templates, ignore machine-specific copies
+*.service.local

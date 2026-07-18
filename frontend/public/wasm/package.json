@@ -1,0 +1,15 @@
+{
+  "name": "terminal_wallpaper",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "terminal_fx_bg.wasm",
+    "terminal_fx.js",
+    "terminal_fx.d.ts"
+  ],
+  "main": "terminal_fx.js",
+  "types": "terminal_fx.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

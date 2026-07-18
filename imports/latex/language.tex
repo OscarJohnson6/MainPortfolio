@@ -1,0 +1,2094 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tipa}
+
+\tcbuselibrary{skins, breakable}
+
+% Colors -----------------------------------------------------------------------
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{sectiongrey}{RGB}{70, 70, 70}
+\definecolor{sectionbrown}{RGB}{120, 80, 40}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{tableheadergrey}{RGB}{230, 230, 230}
+\definecolor{tableheaderbrown}{RGB}{240, 225, 205}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{rowGr}{RGB}{242, 242, 242}
+\definecolor{rowBr}{RGB}{248, 240, 230}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{part7bg}{RGB}{242, 242, 242}
+\definecolor{part8bg}{RGB}{250, 240, 225}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+\definecolor{exbg}{RGB}{240, 248, 255}
+\definecolor{exborder}{RGB}{60, 100, 160}
+
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+\newcommand{\greysections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongrey}}{}{0em}{}[\color{sectiongrey}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongrey!80!black}}{}{0em}{}%
+}
+\newcommand{\brownsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionbrown}}{}{0em}{}[\color{sectionbrown}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionbrown!80!black}}{}{0em}{}%
+}
+
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\newcommand{\example}[1]{%
+  \begin{tcolorbox}[colback=exbg, colframe=exborder,
+    title={\bfseries Example}, arc=3pt, boxrule=1pt]
+  #1
+  \end{tcolorbox}%
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries Language \& Linguistics Reference}\\[6pt]
+  {\large English Foundations \& Cross-Linguistic Comparison}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I -- English Fundamentals: Parts of Speech
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART I \textemdash\ English Fundamentals: Parts of Speech}}
+\addcontentsline{toc}{subsection}{The Eight Parts of Speech}
+\addcontentsline{toc}{subsection}{Nouns}
+\addcontentsline{toc}{subsection}{Verbs}
+\addcontentsline{toc}{subsection}{Adjectives}
+\addcontentsline{toc}{subsection}{Adverbs}
+\addcontentsline{toc}{subsection}{Pronouns}
+\addcontentsline{toc}{subsection}{Prepositions}
+\addcontentsline{toc}{subsection}{Conjunctions}
+\addcontentsline{toc}{subsection}{Interjections}
+\addcontentsline{toc}{subsection}{Articles \& Determiners}
+\partbanner{partbg}{sectionblue}{Part I \quad English Fundamentals: Parts of Speech}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Every word in English belongs to a category called a ``part of speech.''
+  Knowing each one tells you how that word behaves in a sentence.
+\end{center}
+
+\section*{The Eight Parts of Speech}
+
+English has \textbf{eight traditional parts of speech}. Articles are sometimes counted as a ninth, but more commonly grouped under \textbf{determiners}.
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{4cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Part of Speech} & \textbf{What it does} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  Noun         & Names a person, place, thing, or idea       & dog, Oscar, freedom, university \\
+\rowcolor{rowB}  Verb         & Expresses an action or state of being        & run, think, be, become \\
+\rowcolor{rowA}  Adjective    & Describes or modifies a noun                  & blue, fast, happy, ancient \\
+\rowcolor{rowB}  Adverb       & Modifies a verb, adjective, or another adverb & quickly, very, almost, never \\
+\rowcolor{rowA}  Pronoun      & Stands in for a noun                          & he, she, it, they, who, this \\
+\rowcolor{rowB}  Preposition  & Shows relationship between words              & in, on, at, before, with, of \\
+\rowcolor{rowA}  Conjunction  & Joins words, phrases, or clauses              & and, but, or, because, although \\
+\rowcolor{rowB}  Interjection & Expresses sudden emotion (often standalone)   & wow!, ouch!, oh, hey \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{4pt}
+\textit{Memory aid: \textbf{N}aughty \textbf{V}ampires \textbf{A}lways \textbf{A}ttack \textbf{P}eople \textbf{P}lus \textbf{C}hildren \textbf{I}ndoors --- N V A A P P C I.}
+
+\section*{Nouns}
+
+A \textbf{noun} names something. Nouns answer ``what'' or ``who.''
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Type} & \textbf{Definition} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  Common         & General categories; not capitalized         & city, dog, teacher \\
+\rowcolor{rowB}  Proper         & Specific names; always capitalized          & Chicago, Rover, Dr.~Smith \\
+\rowcolor{rowA}  Concrete       & Physical, can be perceived by senses        & book, water, music \\
+\rowcolor{rowB}  Abstract       & Ideas, qualities, emotions                  & love, justice, courage \\
+\rowcolor{rowA}  Count          & Can be counted; have plural form            & one apple, two apples \\
+\rowcolor{rowB}  Mass (uncount) & Cannot be counted directly                  & water, sand, advice \\
+\rowcolor{rowA}  Collective     & Names a group acting as one unit            & team, family, jury, flock \\
+\rowcolor{rowB}  Compound       & Made of two or more words combined          & toothbrush, mother-in-law \\
+\bottomrule
+\end{tabularx}}
+
+\example{
+\textbf{In context:} ``The \textbf{team} (collective) gave \textbf{Sarah} (proper) some
+\textbf{advice} (mass/abstract) about her \textbf{toothbrush} (compound).''
+}
+
+\textbf{Number:} Nouns are either \textbf{singular} (one) or \textbf{plural} (more than one).
+Most plurals add \texttt{-s} or \texttt{-es}, but English has many irregular plurals:
+child $\to$ \textbf{children}, mouse $\to$ \textbf{mice}, foot $\to$ \textbf{feet},
+sheep $\to$ \textbf{sheep} (no change), criterion $\to$ \textbf{criteria} (Greek origin).
+
+\textbf{Possession:} Add \texttt{'s} for singular (the dog's bone) and just \texttt{'} for plural ending in s (the dogs' bones).
+
+\section*{Verbs}
+
+A \textbf{verb} expresses action or state of being. Verbs are the engine of any sentence ---
+every complete sentence in English must have at least one.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Type} & \textbf{What it does} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  Action      & Describes a physical or mental action       & run, jump, think, write \\
+\rowcolor{rowB}  Linking     & Connects subject to a description (no action) & is, am, are, seem, become \\
+\rowcolor{rowA}  Auxiliary (helping) & Helps the main verb show tense, mood, or voice & be, have, do, will, can, should \\
+\rowcolor{rowB}  Modal       & Subset of auxiliaries; expresses possibility, ability, permission & can, could, may, might, must, shall, will, would \\
+\rowcolor{rowA}  Transitive  & Takes a direct object                       & ``She \textbf{kicked} the ball.'' \\
+\rowcolor{rowB}  Intransitive& Takes no direct object                      & ``She \textbf{slept}.'' \\
+\rowcolor{rowA}  Regular     & Past tense formed by adding \texttt{-ed}    & walk $\to$ walked, jump $\to$ jumped \\
+\rowcolor{rowB}  Irregular   & Past tense changes unpredictably            & go $\to$ went, eat $\to$ ate, run $\to$ ran \\
+\bottomrule
+\end{tabularx}}
+
+\example{
+\textbf{Identifying verb types in one sentence:}\\
+``She \textbf{must} (modal) \textbf{have} (auxiliary) \textbf{been} (linking)
+\textbf{eating} (action, irregular past participle of eat) lunch when I called.''
+}
+
+\textbf{Verb forms:} Most English verbs have five principal forms:
+\begin{itemize}[noitemsep]
+  \item \textbf{Base form} (infinitive without ``to''): \emph{walk, eat, run}
+  \item \textbf{Third-person singular present}: \emph{walks, eats, runs}
+  \item \textbf{Past tense}: \emph{walked, ate, ran}
+  \item \textbf{Past participle}: \emph{walked, eaten, run}
+  \item \textbf{Present participle / gerund} (-ing): \emph{walking, eating, running}
+\end{itemize}
+
+\section*{Adjectives}
+
+An \textbf{adjective} describes a noun. It tells you which one, what kind, or how many.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Question Answered} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  What kind?    & a \textbf{red} car, an \textbf{ancient} ruin, the \textbf{plastic} cup \\
+\rowcolor{rowB}  Which one?    & \textbf{this} book, \textbf{that} dog, \textbf{the second} chapter \\
+\rowcolor{rowA}  How many?     & \textbf{three} apples, \textbf{several} options, \textbf{no} time \\
+\rowcolor{rowB}  Whose?        & \textbf{my} hat, \textbf{Sarah's} car, \textbf{their} house \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Comparative and Superlative forms:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Positive}: tall, beautiful, good
+  \item \textbf{Comparative} (comparing two): tall\textbf{er}, \textbf{more} beautiful, \textbf{better}
+  \item \textbf{Superlative} (the most): tall\textbf{est}, \textbf{most} beautiful, \textbf{best}
+\end{itemize}
+
+\textbf{Order of adjectives in English (the rule most native speakers follow without realizing it):}
+\textbf{Opinion $\to$ Size $\to$ Age $\to$ Shape $\to$ Color $\to$ Origin $\to$ Material $\to$ Purpose $\to$ NOUN}
+
+\example{
+``A \textbf{lovely} (opinion) \textbf{little} (size) \textbf{old} (age) \textbf{round} (shape)
+\textbf{red} (color) \textbf{French} (origin) \textbf{wooden} (material) \textbf{cooking} (purpose)
+\textbf{spoon}.''\\[4pt]
+A native speaker who has never heard this rule will still produce it correctly. Reordering
+to ``French old little red lovely\ldots'' immediately sounds wrong, even if every word is correct.
+}
+
+\section*{Adverbs}
+
+An \textbf{adverb} modifies a verb, an adjective, or another adverb. Adverbs answer
+\textbf{how, when, where, why,} or \textbf{to what extent}.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Type} & \textbf{Examples (modifying the verb in italics)} \\
+\midrule
+\rowcolor{rowA}  Manner (how)        & She \emph{sang} \textbf{beautifully}. He \emph{works} \textbf{hard}. \\
+\rowcolor{rowB}  Time (when)         & We \emph{arrived} \textbf{yesterday}. I'll \emph{call} \textbf{soon}. \\
+\rowcolor{rowA}  Place (where)       & The cat \emph{ran} \textbf{outside}. Look \textbf{here}. \\
+\rowcolor{rowB}  Frequency (how often) & I \textbf{never} \emph{eat} late. She \textbf{always} \emph{wins}. \\
+\rowcolor{rowA}  Degree (how much)   & The film was \textbf{very} \emph{good}. I'm \textbf{almost} \emph{done}. \\
+\rowcolor{rowB}  Purpose / reason (why) & He left \textbf{to study}. She came \textbf{because} you asked. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{The \texttt{-ly} pattern:} Many adverbs are formed by adding \texttt{-ly} to an adjective:
+quick $\to$ quick\textbf{ly}, sad $\to$ sad\textbf{ly}, beautiful $\to$ beautiful\textbf{ly}.
+
+\textbf{But not all -ly words are adverbs!} \emph{Friendly, lonely, lovely, ugly} all end in -ly
+but are \textbf{adjectives}. And many adverbs don't end in -ly at all: \emph{fast, hard, well, often, very, never}.
+
+\example{
+\textbf{Same word, different parts of speech:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item ``She runs \textbf{fast}.'' (\emph{fast} = adverb modifying \emph{runs})
+  \item ``She is a \textbf{fast} runner.'' (\emph{fast} = adjective modifying \emph{runner})
+\end{itemize}
+The same word can be a different part of speech depending on its job in the sentence.
+}
+
+\section*{Pronouns}
+
+A \textbf{pronoun} replaces a noun, so you don't have to repeat it. The noun a pronoun
+refers to is called its \textbf{antecedent}.
+
+\example{
+``\emph{Oscar} brought \emph{Oscar's} laptop because \emph{Oscar} needed \emph{Oscar's} laptop.''\\
+$\to$ ``\emph{Oscar} brought \textbf{his} laptop because \textbf{he} needed \textbf{it}.''\\[4pt]
+The antecedent of \emph{he} and \emph{his} is \emph{Oscar}; the antecedent of \emph{it} is \emph{laptop}.
+}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.7cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{4.5cm}}
+\toprule
+\rowcolor{tableheader}
+\textbf{Type} & \textbf{Description} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  Personal       & Refer to specific people or things  & I, you, he, she, it, we, they \\
+\rowcolor{rowB}  Possessive     & Show ownership                       & mine, yours, his, hers, ours, theirs \\
+\rowcolor{rowA}  Reflexive      & Refer back to the subject            & myself, yourself, himself, themselves \\
+\rowcolor{rowB}  Demonstrative  & Point to specific things             & this, that, these, those \\
+\rowcolor{rowA}  Interrogative  & Ask questions                         & who, whom, whose, what, which \\
+\rowcolor{rowB}  Relative       & Connect a clause to a noun            & who, whom, whose, which, that \\
+\rowcolor{rowA}  Indefinite     & Refer to non-specific things          & anyone, everybody, several, none \\
+\rowcolor{rowB}  Reciprocal     & Show mutual action                   & each other, one another \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Personal pronouns by case:}
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Person} & \textbf{Subject (nominative)} & \textbf{Object (accusative)} & \textbf{Possessive} \\
+\midrule
+\rowcolor{rowA}  1st singular & I       & me   & my / mine \\
+\rowcolor{rowB}  2nd singular & you     & you  & your / yours \\
+\rowcolor{rowA}  3rd singular masculine & he & him & his \\
+\rowcolor{rowB}  3rd singular feminine & she & her & her / hers \\
+\rowcolor{rowA}  3rd singular neuter & it & it & its \\
+\rowcolor{rowB}  1st plural & we & us & our / ours \\
+\rowcolor{rowA}  2nd plural & you & you & your / yours \\
+\rowcolor{rowB}  3rd plural & they & them & their / theirs \\
+\bottomrule
+\end{tabularx}}
+
+\textit{Notice English has lost most of its case system --- only pronouns still distinguish subject from object form. ``I see him'' / ``He sees me.'' Most other words don't change.}
+
+\section*{Prepositions}
+
+A \textbf{preposition} shows the relationship between a noun (or pronoun) and another word
+in the sentence. They typically express \textbf{location, direction, time, or manner}.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Category} & \textbf{Common Examples} \\
+\midrule
+\rowcolor{rowA}  Place / Location & in, on, at, under, over, between, among, beside, inside, outside \\
+\rowcolor{rowB}  Direction / Movement & to, from, into, onto, toward, through, across, along, up, down \\
+\rowcolor{rowA}  Time            & at, on, in, before, after, during, since, until, by \\
+\rowcolor{rowB}  Manner / Means  & by, with, without, like, as \\
+\rowcolor{rowA}  Cause / Purpose & because of, due to, for, owing to \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Prepositional phrase} = preposition + its object (a noun or pronoun) + any modifiers.
+
+\example{
+``The book \textbf{on the wooden table} is mine.''\\
+\textbf{on} (preposition) + \textbf{the wooden table} (the object of the preposition).\\
+The whole phrase ``on the wooden table'' acts as an adjective describing \emph{book}.
+}
+
+\textbf{Common preposition pitfalls in English:}
+\begin{itemize}[noitemsep]
+  \item \textbf{at} a specific time/place (\emph{at 5pm, at the corner}); \textbf{on} a day or surface (\emph{on Monday, on the table}); \textbf{in} a longer period or enclosed area (\emph{in May, in the box}).
+  \item ``Different \textbf{from}'' (American English) vs.\ ``Different \textbf{to}'' (British English) vs.\ ``Different \textbf{than}'' (informal American).
+  \item Ending a sentence with a preposition (``Where are you \textbf{from}?'') is grammatically fine in modern English despite older prescriptive rules.
+\end{itemize}
+
+\section*{Conjunctions}
+
+A \textbf{conjunction} joins words, phrases, or clauses together. There are three types.
+
+\subsection*{Coordinating Conjunctions (FANBOYS)}
+
+These connect items of equal grammatical importance. There are exactly seven, memorized as
+\textbf{FANBOYS}: \textbf{F}or, \textbf{A}nd, \textbf{N}or, \textbf{B}ut, \textbf{O}r,
+\textbf{Y}et, \textbf{S}o.
+
+\example{
+``She studied hard, \textbf{but} she failed the test.'' (joins two independent clauses)\\
+``Apples \textbf{and} oranges.'' (joins two nouns)\\
+``Tired \textbf{yet} determined.'' (joins two adjectives)
+}
+
+\subsection*{Subordinating Conjunctions}
+
+These connect a \textbf{dependent clause} (incomplete by itself) to an \textbf{independent
+clause} (complete sentence).
+
+Common ones: \emph{because, although, since, while, when, if, unless, until, after, before,
+whereas, even though, as, so that}.
+
+\example{
+``\textbf{Because} it was raining, we stayed inside.''\\
+\emph{``Because it was raining''} can't stand alone --- the subordinator \textbf{because} makes it dependent on the main clause \emph{``we stayed inside.''}
+}
+
+\subsection*{Correlative Conjunctions}
+
+These come in pairs that work together: \emph{either\ldots or, neither\ldots nor, both\ldots and,
+not only\ldots but also, whether\ldots or}.
+
+\example{
+``\textbf{Both} the manager \textbf{and} the assistant attended the meeting.''\\
+``\textbf{Not only} did she finish the project, \textbf{but also} delivered it early.''
+}
+
+\section*{Interjections}
+
+An \textbf{interjection} is a word or short phrase that expresses sudden emotion. It is
+grammatically independent --- not connected to the rest of the sentence by syntax.
+
+\example{
+\textbf{Wow!} That's amazing.\\
+\textbf{Ouch} --- that hurt!\\
+\textbf{Oh}, I didn't know.\\
+\textbf{Hey,} wait up!\\[4pt]
+Interjections often stand alone with an exclamation point, or at the start of a sentence
+followed by a comma.
+}
+
+\section*{Articles \& Determiners}
+
+\textbf{Articles} are special little words that come before nouns to signal whether the noun
+is specific or general. English has just three: \textbf{a, an, the}.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Article} & \textbf{Use} \\
+\midrule
+\rowcolor{rowA}  \textbf{a} (indefinite)  & Before a singular noun starting with a \emph{consonant sound}: \emph{a dog, a university} (yes, ``university'' starts with a ``y'' sound). \\
+\rowcolor{rowB}  \textbf{an} (indefinite) & Before a singular noun starting with a \emph{vowel sound}: \emph{an apple, an honest person} (silent h). \\
+\rowcolor{rowA}  \textbf{the} (definite)  & Before any noun (singular or plural) when referring to something \emph{specific}: \emph{the dog} (a particular dog), \emph{the apples} (specific apples we know about). \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Determiners} is the broader category that includes articles plus:
+\begin{itemize}[noitemsep]
+  \item \textbf{Demonstratives}: \emph{this, that, these, those}
+  \item \textbf{Possessives}: \emph{my, your, his, her, our, their}
+  \item \textbf{Quantifiers}: \emph{some, any, many, few, several, all, both, each, every}
+  \item \textbf{Numerals}: \emph{one, two, three, first, second}
+\end{itemize}
+
+A determiner always comes \emph{before} the noun (and any adjectives modifying it):
+\textbf{the} \emph{tall} \emph{red} house. \quad \textbf{her} \emph{old} car. \quad
+\textbf{three} \emph{small} children.
+
+\newpage
+
+%% =============================================================================
+%%  PART II -- English Vocabulary Concepts
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART II \textemdash\ English Vocabulary Concepts}}
+\addcontentsline{toc}{subsection}{Synonyms \& Antonyms}
+\addcontentsline{toc}{subsection}{Homonyms, Homophones \& Homographs}
+\addcontentsline{toc}{subsection}{Hypernyms \& Hyponyms}
+\addcontentsline{toc}{subsection}{Polysemy}
+\addcontentsline{toc}{subsection}{Acronyms vs.\ Initialisms}
+\addcontentsline{toc}{subsection}{Eponyms}
+\addcontentsline{toc}{subsection}{Portmanteaus}
+\addcontentsline{toc}{subsection}{Roots, Prefixes \& Suffixes}
+\addcontentsline{toc}{subsection}{Idioms \& Collocations}
+\addcontentsline{toc}{subsection}{Slang \& Jargon}
+\partbanner{part2bg}{sectiongreen}{Part II \quad English Vocabulary Concepts}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  These are the technical names for the relationships between words.
+  Each one describes a different kind of connection.
+\end{center}
+
+\section*{Synonyms \& Antonyms}
+
+\textbf{Synonym:} a word with \emph{the same or nearly the same} meaning as another. \textit{From Greek \emph{syn} = together + \emph{onym} = name.}\\[4pt]
+\textbf{Antonym:} a word with the \emph{opposite} meaning. \textit{From Greek \emph{anti} = against + \emph{onym}.}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Word} & \textbf{Synonyms} & \textbf{Antonyms} \\
+\midrule
+\rowcolor{rowA}  big          & large, huge, enormous, vast            & small, tiny, little, minuscule \\
+\rowcolor{rowBg} happy        & joyful, glad, pleased, content         & sad, miserable, unhappy \\
+\rowcolor{rowA}  begin        & start, commence, initiate              & end, finish, conclude, stop \\
+\rowcolor{rowBg} fast         & quick, rapid, swift, speedy            & slow, sluggish, gradual \\
+\rowcolor{rowA}  smart        & intelligent, clever, bright, sharp     & dumb, stupid, slow \\
+\rowcolor{rowBg} important    & significant, crucial, vital, essential & trivial, minor, insignificant \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen, arc=3pt, boxrule=1pt]
+\textbf{No two synonyms are exactly identical.} They differ in:
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Connotation:} \emph{slim} (positive), \emph{thin} (neutral), \emph{skinny} (often negative).
+  \item \textbf{Register} (how formal): \emph{kid} (informal), \emph{child} (neutral), \emph{minor} (legal/formal).
+  \item \textbf{Strength:} \emph{annoyed} $<$ \emph{angry} $<$ \emph{furious} $<$ \emph{enraged}.
+\end{itemize}
+This is why a thesaurus must be used carefully --- swapping ``thin'' for ``emaciated'' can change the entire meaning of a sentence.
+\end{tcolorbox}
+
+\section*{Homonyms, Homophones \& Homographs}
+
+These three terms are often confused. They all describe words that share something in common
+but are easily distinguishable:
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Term} & \textbf{Definition} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  \textbf{Homophones}  & Same \emph{sound}, different spelling and meaning & their / there / they're; to / too / two; flour / flower; write / right \\
+\rowcolor{rowBg} \textbf{Homographs}  & Same \emph{spelling}, different meaning (and sometimes different pronunciation) & lead (metal) / lead (to guide); tear (to rip) / tear (from crying); bow (a knot) / bow (to bend) \\
+\rowcolor{rowA}  \textbf{Homonyms}    & Same \emph{spelling AND sound}, different meaning & bat (animal / sports equipment); bank (river / financial); spring (season / coil / water source) \\
+\bottomrule
+\end{tabularx}}
+
+\textit{Memory aid: \textbf{phone} = sound (homo\textbf{phone} = same sound); \textbf{graph} = writing (homo\textbf{graph} = same writing); homo\textbf{nym} = both the same.}
+
+\example{
+\textbf{Homophone:} ``\textbf{Their} dog is over \textbf{there}, and \textbf{they're} happy.''\\
+\textbf{Homograph:} ``After winning, she shed a \textbf{tear} (cry); then she had to \textbf{tear} (rip) the paper.''\\
+\textbf{Homonym:} ``She kept her money in the \textbf{bank} on the \textbf{bank} of the river.''
+}
+
+\section*{Hypernyms \& Hyponyms}
+
+These describe \textbf{category relationships} --- one word being a more general or more
+specific version of another.
+\begin{itemize}[noitemsep]
+  \item \textbf{Hypernym:} the more general (umbrella) term.
+  \item \textbf{Hyponym:} a more specific instance of the hypernym.
+\end{itemize}
+
+\example{
+\textbf{Animal} (hypernym) $\to$ \textbf{Dog} (hyponym) $\to$ \textbf{Golden Retriever} (hyponym of dog).\\[4pt]
+\textbf{Color} (hypernym) $\to$ \textbf{Red} (hyponym) $\to$ \textbf{Crimson} (hyponym of red).\\[4pt]
+\textbf{Vehicle} (hypernym) $\to$ \textbf{Car, truck, motorcycle, boat} (hyponyms).
+}
+
+\textit{Hypernym sounds like ``hyper-name,'' meaning the broader umbrella name. Hyponym sounds like ``hypo-name,'' meaning the smaller, more specific name underneath.}
+
+\section*{Polysemy}
+
+\textbf{Polysemy} (poh-LISS-ih-mee) is when a single word has \emph{multiple related} meanings
+that share a common origin. Distinct from a homonym, where the meanings are unrelated.
+
+\example{
+\textbf{Head} = (1) body part on top of neck; (2) leader of an organization; (3) top of a beer; (4) front of a parade. All connect through the metaphor of ``the topmost or leading part.''\\[4pt]
+\textbf{Mouse} = (1) small rodent; (2) computer pointing device. The second meaning was named after the first because of its visual resemblance --- this is polysemy.\\[4pt]
+\textbf{Bank} = (1) financial institution; (2) edge of a river. These meanings are \emph{unrelated} historically (different etymologies), so this is a \textbf{homonym}, not polysemy.
+}
+
+\section*{Acronyms vs.\ Initialisms}
+
+Both are abbreviations made from the first letters of words --- but they differ in how you say them.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Type} & \textbf{Definition} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  \textbf{Acronym} & Pronounced as a single word & \textbf{NASA} (``nasa''), \textbf{NATO} (``nay-toe''), \textbf{LASER} (Light Amplification by Stimulated Emission of Radiation), \textbf{SCUBA}, \textbf{RADAR} \\
+\rowcolor{rowBg} \textbf{Initialism} & Each letter pronounced separately & \textbf{FBI} (``F-B-I''), \textbf{USA}, \textbf{CEO}, \textbf{HTTP}, \textbf{ATM}, \textbf{DVD} \\
+\rowcolor{rowA}  \textbf{Mixed} & Some pronounced as letters, some as a word & \textbf{JPEG} (``jay-peg''), \textbf{CD-ROM} (``C-D-rom'') \\
+\bottomrule
+\end{tabularx}}
+
+\textit{In casual usage people call all of these ``acronyms,'' but the technical distinction is whether you pronounce it as a word.}
+
+\textbf{Common abbreviations from Latin (not acronyms but worth knowing):}
+\begin{itemize}[noitemsep]
+  \item \textbf{e.g.} = \emph{exempli gratia} = ``for example''
+  \item \textbf{i.e.} = \emph{id est} = ``that is''
+  \item \textbf{etc.} = \emph{et cetera} = ``and other things''
+  \item \textbf{vs.} = \emph{versus} = ``against''
+  \item \textbf{a.m.} = \emph{ante meridiem} = ``before noon''; \textbf{p.m.} = \emph{post meridiem}
+\end{itemize}
+
+\section*{Eponyms}
+
+An \textbf{eponym} is a word derived from a person's name. English has hundreds of these,
+often without people realizing the origin.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Word} & \textbf{Origin} \\
+\midrule
+\rowcolor{rowA}  Sandwich    & John Montagu, 4th Earl of Sandwich; allegedly invented to eat while playing cards. \\
+\rowcolor{rowBg} Boycott     & Captain Charles Boycott, an Irish land agent ostracized by tenants in 1880. \\
+\rowcolor{rowA}  Diesel      & Rudolf Diesel, who invented the diesel engine. \\
+\rowcolor{rowBg} Algorithm   & Al-Khwarizmi, the 9th-century Persian mathematician. ``Algebra'' is also from his work. \\
+\rowcolor{rowA}  Volt / Watt & Alessandro Volta and James Watt --- units named after physicists. \\
+\rowcolor{rowBg} Cardigan    & The 7th Earl of Cardigan, who wore the knitted jacket in the Crimean War. \\
+\rowcolor{rowA}  Saxophone   & Adolphe Sax, the inventor. \\
+\rowcolor{rowBg} Guppy       & Robert Guppy, who first sent the fish to the British Museum. \\
+\rowcolor{rowA}  Gerrymander & Governor Elbridge Gerry, whose redrawn election district resembled a salamander. \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Portmanteaus}
+
+A \textbf{portmanteau} is a word formed by blending parts of two existing words. The term itself
+was coined by Lewis Carroll in \emph{Through the Looking-Glass} (1871), borrowing from
+the French word for a suitcase that opens in two halves.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Portmanteau} & \textbf{Components} \\
+\midrule
+\rowcolor{rowA}  brunch       & breakfast + lunch \\
+\rowcolor{rowBg} smog         & smoke + fog \\
+\rowcolor{rowA}  motel        & motor + hotel \\
+\rowcolor{rowBg} podcast      & iPod + broadcast \\
+\rowcolor{rowA}  internet     & inter- + network \\
+\rowcolor{rowBg} emoticon     & emotion + icon \\
+\rowcolor{rowA}  jeggings     & jeans + leggings \\
+\rowcolor{rowBg} sitcom       & situation + comedy \\
+\rowcolor{rowA}  Brexit       & Britain + exit \\
+\rowcolor{rowBg} spork        & spoon + fork \\
+\bottomrule
+\end{tabularx}}
+
+\textit{A portmanteau is different from a \textbf{compound word} like ``notebook'' (note + book) where both whole words remain intact. Portmanteaus blend partial pieces.}
+
+\section*{Roots, Prefixes \& Suffixes}
+
+English words are often built from smaller meaningful pieces called \textbf{morphemes}:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Root}: the core meaning of a word (\emph{port} = carry, \emph{spect} = look, \emph{bio} = life).
+  \item \textbf{Prefix}: attached at the \emph{front}; modifies meaning (\emph{un-, re-, pre-, anti-}).
+  \item \textbf{Suffix}: attached at the \emph{end}; often changes the part of speech (\emph{-ly, -tion, -able, -er}).
+\end{itemize}
+
+\example{
+\textbf{Build the word ``unbreakable'':}\\
+\quad\textbf{un-} (prefix: ``not'') + \textbf{break} (root verb) + \textbf{-able} (suffix: ``can be'')\\
+$\to$ ``not able to be broken''\\[4pt]
+\textbf{Build ``transportation'':}\\
+\quad\textbf{trans-} (across) + \textbf{port} (carry) + \textbf{-ation} (the act of)\\
+$\to$ ``the act of carrying across''
+}
+
+\subsection*{Common Prefixes}
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Prefix} & \textbf{Meaning} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  un-, in-, im-, ir-  & not             & unhappy, invisible, impossible, irregular \\
+\rowcolor{rowBg} re-                  & again, back     & redo, return, replay \\
+\rowcolor{rowA}  pre-                 & before          & preview, prepay, predict \\
+\rowcolor{rowBg} post-                & after           & postpone, postwar, postscript \\
+\rowcolor{rowA}  anti-                & against         & antifreeze, antibody, antisocial \\
+\rowcolor{rowBg} sub-                 & under           & submarine, subway, subset \\
+\rowcolor{rowA}  super-               & above, beyond   & superhuman, supersonic, supermarket \\
+\rowcolor{rowBg} trans-               & across          & transport, transmit, transatlantic \\
+\rowcolor{rowA}  inter-               & between         & interact, international, intercept \\
+\rowcolor{rowBg} mis-                 & wrongly         & misspell, mistake, misunderstand \\
+\rowcolor{rowA}  bi- / tri-           & two / three     & bicycle, tripod, triangle \\
+\rowcolor{rowBg} multi- / poly-       & many            & multimedia, polygon \\
+\bottomrule
+\end{tabularx}}
+
+\subsection*{Common Suffixes}
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Suffix} & \textbf{Function} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowA}  -er, -or          & person who does X (noun)            & teacher, actor, runner \\
+\rowcolor{rowBg} -tion, -sion      & the act/state of (noun)             & action, decision, creation \\
+\rowcolor{rowA}  -ness             & state of being (noun)                & happiness, kindness, darkness \\
+\rowcolor{rowBg} -ment             & result of (noun)                     & development, agreement \\
+\rowcolor{rowA}  -ly               & in what manner (adverb)              & quickly, badly, happily \\
+\rowcolor{rowBg} -able, -ible      & capable of being (adjective)         & readable, edible, possible \\
+\rowcolor{rowA}  -ful              & full of (adjective)                  & helpful, beautiful, painful \\
+\rowcolor{rowBg} -less             & without (adjective)                  & hopeless, useless, careless \\
+\rowcolor{rowA}  -ous              & having quality of (adjective)        & dangerous, famous, nervous \\
+\rowcolor{rowBg} -ize, -ify        & to make (verb)                       & modernize, simplify \\
+\rowcolor{rowA}  -ed               & past tense (verb)                    & walked, jumped, talked \\
+\rowcolor{rowBg} -ing              & ongoing action (verb)                & running, eating, singing \\
+\bottomrule
+\end{tabularx}}
+
+\section*{Idioms \& Collocations}
+
+\textbf{Idioms} are phrases whose meaning \emph{cannot be guessed from the literal words}.
+They must be memorized as units.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Idiom} & \textbf{Actual Meaning} \\
+\midrule
+\rowcolor{rowA}  Kick the bucket          & to die \\
+\rowcolor{rowBg} Spill the beans          & to reveal a secret \\
+\rowcolor{rowA}  Break a leg              & good luck (especially before a performance) \\
+\rowcolor{rowBg} Under the weather        & feeling sick \\
+\rowcolor{rowA}  Piece of cake            & very easy \\
+\rowcolor{rowBg} Cost an arm and a leg    & very expensive \\
+\rowcolor{rowA}  Hit the nail on the head & to be exactly right \\
+\rowcolor{rowBg} Once in a blue moon      & very rarely \\
+\rowcolor{rowA}  Burn the midnight oil    & to work very late \\
+\rowcolor{rowBg} The ball is in your court & it's your turn to act/decide \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Collocations} are words that ``go together'' naturally and are expected by native
+speakers, even when other words would be grammatically valid.
+
+\example{
+We say ``\textbf{strong} coffee,'' not ``powerful coffee'' (both are grammatical, but only the first sounds natural).\\
+We say ``\textbf{make} a mistake,'' not ``do a mistake.''\\
+We say ``\textbf{heavy} rain,'' not ``thick rain.''\\
+We say ``\textbf{do} homework,'' not ``make homework.''\\[4pt]
+Collocations are one of the hardest things for second-language learners --- the rules
+are largely arbitrary conventions of native usage.
+}
+
+\section*{Slang \& Jargon}
+
+Both are words used by specific groups, but for different reasons.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Slang}: \emph{informal, casual} words used in social contexts; often generation-specific or region-specific. Examples: \emph{cool, dude, chill, lit, bet, salty, sus, no cap}.
+  \item \textbf{Jargon}: \emph{specialized technical} vocabulary used by professionals in a field. Necessary for precision among experts; can confuse outsiders.
+\end{itemize}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.8cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Field} & \textbf{Jargon Examples} \\
+\midrule
+\rowcolor{rowA}  Medicine & myocardial infarction (heart attack), idiopathic (cause unknown), benign, prognosis \\
+\rowcolor{rowBg} Law      & habeas corpus, prima facie, voir dire, tort, plaintiff, defendant \\
+\rowcolor{rowA}  Tech / CS & API, refactor, latency, deprecate, push, pull request, runtime \\
+\rowcolor{rowBg} Finance  & arbitrage, derivative, liquidity, P/E ratio, margin call \\
+\rowcolor{rowA}  Linguistics & morpheme, phoneme, syntax, lexeme, allophone, deixis \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART III -- English Grammar Mechanics
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART III \textemdash\ English Grammar Mechanics}}
+\addcontentsline{toc}{subsection}{The 12 English Verb Tenses}
+\addcontentsline{toc}{subsection}{Tense, Aspect \& Mood}
+\addcontentsline{toc}{subsection}{Active vs.\ Passive Voice}
+\addcontentsline{toc}{subsection}{Subject-Verb Agreement}
+\addcontentsline{toc}{subsection}{Phrases vs.\ Clauses}
+\addcontentsline{toc}{subsection}{Sentence Types \& Structures}
+\addcontentsline{toc}{subsection}{Punctuation Essentials}
+\addcontentsline{toc}{subsection}{Common Grammar Mistakes}
+\partbanner{part4bg}{sectionorange}{Part III \quad English Grammar Mechanics}
+
+\vspace{8pt}
+
+\section*{The 12 English Verb Tenses}
+
+English organizes time using two dimensions: \textbf{tense} (past / present / future) and
+\textbf{aspect} (simple / continuous / perfect / perfect continuous). Multiplying gives 12 tenses.
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.2cm}
+                              >{\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Tense} & \textbf{Form} & \textbf{Example \& Use} \\
+\midrule
+\rowcolor{rowOr} Simple Present       & verb (+s)                     & ``She \textbf{eats} lunch.'' Habitual / general truths. \\
+\rowcolor{rowA}  Present Continuous   & am/is/are + verb-ing          & ``She \textbf{is eating} lunch.'' Happening now. \\
+\rowcolor{rowOr} Present Perfect      & have/has + past participle    & ``She \textbf{has eaten} lunch.'' Done at unspecified time, with present relevance. \\
+\rowcolor{rowA}  Present Perfect Cont.& have/has been + verb-ing      & ``She \textbf{has been eating} for an hour.'' Started in past, ongoing. \\
+\rowcolor{rowOr} Simple Past          & verb-ed (or irregular)        & ``She \textbf{ate} lunch.'' Completed in past. \\
+\rowcolor{rowA}  Past Continuous      & was/were + verb-ing           & ``She \textbf{was eating} lunch when I called.'' Ongoing in past. \\
+\rowcolor{rowOr} Past Perfect         & had + past participle         & ``She \textbf{had eaten} before I arrived.'' Past action before another past action. \\
+\rowcolor{rowA}  Past Perfect Cont.   & had been + verb-ing           & ``She \textbf{had been eating} for an hour when I arrived.'' \\
+\rowcolor{rowOr} Simple Future        & will + verb                   & ``She \textbf{will eat} lunch.'' Future action. \\
+\rowcolor{rowA}  Future Continuous    & will be + verb-ing            & ``She \textbf{will be eating} at noon.'' Action in progress in the future. \\
+\rowcolor{rowOr} Future Perfect       & will have + past participle   & ``She \textbf{will have eaten} by 1pm.'' Completed before a future moment. \\
+\rowcolor{rowA}  Future Perfect Cont. & will have been + verb-ing     & ``By 2pm she \textbf{will have been eating} for two hours.'' \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{The pattern that ties them together:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Simple} = a single point or fact (\emph{ate})
+  \item \textbf{Continuous} (progressive) = ongoing action (\emph{was eating})
+  \item \textbf{Perfect} = completed before a reference point (\emph{had eaten})
+  \item \textbf{Perfect Continuous} = ongoing up to a reference point (\emph{had been eating})
+\end{itemize}
+Every English tense fits into this 3$\times$4 grid.
+\end{tcolorbox}
+
+\section*{Tense, Aspect \& Mood}
+
+These three terms describe \emph{different} things about a verb. Beginners conflate them; precision matters.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Tense} = \emph{when} (past, present, future).
+  \item \textbf{Aspect} = \emph{how the action flows} through time (completed? ongoing? habitual?).
+  \item \textbf{Mood} = \emph{the speaker's attitude} toward the action (real? hypothetical? commanded? wished?).
+\end{itemize}
+
+\subsection*{Mood}
+
+English has four main moods:
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{4cm}}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Mood} & \textbf{Used for\ldots} & \textbf{Example} \\
+\midrule
+\rowcolor{rowOr} Indicative   & Stating facts or asking questions             & ``She \textbf{eats} lunch.'' / ``Does she eat?'' \\
+\rowcolor{rowA}  Imperative   & Giving commands or instructions               & ``\textbf{Eat} your lunch!'' / ``\textbf{Be} quiet.'' \\
+\rowcolor{rowOr} Subjunctive  & Hypothetical, contrary to fact, or a wish     & ``If I \textbf{were} you\ldots'' / ``I wish she \textbf{were} here.'' \\
+\rowcolor{rowA}  Conditional  & Statements depending on a condition            & ``She \textbf{would eat} if she were hungry.'' \\
+\bottomrule
+\end{tabularx}}
+
+\textit{The subjunctive in English has been weakening for centuries. Many speakers now say ``If I was you'' instead of the technically correct ``If I were you.'' The form survives most strongly in fixed phrases: ``God bless you'' (not blesses), ``Long live the Queen'' (not lives), ``So be it.''}
+
+\section*{Active vs.\ Passive Voice}
+
+Voice describes the relationship between the \textbf{subject} and the \textbf{action}.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Active voice}: the subject \emph{performs} the action.\\
+  \texttt{Subject + Verb + Object} \quad e.g., ``\textbf{The dog} chased the cat.''
+  \item \textbf{Passive voice}: the subject \emph{receives} the action.\\
+  \texttt{Object + form of ``to be'' + past participle + (by + agent)} \quad e.g., ``\textbf{The cat} was chased (by the dog).''
+\end{itemize}
+
+\example{
+\textbf{Active:} ``The committee approved the proposal.''\\
+\textbf{Passive:} ``The proposal was approved by the committee.''\\
+\textbf{Passive with no agent:} ``The proposal was approved.'' (Who approved it? Hidden!)
+}
+
+\textbf{When passive voice is appropriate:}
+\begin{itemize}[noitemsep]
+  \item The doer is unknown, unimportant, or obvious: ``The window \textbf{was broken}.''
+  \item Scientific writing where the action matters more than the actor: ``The sample \textbf{was heated} to 100\textdegree C.''
+  \item Diplomatic phrasing to avoid blame: ``Mistakes \textbf{were made}.''
+\end{itemize}
+
+\textbf{When passive voice is bad:}
+When you're hiding the actor to dodge responsibility, or when the active version would be clearer and more direct. Most writing guides recommend preferring active voice unless there's a specific reason not to.
+
+\section*{Subject-Verb Agreement}
+
+The \textbf{verb} must agree with the \textbf{subject} in number (singular or plural) and person (1st, 2nd, 3rd).
+
+\example{
+\textbf{The dog runs.} (singular) \quad \textbf{The dogs run.} (plural)\\
+\textbf{I am} happy. \textbf{You are} happy. \textbf{She is} happy. (1st, 2nd, 3rd person)
+}
+
+\textbf{Tricky cases:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Compound subjects with ``and''} take a plural verb: ``The cat \textbf{and} the dog \textbf{are} hungry.''
+  \item \textbf{Compound subjects with ``or'' / ``nor''} take a verb agreeing with the \emph{nearest} subject: ``Neither the cat \textbf{nor the dogs are} hungry.'' (matches \emph{dogs})
+  \item \textbf{Collective nouns} (team, family, jury) usually take singular in American English (``The team \textbf{is} winning'') but plural in British English (``The team \textbf{are} winning'').
+  \item \textbf{Words that look plural but aren't}: ``Mathematics \textbf{is} hard.'' ``The news \textbf{is} on.''
+  \item \textbf{Indefinite pronouns}: \emph{everyone, somebody, each, neither} take singular verbs (``Everyone \textbf{is} here'').
+  \item \textbf{Phrases between subject and verb don't change agreement}: ``The bag of apples \textbf{is} on the table.'' (subject is \emph{bag}, not \emph{apples}).
+\end{itemize}
+
+\section*{Phrases vs.\ Clauses}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Phrase} = a group of words \emph{without} both a subject and a verb. ``On the table.'' ``The very tall man.''
+  \item \textbf{Clause} = a group of words \emph{with} a subject and a verb.
+    \begin{itemize}[noitemsep]
+      \item \textbf{Independent clause}: complete thought; can stand alone as a sentence. ``She left.''
+      \item \textbf{Dependent (subordinate) clause}: has subject + verb but cannot stand alone. ``Because she was tired.''
+    \end{itemize}
+\end{itemize}
+
+\example{
+\textbf{Phrase:} \emph{In the morning} (no verb)\\
+\textbf{Independent clause:} \emph{She drinks coffee.} (complete sentence)\\
+\textbf{Dependent clause:} \emph{Because she drinks coffee} (subject + verb, but incomplete)\\
+\textbf{Combined:} \emph{In the morning, she drinks coffee because she is tired.}
+}
+
+\section*{Sentence Types \& Structures}
+
+\textbf{By function:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Declarative}: makes a statement. ``She is here.''
+  \item \textbf{Interrogative}: asks a question. ``Is she here?''
+  \item \textbf{Imperative}: gives a command. ``Come here.''
+  \item \textbf{Exclamatory}: expresses strong emotion. ``She is here!''
+\end{itemize}
+
+\textbf{By structure} (based on number and type of clauses):
+\begin{itemize}[noitemsep]
+  \item \textbf{Simple}: 1 independent clause. ``She runs.''
+  \item \textbf{Compound}: 2+ independent clauses joined by FANBOYS or a semicolon. ``She runs, and he walks.''
+  \item \textbf{Complex}: 1 independent + 1+ dependent. ``She runs because she enjoys it.''
+  \item \textbf{Compound-complex}: 2+ independent + 1+ dependent. ``She runs because she enjoys it, and he walks because he prefers a slower pace.''
+\end{itemize}
+
+\section*{Punctuation Essentials}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Mark} & \textbf{Use} \\
+\midrule
+\rowcolor{rowOr} . (period) & End of declarative sentence; end of abbreviation (Mr., etc.). \\
+\rowcolor{rowA}  ? (question) & End of question. \\
+\rowcolor{rowOr} ! (exclam.) & Strong emotion or emphasis. Use sparingly in formal writing. \\
+\rowcolor{rowA}  , (comma) & Separates items in a list, clauses, introductory phrases, non-essential info. \\
+\rowcolor{rowOr} ; (semicolon) & Joins two closely related independent clauses without a conjunction. ``She left; he stayed.'' \\
+\rowcolor{rowA}  : (colon) & Introduces a list, explanation, or quotation. ``She brought three things: a book, a pen, and a notebook.'' \\
+\rowcolor{rowOr} -- (dash) & Sets off an emphatic interruption. ``He arrived --- finally --- at midnight.'' \\
+\rowcolor{rowA}  ' (apostrophe) & Possession (Sarah's car) or contraction (don't). \\
+\rowcolor{rowOr} `` '' (quotes) & Direct speech or titles of short works. ``Hello,'' she said. \\
+\rowcolor{rowA}  ( ) (parens) & Optional or supplementary info. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{The Oxford (serial) comma:} The comma before ``and'' in a list of three or more.\\
+\quad \textit{With Oxford:} ``apples, oranges, and pears.''\\
+\quad \textit{Without:} ``apples, oranges and pears.''\\
+The Oxford comma can prevent ambiguity --- ``I love my parents, Lady Gaga and Humpty Dumpty'' could be read as listing your parents.
+
+\section*{Common Grammar Mistakes}
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Mistake} & \textbf{The Rule} \\
+\midrule
+\rowcolor{rowOr} \emph{its} vs.\ \emph{it's}    & \textbf{its} = possessive (the dog wagged \emph{its} tail). \textbf{it's} = ``it is'' or ``it has.'' \\
+\rowcolor{rowA}  \emph{your} vs.\ \emph{you're}  & \textbf{your} = possessive. \textbf{you're} = ``you are.'' \\
+\rowcolor{rowOr} \emph{their / there / they're} & \textbf{their} = possessive. \textbf{there} = location. \textbf{they're} = ``they are.'' \\
+\rowcolor{rowA}  \emph{who} vs.\ \emph{whom}     & \textbf{who} = subject (Who called?). \textbf{whom} = object (To whom did you speak?). Trick: substitute he/him --- if ``him'' fits, use ``whom.'' \\
+\rowcolor{rowOr} \emph{affect} vs.\ \emph{effect}& \textbf{affect} = verb (to influence). \textbf{effect} = noun (a result). \\
+\rowcolor{rowA}  \emph{fewer} vs.\ \emph{less}   & \textbf{fewer} = countable nouns (fewer apples). \textbf{less} = mass nouns (less water). \\
+\rowcolor{rowOr} \emph{lay} vs.\ \emph{lie}      & \textbf{lay} = to put down (transitive); \textbf{lie} = to recline (intransitive). ``Lay the book down. The book lies on the table.'' \\
+\rowcolor{rowA}  \emph{me} vs.\ \emph{I}         & After a preposition or as object: \emph{me}. As subject: \emph{I}. ``Between you and \textbf{me}'' (not ``and I''). \\
+\rowcolor{rowOr} Comma splice                    & Don't join two independent clauses with just a comma. Use ; or . or a conjunction. \\
+\rowcolor{rowA}  Dangling modifier               & ``Walking down the street, the trees were beautiful.'' (The trees aren't walking!) Fix: ``Walking down the street, I saw beautiful trees.'' \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART IV -- Phonetics, Phonology & Sound
+%% =============================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART IV \textemdash\ Phonetics, Phonology \& Sound}}
+\addcontentsline{toc}{subsection}{Phonemes \& Allophones}
+\addcontentsline{toc}{subsection}{The IPA \& English Sounds}
+\addcontentsline{toc}{subsection}{Phonotactics}
+\addcontentsline{toc}{subsection}{Stress \& Rhythm}
+\addcontentsline{toc}{subsection}{Tones \& Pitch}
+\addcontentsline{toc}{subsection}{Orthography: Spelling vs.\ Sound}
+\partbanner{part5bg}{sectionteal}{Part IV \quad Phonetics, Phonology \& Sound}
+
+\vspace{8pt}
+
+\section*{Phonemes \& Allophones}
+
+A \textbf{phoneme} is the smallest unit of sound that can change a word's meaning in a language.
+
+\example{
+In English, /p/ and /b/ are different phonemes because changing one to the other changes the word: \textbf{p}at vs.\ \textbf{b}at.\\
+But /p/ in ``\textbf{p}in'' and /p/ in ``s\textbf{p}in'' are slightly different physical sounds (the first has a puff of air, the second doesn't). They are \textbf{allophones} of the same phoneme --- variations that don't change meaning.
+}
+
+\textbf{Languages disagree on which sounds are phonemes:}
+\begin{itemize}[noitemsep]
+  \item In English, /r/ and /l/ are different phonemes (\emph{rice} vs.\ \emph{lice}). In Japanese, they are allophones of one phoneme --- which is why Japanese speakers learning English famously struggle to distinguish them.
+  \item In Mandarin, the four \emph{tones} on the same syllable are phonemic: \emph{m\=a} (mother), \emph{m\'a} (hemp), \emph{m\v{a}} (horse), \emph{m\`a} (scold) are four different words. In English, pitch never changes word meaning.
+  \item In Arabic, the difference between ``emphatic'' and ``plain'' consonants is phonemic ($\emptyset$/s/ vs.\ /s\textsubdot{}/). English doesn't have this distinction at all.
+\end{itemize}
+
+\section*{The IPA \& English Sounds}
+
+The \textbf{International Phonetic Alphabet (IPA)} is a universal system where each symbol
+represents exactly one sound, regardless of language. Linguists write phonemes between
+slashes /\ldots/ and actual phonetic sounds in brackets [\ldots].
+
+\textbf{English has $\sim$44 phonemes} (depending on dialect): about 24 consonants and 20 vowels --- yet only 26 letters in the alphabet. This mismatch is why English spelling is so unpredictable.
+
+\subsection*{English Vowel Sounds (a sample)}
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{IPA} & \textbf{Example words} \\
+\midrule
+\rowcolor{rowTe} /i/ & b\textbf{ee}, s\textbf{ea}, k\textbf{ey} \\
+\rowcolor{rowA}  /\textipa{I}/ & b\textbf{i}t, h\textbf{i}t, g\textbf{i}ft \\
+\rowcolor{rowTe} /\textipa{E}/ & b\textbf{e}d, h\textbf{ea}d \\
+\rowcolor{rowA}  /\ae/ & c\textbf{a}t, b\textbf{a}d \\
+\rowcolor{rowTe} /\textipa{A}/ & f\textbf{a}ther, c\textbf{a}lm \\
+\rowcolor{rowA}  /\textipa{2}/ & c\textbf{u}t, l\textbf{o}ve \\
+\rowcolor{rowTe} /\textipa{@}/ (schwa) & \textbf{a}bout, sof\textbf{a} (the most common English vowel!) \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{The schwa /\textipa{@}/} is English's secret vowel: an unstressed ``uh'' sound that appears in nearly every multi-syllable word. It's why ``banana'' is really ``b\textipa{@}-NAN-\textipa{@}.''
+
+\section*{Phonotactics}
+
+\textbf{Phonotactics} are the rules a language uses for combining sounds into syllables.
+Every language has different rules.
+
+\example{
+\textbf{English allows:} \emph{strengths} /str\textipa{E}\textipa{N}\textipa{T}s/ --- 6 consonants in 1 syllable. Wild!\\
+\textbf{Japanese allows:} mostly only consonant + vowel syllables (CV). That's why borrowed words get extra vowels: ``baseball'' becomes ``b\=esub\=oru,'' ``McDonald's'' becomes ``Makudonarudo.''\\
+\textbf{Hawaiian allows:} only ~13 phonemes total and very simple syllable structure. Every word ends in a vowel: \emph{aloha, mahalo, Honolulu}.\\
+\textbf{Arabic allows:} consonant clusters only at certain positions; the language is built around \textbf{tri-consonantal roots} (e.g., k-t-b means ``writing'').
+}
+
+\section*{Stress \& Rhythm}
+
+\textbf{Stress} is the emphasis placed on a syllable. In English, stress can change a word's meaning or its part of speech:
+\begin{itemize}[noitemsep]
+  \item \emph{REC-ord} (noun, ``a record'') vs.\ \emph{re-CORD} (verb, ``to record'')
+  \item \emph{PRES-ent} (noun, ``a gift'') vs.\ \emph{pre-SENT} (verb, ``to give'')
+  \item \emph{CON-tent} (noun) vs.\ \emph{con-TENT} (adjective, ``satisfied'')
+\end{itemize}
+
+\textbf{Languages have rhythmic types:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Stress-timed languages} (English, German, Russian): stressed syllables come at roughly equal intervals, and unstressed syllables get squeezed/reduced (often to schwa). This is why English sounds ``bumpy.''
+  \item \textbf{Syllable-timed languages} (Spanish, French, Italian, Mandarin): every syllable takes roughly the same amount of time. This gives them their even, ``machine-gun'' rhythm.
+  \item \textbf{Mora-timed languages} (Japanese): based on a unit called the \textbf{mora} that's smaller than a syllable. ``Tokyo'' is 4 morae (\emph{to-u-kyo-u}), not 2 syllables.
+\end{itemize}
+
+\section*{Tones \& Pitch}
+
+In a \textbf{tone language}, the pitch of a syllable is part of its identity --- changing the
+pitch changes the word.
+
+\textbf{Mandarin Chinese has 4 tones} (plus a neutral tone):
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1.5cm}
+                              >{\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Tone} & \textbf{Pitch contour} & \textbf{Example with ``ma''} \\
+\midrule
+\rowcolor{rowTe} 1st & High and level (steady high)         & m\=a = ``mother'' \\
+\rowcolor{rowA}  2nd & Rising (low to high)                 & m\'a = ``hemp'' \\
+\rowcolor{rowTe} 3rd & Falling-then-rising (dip)            & m\v{a} = ``horse'' \\
+\rowcolor{rowA}  4th & Falling sharply (high to low)        & m\`a = ``scold'' \\
+\bottomrule
+\end{tabularx}}
+
+\textit{Cantonese has 6--9 tones depending on analysis. Vietnamese has 6. Yoruba and Zulu use 2--3 tones. Tonal languages are spoken by over 1 billion people --- they're not a minority phenomenon globally.}
+
+\textbf{Pitch in non-tonal languages} still matters --- but at the sentence level, not the word level. In English, rising pitch at the end of a sentence signals a question (``You're going?''), while falling pitch signals a statement.
+
+\section*{Orthography: Spelling vs.\ Sound}
+
+\textbf{Orthography} is the writing system of a language --- specifically how spelling relates to pronunciation. Languages exist on a spectrum:
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Type} & \textbf{Description} & \textbf{Languages} \\
+\midrule
+\rowcolor{rowTe} Shallow / Transparent & Spelling reliably predicts pronunciation. One letter $\to$ one sound. & Spanish, Italian, Finnish, Turkish, Korean Hangul \\
+\rowcolor{rowA}  Deep / Opaque         & Spelling and pronunciation are loosely connected; many exceptions. & English, French, Tibetan \\
+\rowcolor{rowTe} Logographic           & Symbols represent words/morphemes, not sounds.                      & Chinese (Hanzi), Japanese Kanji \\
+\rowcolor{rowA}  Syllabic              & Each symbol represents a full syllable.                             & Japanese Hiragana/Katakana, Cherokee \\
+\rowcolor{rowTe} Abugida               & Consonant + inherent vowel; vowel marks modify.                     & Hindi (Devanagari), Amharic, Thai \\
+\rowcolor{rowA}  Abjad                 & Mainly consonants; vowels often omitted.                            & Arabic, Hebrew \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Why is English spelling so weird?}, arc=3pt, boxrule=1pt]
+English spelling is famously inconsistent: \emph{though, through, tough, thought, thorough} all have the ``ough'' letters but five different pronunciations. Reasons:
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Frozen pronunciation:} Spelling stabilized in the 1400s, but pronunciation kept changing. The ``k'' in \emph{knight} and ``gh'' in \emph{light} were once pronounced.
+  \item \textbf{Borrowed words keep their original spelling:} \emph{rendezvous} (French), \emph{psychology} (Greek), \emph{tsunami} (Japanese).
+  \item \textbf{The Great Vowel Shift} (1400s--1700s): vowel pronunciations changed dramatically, but spelling didn't follow.
+  \item \textbf{Printing-press standardization:} Caxton printed in Flanders with Flemish typesetters, who introduced Dutch spellings (\emph{ghost} once was \emph{gost}).
+\end{itemize}
+Spanish reformed its spelling repeatedly to keep it phonetic. English never did. The result: a language where \emph{rough, dough, cough,} and \emph{bough} all rhyme with different things.
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART V -- Morphology: Word Structure
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART V \textemdash\ Morphology: Word Structure}}
+\addcontentsline{toc}{subsection}{Morphemes: Free \& Bound}
+\addcontentsline{toc}{subsection}{Inflection vs.\ Derivation}
+\addcontentsline{toc}{subsection}{Compounding}
+\addcontentsline{toc}{subsection}{Agglutinative \& Polysynthetic Languages}
+\partbanner{part3bg}{sectionpurple}{Part V \quad Morphology: Word Structure}
+
+\vspace{8pt}
+\begin{center}\small\itshape
+  Morphology studies how words are built from smaller meaningful pieces.
+\end{center}
+
+\section*{Morphemes: Free \& Bound}
+
+A \textbf{morpheme} is the smallest unit of meaning in a language. The word \emph{cats} has two morphemes: \emph{cat} (the animal) and \emph{-s} (plural).
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Free morpheme:} can stand alone as a word. Examples: \emph{book, run, happy, the, and}.
+  \item \textbf{Bound morpheme:} must attach to another morpheme. Examples: \emph{-s, -ed, un-, re-, -tion, -ly}.
+\end{itemize}
+
+\example{
+``\textbf{Unbreakable}'' = \emph{un-} (bound) + \emph{break} (free) + \emph{-able} (bound) = 3 morphemes\\[4pt]
+``\textbf{Cats}'' = \emph{cat} (free) + \emph{-s} (bound) = 2 morphemes\\[4pt]
+``\textbf{Dog}'' = \emph{dog} (free) = 1 morpheme
+}
+
+\section*{Inflection vs.\ Derivation}
+
+Both attach morphemes to a word, but they do different things.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Feature} & \textbf{Inflection} & \textbf{Derivation} \\
+\midrule
+\rowcolor{rowPu} Changes part of speech? & No                & Often yes \\
+\rowcolor{rowA}  Changes core meaning?    & No (just grammar) & Yes (creates a new word) \\
+\rowcolor{rowPu} Examples                 & cat $\to$ cats; walk $\to$ walked & happy $\to$ happiness; teach $\to$ teacher \\
+\rowcolor{rowA}  Productivity             & Highly regular   & Less regular, more idiosyncratic \\
+\bottomrule
+\end{tabularx}}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Inflectional morphemes} (English has only 8): plural \emph{-s}, possessive \emph{'s}, 3rd-person singular \emph{-s}, past tense \emph{-ed}, past participle \emph{-en/-ed}, progressive \emph{-ing}, comparative \emph{-er}, superlative \emph{-est}.
+  \item \textbf{Derivational morphemes:} all the prefixes and suffixes that build new words --- \emph{un-, re-, -tion, -able, -ly, -er} (as in \emph{teacher}), and so on.
+\end{itemize}
+
+\textit{Languages vary enormously in how much they inflect. English has minimal inflection; Latin, Russian, and Finnish have extensive inflection, often with dozens of forms per noun or verb.}
+
+\section*{Compounding}
+
+\textbf{Compounding} combines two free morphemes into one new word. English examples:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Closed compounds:} \emph{notebook, toothbrush, sunflower, firefly}
+  \item \textbf{Hyphenated compounds:} \emph{mother-in-law, well-being, twenty-one}
+  \item \textbf{Open compounds:} \emph{ice cream, high school, post office} (treated as one unit even though written separately)
+\end{itemize}
+
+\textbf{German is famous for compounds.} Where English uses a phrase, German fuses everything into one word:
+\begin{itemize}[noitemsep]
+  \item \textbf{Handschuh} = ``hand shoe'' = glove
+  \item \textbf{Krankenhaus} = ``sick house'' = hospital
+  \item \textbf{Donaudampfschifffahrtsgesellschaftskapit\"an} = ``Danube steamship company captain'' (a real word)
+\end{itemize}
+
+\section*{Agglutinative \& Polysynthetic Languages}
+
+Languages can be classified by how they build complex words.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}p{3.5cm}}
+\toprule
+\rowcolor{tableheaderpurple}
+\textbf{Type} & \textbf{Description} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowPu} Isolating / Analytic & Each word = one morpheme; grammar shown by word order. & Mandarin Chinese, Vietnamese \\
+\rowcolor{rowA}  Fusional / Synthetic & A single suffix encodes multiple grammatical features. & Spanish, Latin, Russian, Greek \\
+\rowcolor{rowPu} Agglutinative        & Many morphemes strung together, each with a single clear meaning. & Turkish, Finnish, Japanese, Korean, Swahili \\
+\rowcolor{rowA}  Polysynthetic        & Whole sentences expressed as a single complex word. & Inuktitut, Mohawk, Yup'ik \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part3bg, colframe=sectionpurple, arc=3pt, boxrule=1pt]
+\textbf{Turkish example (agglutinative):} The single word \textbf{evlerinizden} means ``from your houses'':
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \emph{ev} = house
+  \item \emph{-ler} = plural marker
+  \item \emph{-iniz} = your (2nd person plural possessive)
+  \item \emph{-den} = ``from'' (ablative case)
+\end{itemize}
+Each suffix is a clear, single-purpose morpheme stacked in order.\\[4pt]
+\textbf{Inuktitut example (polysynthetic):} \emph{tusaatsiarunnanngittualuujunga} = ``I can't hear very well.'' One word does the job of an entire English sentence.
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART VI -- Syntax: Sentence Architecture
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART VI \textemdash\ Syntax: Sentence Architecture}}
+\addcontentsline{toc}{subsection}{Word Order Typology}
+\addcontentsline{toc}{subsection}{Grammatical Case}
+\addcontentsline{toc}{subsection}{Agreement (Concord)}
+\addcontentsline{toc}{subsection}{Constituency \& Phrase Structure}
+\partbanner{part6bg}{sectionred}{Part VI \quad Syntax: Sentence Architecture}
+
+\vspace{8pt}
+
+\section*{Word Order Typology}
+
+The order of \textbf{Subject (S), Verb (V), and Object (O)} is one of the strongest fingerprints of a language. About 90\% of all languages are SVO or SOV.
+
+\noindent
+{\small\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\centering\arraybackslash}p{1.5cm}
+                              >{\raggedright\arraybackslash}p{4cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Order} & \textbf{Languages} & \textbf{\% of langs} & \textbf{Example: ``Sarah eats apples''} \\
+\midrule
+\rowcolor{rowRe} SVO  & English, Spanish, French, Mandarin, Russian, Swahili & $\sim$42\% & ``Sarah \textbf{eats apples}.'' \\
+\rowcolor{rowA}  SOV  & Japanese, Korean, Turkish, Hindi, Latin (default), Persian & $\sim$45\% & ``Sarah apples eats.'' \\
+\rowcolor{rowRe} VSO  & Classical Arabic, Welsh, Irish, Tagalog, Hawaiian & $\sim$9\% & ``Eats Sarah apples.'' \\
+\rowcolor{rowA}  VOS  & Malagasy, Fijian       & $\sim$3\% & ``Eats apples Sarah.'' \\
+\rowcolor{rowRe} OVS  & Hixkaryana (rare!)     & $<$1\% & ``Apples eats Sarah.'' \\
+\rowcolor{rowA}  OSV  & Warao (extremely rare) & $<$1\% & ``Apples Sarah eats.'' \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Japanese example (SOV):}\\
+\emph{Sarah-wa ringo-o tabemasu.} = ``Sarah-TOPIC apple-OBJECT eats.''\\
+The verb \emph{tabemasu} (eats) comes at the end of the sentence.\\[4pt]
+\textbf{Yoda speaks OSV:} ``Powerful you have become.'' This is one reason Yoda sounds alien --- almost no human language uses OSV as default.
+
+\section*{Grammatical Case}
+
+\textbf{Case} marks the role a noun plays in a sentence (subject, object, possessor, etc.).
+English has almost lost its case system except in pronouns. Other languages mark case extensively.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Case} & \textbf{Function} & \textbf{English example} \\
+\midrule
+\rowcolor{rowRe} Nominative & Subject of the sentence            & \textbf{She} sees the dog. \\
+\rowcolor{rowA}  Accusative & Direct object                       & The dog sees \textbf{her}. \\
+\rowcolor{rowRe} Dative     & Indirect object (the recipient)     & I gave \textbf{her} the book. \\
+\rowcolor{rowA}  Genitive   & Possession                          & \textbf{her} book \\
+\rowcolor{rowRe} Vocative   & Direct address (calling someone)    & ``Hey, \textbf{Sarah!}'' \\
+\rowcolor{rowA}  Ablative   & ``From'' / source / instrument      & (English uses prepositions: ``from her,'' ``with the knife'') \\
+\rowcolor{rowRe} Locative   & ``At'' / location                   & (English uses prepositions: ``in the garden'') \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{German has 4 cases.} The article \emph{the} changes form depending on case:
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Case} & \textbf{Masculine} & \textbf{Feminine} & \textbf{Neuter} \\
+\midrule
+\rowcolor{rowRe} Nominative & der Mann      & die Frau      & das Kind \\
+\rowcolor{rowA}  Accusative & \textbf{den} Mann & die Frau   & das Kind \\
+\rowcolor{rowRe} Dative     & dem Mann      & der Frau      & dem Kind \\
+\rowcolor{rowA}  Genitive   & des Mannes    & der Frau      & des Kindes \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Finnish has 15 cases.} Russian has 6. Latin has 6. Hungarian has 18 (depending on counting). Languages with extensive case systems can use freer word order, because the case ending tells you who's doing what to whom regardless of where the words appear.
+
+\section*{Agreement (Concord)}
+
+\textbf{Agreement} (also called \emph{concord}) means a word changes form to match another word.
+
+\textbf{English subject-verb agreement:} ``She \textbf{eats}.'' (singular) vs.\ ``They \textbf{eat}.'' (plural)\\
+\textbf{Spanish gender-number agreement:} ``El gato \textbf{negro}'' (the black masculine cat) vs.\ ``La gata \textbf{negra}'' (the black feminine cat). The adjective changes to match the noun's gender and number.\\
+\textbf{Bantu noun classes:} Swahili has more than 15 noun classes (essentially genders), and verbs and adjectives agree with all of them.
+
+\example{
+\textbf{Spanish in action:}\\
+\emph{Los gatos negros peque\~nos} = the small black cats.\\
+Every word agrees: \emph{los} (the, masculine plural), \emph{gatos} (cats, masculine plural), \emph{negros} (black, masc.\ plural), \emph{peque\~nos} (small, masc.\ plural).
+}
+
+\section*{Constituency \& Phrase Structure}
+
+A \textbf{constituent} is a group of words that functions as a unit within a sentence. Even
+without diagrams, native speakers feel constituency intuitively.
+
+\example{
+``\textbf{The tall man with the umbrella} entered \textbf{the room}.''\\
+\quad ``\emph{The tall man with the umbrella}'' is a noun phrase (NP), acting as the subject.\\
+\quad ``\emph{The room}'' is another noun phrase, acting as the object.\\[4pt]
+\textbf{Why this matters:} You can replace a constituent with a single word: ``\emph{He} entered \emph{it}.'' But you can't break the constituent: ``The tall man entered with the umbrella the room'' is wrong.
+}
+
+\textbf{Common phrase types:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Noun Phrase (NP):} a noun + its modifiers. ``The big red dog.''
+  \item \textbf{Verb Phrase (VP):} a verb + its objects/complements. ``\emph{ran quickly to the store}.''
+  \item \textbf{Prepositional Phrase (PP):} preposition + NP. ``\emph{in the garden}.''
+  \item \textbf{Adjective Phrase (AP):} ``\emph{very happy}.''
+\end{itemize}
+
+\newpage
+
+%% =============================================================================
+%%  PART VII -- Semantics & Pragmatics
+%% =============================================================================
+\greysections
+\addcontentsline{toc}{section}{\textcolor{sectiongrey}{PART VII \textemdash\ Semantics \& Pragmatics}}
+\addcontentsline{toc}{subsection}{Semantics: Meaning of Words \& Sentences}
+\addcontentsline{toc}{subsection}{Pragmatics: Meaning in Context}
+\addcontentsline{toc}{subsection}{Speech Acts}
+\addcontentsline{toc}{subsection}{Deixis}
+\addcontentsline{toc}{subsection}{Implicature \& Reading Between the Lines}
+\addcontentsline{toc}{subsection}{Politeness, Honorifics \& Register}
+\partbanner{part7bg}{sectiongrey}{Part VII \quad Semantics \& Pragmatics}
+
+\vspace{8pt}
+
+\section*{Semantics: Meaning of Words \& Sentences}
+
+\textbf{Semantics} studies the literal, dictionary-level meaning of words and sentences. It cares about \emph{what is said}, not how it's used.
+
+\textbf{Lexical semantics} = meaning of individual words. \emph{Bachelor} means ``unmarried adult male.'' Period.\\
+\textbf{Compositional semantics} = how words combine to produce sentence meaning. ``The cat sat on the mat'' means a cat (definite, known) was located on a mat at some past time.
+
+\textbf{Semantic relationships} (covered earlier as vocabulary concepts) include synonymy, antonymy, hyponymy, polysemy, meronymy (part-whole, e.g.\ \emph{wheel} is a meronym of \emph{car}).
+
+\section*{Pragmatics: Meaning in Context}
+
+\textbf{Pragmatics} studies what people actually \emph{mean} in real situations --- often very different from the literal words.
+
+\example{
+A friend asks: ``Are you free Saturday?''\\
+\textbf{Literal (semantic) meaning:} Do you have free time on Saturday?\\
+\textbf{Pragmatic meaning:} I'd like to invite you somewhere on Saturday --- are you available?\\[4pt]
+You wouldn't reply, ``Yes, I am free.'' and walk away. The pragmatic meaning expects ``Yes, what's up?'' or ``I am, why?''
+}
+
+\section*{Speech Acts}
+
+A \textbf{speech act} is an action performed by saying something. Categories:
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Type} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowGr} Assertive (representative) & Stating, claiming, describing: ``It's raining.'' ``The earth is round.'' \\
+\rowcolor{rowA}  Directive                  & Trying to get someone to do something: ``Close the door.'' ``Please pass the salt.'' \\
+\rowcolor{rowGr} Commissive                 & Committing to a future action: ``I promise I'll come.'' ``I'll pay you back tomorrow.'' \\
+\rowcolor{rowA}  Expressive                 & Expressing emotions/states: ``I'm sorry.'' ``Congratulations!'' \\
+\rowcolor{rowGr} Declarative (performative) & The act of saying makes it true: ``I now pronounce you married.'' ``You're fired.'' ``I name this ship\ldots'' \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Indirect speech acts:} The form doesn't match the function.\\
+\quad ``Could you pass the salt?'' = literally a question about ability, but pragmatically a request.\\
+\quad ``It's cold in here.'' = literally a statement, but pragmatically a request to close the window.
+
+\section*{Deixis}
+
+\textbf{Deictic} (DIKE-tik) words are pointing words --- they only make sense when you know
+\emph{who} is speaking, \emph{where}, and \emph{when}.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Type} & \textbf{Refers to\ldots} & \textbf{Examples} \\
+\midrule
+\rowcolor{rowGr} Personal  & Speakers/listeners                    & I, you, we, they \\
+\rowcolor{rowA}  Spatial   & Location relative to speaker          & here, there, this, that \\
+\rowcolor{rowGr} Temporal  & Time relative to speech moment        & now, then, today, yesterday, soon \\
+\rowcolor{rowA}  Social    & Relative status of participants       & sir, ma'am, the formal/informal you \\
+\bottomrule
+\end{tabularx}}
+
+\example{
+The note ``\textbf{I'll be back here tomorrow}'' is meaningless without context. \emph{I} (who?), \emph{here} (where?), \emph{tomorrow} (relative to which day?). Every deictic word requires a reference point.
+}
+
+\section*{Implicature \& Reading Between the Lines}
+
+Speakers communicate far more than they literally say. \textbf{Implicature} is the term for these implied meanings.
+
+\example{
+A: ``How was the movie?''\\
+B: ``Well, the popcorn was good.''\\[4pt]
+B never said the movie was bad. But everyone understands B is implying it. This is \textbf{conversational implicature} --- meaning derived from what is \emph{not} said.
+}
+
+Linguist H.~P.~Grice proposed that conversation operates by an unspoken \textbf{Cooperative Principle} with four maxims: be truthful (Quality), be informative (Quantity), be relevant (Relevance), be clear (Manner). When someone seems to break a maxim, listeners look for the implicature.
+
+\section*{Politeness, Honorifics \& Register}
+
+\textbf{Register} = the level of formality in language. We unconsciously shift register based on context (talking to a friend vs.\ a job interviewer).
+
+\textbf{Honorifics} are special words/forms that show respect. English has weak honorifics (\emph{sir, ma'am, Dr., Your Honor}) but other languages build them deeply into the grammar.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergrey}
+\textbf{Language} & \textbf{Honorific System} \\
+\midrule
+\rowcolor{rowGr} English   & Limited: titles, modals (``could you'' vs.\ ``can you''), formal vocabulary. \\
+\rowcolor{rowA}  Spanish   & T\'u (informal) vs.\ Usted (formal) for ``you.'' Vosotros (plural informal) in Spain. \\
+\rowcolor{rowGr} French    & Tu (informal) vs.\ Vous (formal); using \emph{vous} on a stranger or superior is required. \\
+\rowcolor{rowA}  German    & Du (informal) vs.\ Sie (formal); switching from Sie to Du is a small social ritual (``duzen''). \\
+\rowcolor{rowGr} Japanese  & Multi-tier: plain, polite (-masu), and humble/honorific (keigo) forms. Verbs change form based on the listener's status. \\
+\rowcolor{rowA}  Korean    & 7 levels of speech historically; modern Korean uses about 4. Verb endings indicate the speaker's relationship to the listener. \\
+\rowcolor{rowGr} Thai      & Different pronouns for different social ranks; particles \emph{ka} (female) / \emph{krap} (male) added for politeness. \\
+\bottomrule
+\end{tabularx}}
+
+\textit{In Japanese, you literally cannot speak to someone without choosing a politeness level. ``To eat'' is \emph{taberu} (plain), \emph{tabemasu} (polite), \emph{meshiagaru} (honorific, ``the listener eats''), or \emph{itadaku} (humble, ``I eat'').}
+
+\newpage
+
+%% =============================================================================
+%%  PART VIII -- Cross-Linguistic Tour
+%% =============================================================================
+\brownsections
+\addcontentsline{toc}{section}{\textcolor{sectionbrown}{PART VIII \textemdash\ Cross-Linguistic Tour}}
+\addcontentsline{toc}{subsection}{Mandarin Chinese}
+\addcontentsline{toc}{subsection}{Japanese}
+\addcontentsline{toc}{subsection}{Arabic}
+\addcontentsline{toc}{subsection}{German}
+\addcontentsline{toc}{subsection}{Greek (Ancient \& Modern)}
+\addcontentsline{toc}{subsection}{Russian}
+\addcontentsline{toc}{subsection}{Korean}
+\addcontentsline{toc}{subsection}{American Sign Language (ASL)}
+\partbanner{part8bg}{sectionbrown}{Part VIII \quad Cross-Linguistic Tour}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  Brief tours of major world languages, focusing on what makes each one structurally distinctive.
+\end{center}
+
+\section*{Mandarin Chinese}
+
+\textbf{Family:} Sino-Tibetan. \textbf{Speakers:} $\sim$1.1 billion. \textbf{Writing:} Hanzi (logographic).
+
+\textbf{What makes Mandarin distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Tonal:} Four tones (plus neutral) on every syllable. \emph{m\=a, m\'a, m\v{a}, m\`a} = mother, hemp, horse, scold.
+  \item \textbf{No inflection:} Verbs don't conjugate. Tense is shown by particles (\emph{le}, \emph{guo}) or context. \emph{Wo chi} = ``I eat'' / ``I am eating'' / ``I will eat'' --- depending on context.
+  \item \textbf{Logographic writing:} Each character represents a morpheme. Knowing 3{,}000--4{,}000 characters allows full literacy. There's no alphabet.
+  \item \textbf{Measure words:} You can't say ``three dogs'' --- you must say ``three [measure-word] dogs.'' \emph{san zhi gou} (three CL\textsubscript{animal} dog). Different categories use different measure words: \emph{ben} for books, \emph{liang} for vehicles, \emph{zhang} for flat objects.
+  \item \textbf{Topic-prominent:} Sentences often start with a topic, not a subject. ``\emph{This book, I already read.}'' rather than ``\emph{I already read this book.}''
+\end{itemize}
+
+\example{
+\textbf{Wo zuotian chi le ba ge ping guo.} = ``I yesterday eat [past] eight CL apple.'' = ``Yesterday I ate eight apples.''\\
+Notice: no plural marker on \emph{ping guo} (apple) --- the number ``eight'' makes plurality clear. The measure word \emph{ge} sits between the number and the noun.
+}
+
+\section*{Japanese}
+
+\textbf{Family:} Japonic. \textbf{Speakers:} $\sim$125 million. \textbf{Writing:} three scripts mixed together.
+
+\textbf{What makes Japanese distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{SOV word order:} Verb at the end. \emph{Watashi wa hon o yomu} = ``I [TOPIC] book [OBJECT] read.''
+  \item \textbf{Three writing systems used together:}
+    \begin{itemize}[noitemsep]
+      \item \textbf{Kanji}: Chinese characters, used for content words (nouns, verb stems).
+      \item \textbf{Hiragana}: 46 syllabic characters; native words and grammatical particles.
+      \item \textbf{Katakana}: 46 syllabic characters; loanwords (computer = \emph{konpyuutaa}), emphasis, scientific terms.
+    \end{itemize}
+  \item \textbf{Particles mark grammatical role:} \emph{wa} (topic), \emph{ga} (subject), \emph{o} (direct object), \emph{ni} (location/time/indirect object), \emph{de} (means/place of action).
+  \item \textbf{No grammatical gender, no articles, no plural marking.}
+  \item \textbf{Honorifics built into the verb:} every verb has multiple politeness forms.
+  \item \textbf{Counting requires counters:} like Mandarin, but even more elaborate. \emph{Hon} for long thin objects, \emph{mai} for flat objects, \emph{hiki} for small animals, \emph{tou} for large animals.
+\end{itemize}
+
+\section*{Arabic}
+
+\textbf{Family:} Afro-Asiatic (Semitic). \textbf{Speakers:} $\sim$370 million native (Modern Standard); over 25 dialects. \textbf{Writing:} Arabic script, right-to-left.
+
+\textbf{What makes Arabic distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Triconsonantal root system:} Most words are built from a 3-consonant root with vowels and patterns inserted. The root \textbf{k-t-b} relates to writing:
+    \begin{itemize}[noitemsep]
+      \item \emph{kataba} = he wrote
+      \item \emph{kitab} = book
+      \item \emph{katib} = writer
+      \item \emph{maktab} = office, desk (place of writing)
+      \item \emph{maktaba} = library, bookstore
+      \item \emph{kutub} = books
+    \end{itemize}
+  \item \textbf{Right-to-left script} that connects letters in flowing cursive form. Letters change shape based on position (initial, medial, final, isolated).
+  \item \textbf{Dual number} (in addition to singular and plural): one book / two books / three+ books are three different forms.
+  \item \textbf{VSO default word order} in Classical Arabic; SVO common in dialects.
+  \item \textbf{Diglossia:} Modern Standard Arabic (formal, written, news) coexists with regional dialects (everyday speech). Egyptian Arabic and Moroccan Arabic are barely mutually intelligible.
+\end{itemize}
+
+\section*{German}
+
+\textbf{Family:} Indo-European (Germanic). \textbf{Speakers:} $\sim$95 million native.
+
+\textbf{What makes German distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Four cases:} Nominative, Accusative, Dative, Genitive. Articles, adjectives, and pronouns all change form.
+  \item \textbf{Three grammatical genders:} Masculine (\emph{der}), feminine (\emph{die}), neuter (\emph{das}). Often unpredictable: \emph{das M\"adchen} (girl) is neuter despite referring to a female.
+  \item \textbf{Verb-second (V2) word order} in main clauses: the verb \emph{must} be the second element, regardless of what comes first. ``Ich gehe heute ins Kino'' / ``Heute gehe ich ins Kino.''
+  \item \textbf{Verb-final in subordinate clauses:} ``\ldots weil ich heute ins Kino \textbf{gehe}.'' (because I today to the cinema \emph{go}).
+  \item \textbf{Compound words} with no length limit: \emph{Geschwindigkeitsbegrenzung} (speed limit), \emph{Donau\-dampfschifffahrtsgesellschaftskapit\"an} (Danube steamship company captain).
+  \item \textbf{Capitalizes all nouns,} not just proper ones: ``Das ist mein \textbf{Buch}.''
+\end{itemize}
+
+\section*{Greek (Ancient \& Modern)}
+
+\textbf{Family:} Indo-European (Hellenic). \textbf{Speakers (Modern):} $\sim$13 million.
+
+\textbf{Why Greek matters even if you don't speak it:}
+\begin{itemize}[noitemsep]
+  \item Greek contributes a massive share of English's scientific, medical, and philosophical vocabulary. Knowing Greek roots lets you decode hundreds of English words.
+  \item Words ending in \emph{-ology} (study of), \emph{-graphy} (writing), \emph{-phobia} (fear), \emph{-philia} (love), \emph{-ism}, \emph{-cracy} (rule), \emph{-meter} (measure) are nearly all Greek-derived.
+\end{itemize}
+
+\textbf{Common Greek roots in English:}
+
+\noindent
+{\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.5cm}
+                              >{\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderbrown}
+\textbf{Root} & \textbf{Meaning} & \textbf{English words} \\
+\midrule
+\rowcolor{rowBr} bio       & life     & biology, biography, antibiotic, biopsy \\
+\rowcolor{rowA}  geo       & earth    & geography, geology, geometry \\
+\rowcolor{rowBr} hydro     & water    & hydrate, hydraulic, dehydrated \\
+\rowcolor{rowA}  tele      & far away & telephone, television, telescope \\
+\rowcolor{rowBr} chrono    & time     & chronology, synchronize, chronic \\
+\rowcolor{rowA}  psych     & mind, soul& psychology, psyche, psychic \\
+\rowcolor{rowBr} phon      & sound    & phonics, telephone, symphony \\
+\rowcolor{rowA}  graph     & writing  & paragraph, photograph, autograph \\
+\rowcolor{rowBr} demo      & people   & democracy, demographic, epidemic \\
+\rowcolor{rowA}  poly      & many     & polygon, polyglot, polynomial \\
+\rowcolor{rowBr} mono      & one      & monorail, monologue, monopoly \\
+\rowcolor{rowA}  philo     & love     & philosophy, philanthropy \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Modern Greek} retains the Greek alphabet ($\alpha\beta\gamma$\ldots), still has 3 genders, still uses 4 cases (down from Ancient Greek's 5), and still has the rich verb morphology of its ancestor language.
+
+\section*{Russian}
+
+\textbf{Family:} Indo-European (Slavic). \textbf{Speakers:} $\sim$150 million native.
+
+\textbf{What makes Russian distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Cyrillic alphabet:} Different letters from Latin, but largely phonetic. Once you learn $\sim$33 letters, spelling is reasonably regular.
+  \item \textbf{Six cases:} Nominative, Accusative, Genitive, Dative, Instrumental, Prepositional. Every noun, adjective, and pronoun inflects.
+  \item \textbf{No articles:} No ``the'' or ``a.'' Definiteness is conveyed by context or word order.
+  \item \textbf{Verbal aspect is mandatory and lexical:} Almost every Russian verb comes in pairs --- one \textbf{imperfective} (ongoing/repeated action) and one \textbf{perfective} (completed action). \emph{pisat'} (to be writing) vs.\ \emph{napisat'} (to finish writing).
+  \item \textbf{Free word order:} Because cases mark grammatical role, you can rearrange words for emphasis. SVO is most common but all 6 orders are grammatical.
+  \item \textbf{No verb ``to be'' in present tense:} ``I am a student'' becomes literally ``I student.''
+\end{itemize}
+
+\section*{Korean}
+
+\textbf{Family:} Koreanic (an isolate or small family). \textbf{Speakers:} $\sim$80 million.
+
+\textbf{What makes Korean distinctive:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Hangul writing system:} Created in 1443 under King Sejong as a deliberately scientific alphabet. Letters' shapes reflect the position of the mouth/tongue. Often called the most logical writing system ever invented.
+  \item \textbf{Agglutinative:} Like Turkish or Japanese, suffixes stack up. A single verb can carry tense, aspect, mood, evidentiality, politeness, and the speaker's emotional stance.
+  \item \textbf{SOV word order:} Verbs at the end. \emph{Sarah-ka sagwa-r\u{u}l m\v{o}kn\v{u}nda} = ``Sarah-SUBJ apple-OBJ eats.''
+  \item \textbf{Honorific levels:} Speech levels are encoded directly on the verb. The same statement to a child, friend, or boss takes three different verb endings.
+  \item \textbf{Topic-prominent} like Japanese.
+  \item \textbf{Particles mark role:} \emph{-i/-ga} (subject), \emph{-\u{u}n/-n\u{u}n} (topic), \emph{-\u{u}l/-r\u{u}l} (object), \emph{-eseo} (location of action).
+\end{itemize}
+
+\section*{American Sign Language (ASL)}
+
+\textbf{Family:} Independent (related to French Sign Language). \textbf{Users:} $\sim$500{,}000 in the US/Canada.
+
+\textbf{ASL is a fully natural language --- not gesture, not English on hands.}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Visual-spatial modality:} Information is conveyed in 3D space using handshape, location, orientation, movement, and facial expression.
+  \item \textbf{Distinct grammar from English:} ASL has its own syntax. Topic-comment structure: ``STORE I-GO YESTERDAY'' (= ``Yesterday I went to the store'').
+  \item \textbf{Non-manual markers}: Eyebrows raised = yes/no question. Eyebrows furrowed = wh-question. Head tilt, mouth shape, and facial expression are all grammatical.
+  \item \textbf{Spatial agreement:} Pronouns and verbs ``point'' to spaces in front of the signer that have been associated with referents earlier in the conversation.
+  \item \textbf{Classifiers:} Handshapes that represent categories of objects (vehicles, flat objects, people) and their movement.
+  \item \textbf{Has its own poetry, jokes, and idioms.} Different countries have different sign languages: BSL (British), JSL (Japanese), and LSF (French Sign Language) are all unrelated to ASL or each other.
+\end{itemize}
+
+\textit{Common myth: ``Sign language is universal.'' False --- it's as local as spoken language. American and British signers cannot understand each other.}
+
+\newpage
+
+%% =============================================================================
+%%  PART IX -- Historical & Social Linguistics
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART IX \textemdash\ Historical \& Social Linguistics}}
+\addcontentsline{toc}{subsection}{Etymology \& Word Origins}
+\addcontentsline{toc}{subsection}{The Indo-European Family Tree}
+\addcontentsline{toc}{subsection}{How Languages Change}
+\addcontentsline{toc}{subsection}{Dialects \& Sociolects}
+\addcontentsline{toc}{subsection}{Diglossia, Pidgins \& Creoles}
+\addcontentsline{toc}{subsection}{Language Death \& Revitalization}
+\partbanner{partbg}{sectionblue}{Part IX \quad Historical \& Social Linguistics}
+
+\vspace{8pt}
+
+\section*{Etymology \& Word Origins}
+
+\textbf{Etymology} is the study of where words came from. English is a pirate language --- it has stolen vocabulary from over 350 source languages.
+
+\textbf{English's three main vocabulary layers:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Anglo-Saxon (Germanic):} The everyday core. \emph{House, food, water, mother, dog, eat, drink, hand, foot.} About 25\% of modern vocabulary but most of the most common words.
+  \item \textbf{Norman French (1066--1300s):} After William the Conqueror, French became the elite language. \emph{Government, court, justice, beef, pork, fashion, art, language.} Notice the food pairs --- the Anglo-Saxons raised the animal (cow, pig, sheep), the French ate the meat (beef, pork, mutton).
+  \item \textbf{Latin \& Greek (Renaissance + science):} Adopted directly for academic, scientific, and legal vocabulary. \emph{Atom, biology, philosophy, factory, education, hypothesis.}
+\end{itemize}
+
+\example{
+\textbf{The same idea in three registers:}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Anglo-Saxon: \emph{ask}
+  \item French: \emph{question}
+  \item Latin: \emph{interrogate}
+\end{itemize}
+The fancier the synonym, the more likely it's French or Latin. The more direct, the more likely it's Germanic.
+}
+
+\section*{The Indo-European Family Tree}
+
+About \textbf{half the world's population} speaks an Indo-European language. They all descend from a hypothetical common ancestor called \textbf{Proto-Indo-European (PIE)}, spoken roughly 6{,}000 years ago.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Branch} & \textbf{Languages} \\
+\midrule
+\rowcolor{rowA}  Germanic   & English, German, Dutch, Swedish, Norwegian, Danish, Icelandic, Yiddish, Afrikaans \\
+\rowcolor{rowB}  Romance    & Spanish, French, Italian, Portuguese, Romanian, Catalan (all from Latin) \\
+\rowcolor{rowA}  Slavic     & Russian, Polish, Czech, Ukrainian, Bulgarian, Serbo-Croatian, Slovak \\
+\rowcolor{rowB}  Indo-Iranian & Hindi, Urdu, Bengali, Persian (Farsi), Punjabi, Pashto, Kurdish \\
+\rowcolor{rowA}  Hellenic    & Greek (Ancient and Modern) \\
+\rowcolor{rowB}  Celtic      & Irish, Scottish Gaelic, Welsh, Breton \\
+\rowcolor{rowA}  Italic      & Latin (extinct as native; ancestor of Romance) \\
+\rowcolor{rowB}  Albanian    & Albanian \\
+\rowcolor{rowA}  Armenian    & Armenian \\
+\rowcolor{rowB}  Baltic      & Lithuanian, Latvian \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Cognates that prove the family relationship:} the word for ``mother'' across the family:\\
+English \emph{mother}, German \emph{Mutter}, Latin \emph{mater}, Greek \emph{m\=et\=er}, Sanskrit \emph{m\={a}t\.{r}}, Russian \emph{mat'}, Persian \emph{m\={a}dar}.\\
+All from PIE \emph{*m\={a}t\={e}r}.
+
+\textbf{Other major language families} (not Indo-European):
+Sino-Tibetan (Mandarin, Tibetan), Afro-Asiatic (Arabic, Hebrew, Amharic), Niger-Congo (Swahili, Yoruba, Zulu), Austronesian (Tagalog, Indonesian, Hawaiian, Malagasy), Dravidian (Tamil, Telugu), Turkic (Turkish, Kazakh), Uralic (Finnish, Hungarian, Estonian), Japonic (Japanese), Koreanic (Korean).
+
+\section*{How Languages Change}
+
+Languages change continuously in five main ways:
+\begin{itemize}[noitemsep]
+  \item \textbf{Sound change:} Pronunciation drifts. The Great Vowel Shift (1400s-1700s) changed every long vowel in English. ``Knight'' once was pronounced \emph{kn-icht}, with both the K and the GH spoken.
+  \item \textbf{Borrowing:} Adopting words from other languages. ``Tsunami'' (Japanese), ``robot'' (Czech), ``ketchup'' (Hokkien Chinese), ``yogurt'' (Turkish).
+  \item \textbf{Semantic shift:} Word meanings change over time. \emph{Awful} originally meant ``inspiring awe.'' \emph{Nice} originally meant ``foolish'' (from Latin \emph{nescius}).
+  \item \textbf{Grammaticalization:} Content words become grammatical markers. ``Going to'' (motion verb) $\to$ ``gonna'' (future tense marker).
+  \item \textbf{Analogical change:} Irregular forms become regular. Old English had hundreds of irregular plurals; today only a few survive (children, mice, oxen, feet).
+\end{itemize}
+
+\section*{Dialects \& Sociolects}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Dialect:} A regional variety of a language. American vs. British vs. Australian English. New York vs. Boston vs. Southern American.
+  \item \textbf{Sociolect:} Variation by social class, age, ethnicity, or subculture. African American Vernacular English (AAVE) is a fully systematic and grammatical sociolect with consistent rules --- not ``broken'' English.
+  \item \textbf{Idiolect:} The unique speech pattern of a single individual.
+\end{itemize}
+
+\textit{The line between ``language'' and ``dialect'' is famously political. The linguist Max Weinreich quipped: \textbf{``A language is a dialect with an army and a navy.''} Mandarin and Cantonese are mutually unintelligible but called ``dialects of Chinese.'' Norwegian and Swedish are mutually intelligible but called separate languages.}
+
+\section*{Diglossia, Pidgins \& Creoles}
+
+\textbf{Diglossia} is when a community uses two distinct varieties for different purposes:
+\begin{itemize}[noitemsep]
+  \item Modern Standard Arabic (formal, written, news, religion) vs. local Arabic dialects (everyday speech).
+  \item Standard German vs. Swiss German.
+  \item Classical Tamil vs. spoken Tamil.
+\end{itemize}
+
+\textbf{Pidgin} = a simplified language created when speakers of different languages need to communicate (often for trade or labor). No native speakers; reduced grammar.
+
+\textbf{Creole} = what happens when a pidgin becomes a native language for children growing up in the community. It expands into a full natural language with rich grammar.\\
+Examples: Haitian Creole (French-based), Jamaican Patois (English-based), Tok Pisin (English-based, Papua New Guinea), Cape Verdean (Portuguese-based).
+
+\section*{Language Death \& Revitalization}
+
+About \textbf{half of the world's $\sim$7{,}000 languages} are expected to disappear in this century. A language ``dies'' when its last fluent speaker passes away. Each loss takes with it unique cultural knowledge, oral history, and ways of categorizing the world.
+
+\textbf{Successful revitalization examples:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Hebrew:} Effectively dead as a daily language for $\sim$1{,}900 years; revived in the late 1800s and now has 9+ million speakers.
+  \item \textbf{Welsh:} Was in steep decline; intensive education programs in Wales have stabilized and grown the speaker base.
+  \item \textbf{M\=aori (New Zealand):} Government-supported preschools (\emph{k\=ohanga reo}) brought it back from near-extinction.
+  \item \textbf{Hawaiian:} Once banned in schools; now an official state language with immersion schools.
+\end{itemize}
+
+\newpage
+
+%% =============================================================================
+%%  PART X -- Computational & Applied Linguistics
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART X \textemdash\ Computational \& Applied Linguistics}}
+\addcontentsline{toc}{subsection}{Translation Theory}
+\addcontentsline{toc}{subsection}{Second Language Acquisition}
+\addcontentsline{toc}{subsection}{Psycholinguistics}
+\addcontentsline{toc}{subsection}{NLP \& Computational Linguistics}
+\partbanner{part2bg}{sectiongreen}{Part X \quad Computational \& Applied Linguistics}
+
+\vspace{8pt}
+
+\section*{Translation Theory}
+
+Translation isn't just word-for-word substitution. It involves trade-offs.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Approach} & \textbf{Description} \\
+\midrule
+\rowcolor{rowA}  Literal (formal equivalence) & Word-for-word; preserves source structure. Risk: awkward, sometimes meaningless target text. \\
+\rowcolor{rowBg} Dynamic equivalence          & Captures the \emph{meaning and effect}, even if structure changes. ``It's raining cats and dogs'' $\to$ ``Llueve a c\'antaros'' (it rains in pitchers). \\
+\rowcolor{rowA}  Adaptation (transcreation)   & Reinvents the message for the target audience. Used heavily in advertising and entertainment. \\
+\rowcolor{rowBg} Localization                 & Adapts beyond language: dates, currency, units, cultural references, legal requirements. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Untranslatable concepts:}
+\begin{itemize}[noitemsep]
+  \item German \emph{Schadenfreude} = pleasure at someone else's misfortune.
+  \item Portuguese \emph{saudade} = a deep, melancholic longing for something absent.
+  \item Japanese \emph{tsundoku} = the act of buying books and never reading them.
+  \item Danish \emph{hygge} = a feeling of cozy contentment and well-being.
+\end{itemize}
+
+\textbf{False friends (false cognates):} Words that look like translations but aren't.\\
+\quad Spanish \emph{embarazada} $\neq$ embarrassed; means \emph{pregnant}.\\
+\quad German \emph{Gift} $\neq$ a gift; means \emph{poison}.\\
+\quad French \emph{librairie} $\neq$ library; means \emph{bookstore}.\\
+\quad Italian \emph{caldo} $\neq$ cold; means \emph{hot}.
+
+\section*{Second Language Acquisition (SLA)}
+
+\textbf{Theories of how adults learn languages:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Krashen's Input Hypothesis:} You acquire language by understanding input slightly above your current level (``i+1''). Comprehensible input drives acquisition.
+  \item \textbf{Critical Period Hypothesis:} Children learn languages with native fluency before puberty; adults can become highly fluent but rarely accent-free.
+  \item \textbf{Interlanguage:} A learner's evolving system at any moment is its own internally consistent grammar --- not just bad target-language; not just transferred native language. It progresses through stages.
+  \item \textbf{Fossilization:} When a learner's interlanguage stops developing and persistent errors become permanent.
+\end{itemize}
+
+\textbf{What helps adult learners:} massive comprehensible input, output practice with feedback, explicit grammar study (effective in moderation), motivation, immersion when possible.
+
+\section*{Psycholinguistics}
+
+\textbf{Psycholinguistics} studies how the brain processes language --- how we produce, perceive, and acquire it.
+
+\textbf{Key findings:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Broca's area} (left frontal lobe): damage produces \emph{Broca's aphasia} --- effortful, halting speech but mostly preserved comprehension.
+  \item \textbf{Wernicke's area} (left temporal lobe): damage produces \emph{Wernicke's aphasia} --- fluent but meaningless speech, impaired comprehension.
+  \item \textbf{The McGurk Effect:} If you watch a video of someone saying ``ga'' while hearing audio of ``ba,'' you perceive ``da.'' Speech perception integrates visual and auditory information automatically.
+  \item \textbf{Lexical priming:} Hearing ``doctor'' makes ``nurse'' faster to recognize than ``butter.'' Words are stored in interconnected semantic networks.
+  \item \textbf{Garden-path sentences:} ``The horse raced past the barn fell.'' Your brain commits to one parse, then has to backtrack. Demonstrates real-time syntactic processing.
+\end{itemize}
+
+\section*{NLP \& Computational Linguistics}
+
+\textbf{Natural Language Processing (NLP)} = computational methods for working with human language.
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Task} & \textbf{Description} \\
+\midrule
+\rowcolor{rowA}  Tokenization        & Split text into words, subwords, or characters. Hard for languages without spaces (Chinese, Thai). \\
+\rowcolor{rowBg} POS tagging         & Assign part of speech to each token. \\
+\rowcolor{rowA}  Named Entity Recognition (NER) & Identify people, places, organizations in text. \\
+\rowcolor{rowBg} Parsing             & Build a syntactic structure (dependency or constituency tree). \\
+\rowcolor{rowA}  Sentiment analysis  & Classify text as positive, negative, or neutral. \\
+\rowcolor{rowBg} Machine translation & Translate between languages (Google Translate, DeepL, etc.). \\
+\rowcolor{rowA}  Speech recognition  & Convert audio to text (Siri, Alexa, Whisper). \\
+\rowcolor{rowBg} Language modeling   & Predict the next word given previous context. The foundation of GPT, BERT, and similar models. \\
+\bottomrule
+\end{tabularx}}
+
+\textbf{Corpus linguistics:} The empirical study of language using massive collections of real-world text (a \emph{corpus}). Tools like the British National Corpus (100 million words) and Google Ngrams (trillions) reveal usage patterns invisible to introspection. Did ``email'' surpass ``e-mail''? When did ``literally'' start meaning ``figuratively''? Corpora answer such questions empirically.
+
+\textbf{Modern Large Language Models} (LLMs) like GPT and Claude are statistical models trained on hundreds of billions of words. They learn by predicting the next token. They don't have explicit grammar rules --- they absorb patterns from data. This is essentially the opposite of how Noam Chomsky's generative grammar approach proposed language works, and the empirical success of statistical methods continues to drive theoretical debate.
+
+\newpage
+
+%% =============================================================================
+%%  PART XI -- Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART XI \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part XI \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape
+  Key terms and concepts at a glance.
+\end{center}
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries English Parts of Speech (NVAAPPCI)}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Noun:} person/place/thing/idea
+  \item \textbf{Verb:} action or state of being
+  \item \textbf{Adjective:} describes a noun
+  \item \textbf{Adverb:} modifies verb/adj/adverb
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Pronoun:} replaces a noun
+  \item \textbf{Preposition:} relationship/location
+  \item \textbf{Conjunction:} joins (FANBOYS)
+  \item \textbf{Interjection:} sudden emotion
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Vocabulary Concepts}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Synonym:} same meaning (big / large)
+  \item \textbf{Antonym:} opposite (big / small)
+  \item \textbf{Homophone:} same sound (their/there)
+  \item \textbf{Homograph:} same spelling (lead/lead)
+  \item \textbf{Homonym:} same sound \& spelling (bat)
+  \item \textbf{Hypernym:} broader term (color)
+  \item \textbf{Hyponym:} specific (red, blue)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Polysemy:} 1 word, related meanings (head)
+  \item \textbf{Acronym:} pronounced as word (NASA)
+  \item \textbf{Initialism:} letter-by-letter (FBI)
+  \item \textbf{Eponym:} from a name (sandwich)
+  \item \textbf{Portmanteau:} blend (brunch)
+  \item \textbf{Idiom:} non-literal phrase (kick the bucket)
+  \item \textbf{Collocation:} natural word pairing (strong coffee)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Grammar Mechanics}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\textbf{12 tenses:} simple/continuous/perfect/perfect-cont $\times$ past/present/future\\
+\textbf{Mood:} indicative (facts), imperative (commands), subjunctive (hypothetical), conditional\\
+\textbf{Voice:} active (subject does) vs.\ passive (subject receives)\\
+\textbf{Tricky pairs:} its/it's, your/you're, their/there/they're, who/whom, affect/effect, fewer/less
+\columnbreak
+\textbf{FANBOYS:} For, And, Nor, But, Or, Yet, So\\
+\textbf{Sentence types:} simple, compound, complex, compound-complex\\
+\textbf{Phrase} = no S+V; \textbf{Clause} = has S+V; \textbf{Independent} stands alone, \textbf{Dependent} doesn't\\
+\textbf{Oxford comma:} the comma before ``and'' in a list of 3+
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Phonology, Morphology \& Syntax}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Phoneme:} smallest sound that changes meaning
+  \item \textbf{Allophone:} variant of a phoneme
+  \item \textbf{IPA:} universal phonetic alphabet
+  \item \textbf{Tone language:} pitch changes word meaning (Mandarin)
+  \item \textbf{Stress-timed} (English) vs.\ \textbf{syllable-timed} (Spanish)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Morpheme:} smallest meaningful unit (free / bound)
+  \item \textbf{Inflection:} grammar marking (cats); \textbf{derivation:} new word (happiness)
+  \item \textbf{Word order:} SVO (English), SOV (Japanese), VSO (Arabic)
+  \item \textbf{Case:} marks grammatical role (German has 4, Russian 6, Finnish 15)
+  \item \textbf{Agglutinative:} morphemes stack (Turkish, Korean)
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{tcolorbox}[colback=part7bg, colframe=sectiongrey,
+  title={\bfseries Semantics, Pragmatics \& Other Concepts}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Semantics:} literal meaning
+  \item \textbf{Pragmatics:} meaning in context
+  \item \textbf{Speech acts:} assertive, directive, commissive, expressive, declarative
+  \item \textbf{Deixis:} pointing words (I, here, now)
+  \item \textbf{Implicature:} implied meaning (Grice's maxims)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Honorifics:} respect-marking forms (Japanese keigo)
+  \item \textbf{Diglossia:} two varieties for different contexts (Arabic)
+  \item \textbf{Pidgin} $\to$ \textbf{Creole} (when children acquire it as native)
+  \item \textbf{Etymology:} word origin / history
+  \item \textbf{Indo-European} = ~half of world's speakers
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}

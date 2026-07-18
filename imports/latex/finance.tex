@@ -1,0 +1,834 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[expansion=false]{microtype}
+\usepackage{tcolorbox}
+\usepackage{multicol}
+\usepackage{titletoc}
+\usepackage{graphicx}
+
+\tcbuselibrary{skins, breakable}
+
+% ── Colors ───────────────────────────────────────────────────────────────────
+\definecolor{sectionblue}{RGB}{30, 90, 160}
+\definecolor{sectiongreen}{RGB}{30, 130, 80}
+\definecolor{sectionpurple}{RGB}{100, 40, 140}
+\definecolor{sectionorange}{RGB}{180, 90, 20}
+\definecolor{sectionteal}{RGB}{20, 120, 120}
+\definecolor{sectionred}{RGB}{160, 30, 40}
+\definecolor{tableheader}{RGB}{220, 230, 245}
+\definecolor{tableheadergreen}{RGB}{210, 240, 220}
+\definecolor{tableheaderorange}{RGB}{255, 235, 210}
+\definecolor{tableheaderteal}{RGB}{210, 240, 240}
+\definecolor{tableheaderpurple}{RGB}{235, 220, 245}
+\definecolor{tableheaderred}{RGB}{250, 220, 222}
+\definecolor{rowA}{RGB}{252, 252, 252}
+\definecolor{rowB}{RGB}{237, 244, 255}
+\definecolor{rowBg}{RGB}{237, 248, 241}
+\definecolor{rowOr}{RGB}{255, 245, 232}
+\definecolor{rowTe}{RGB}{232, 248, 248}
+\definecolor{rowPu}{RGB}{245, 235, 255}
+\definecolor{rowRe}{RGB}{255, 238, 238}
+\definecolor{partbg}{RGB}{240, 244, 255}
+\definecolor{part2bg}{RGB}{240, 252, 244}
+\definecolor{part3bg}{RGB}{248, 240, 255}
+\definecolor{part4bg}{RGB}{255, 245, 232}
+\definecolor{part5bg}{RGB}{232, 248, 248}
+\definecolor{part6bg}{RGB}{255, 240, 240}
+\definecolor{notebg}{RGB}{255, 252, 228}
+\definecolor{noteborder}{RGB}{180, 148, 30}
+
+% ── Section switchers ─────────────────────────────────────────────────────────
+\newcommand{\bluesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionblue}}{}{0em}{}[\color{sectionblue}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionblue!80!black}}{}{0em}{}%
+}
+\newcommand{\greensections}{%
+  \titleformat{\section}{\large\bfseries\color{sectiongreen}}{}{0em}{}[\color{sectiongreen}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectiongreen!80!black}}{}{0em}{}%
+}
+\newcommand{\purplesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionpurple}}{}{0em}{}[\color{sectionpurple}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionpurple!80!black}}{}{0em}{}%
+}
+\newcommand{\orangesections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionorange}}{}{0em}{}[\color{sectionorange}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionorange!80!black}}{}{0em}{}%
+}
+\newcommand{\tealsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionteal}}{}{0em}{}[\color{sectionteal}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionteal!80!black}}{}{0em}{}%
+}
+\newcommand{\redsections}{%
+  \titleformat{\section}{\large\bfseries\color{sectionred}}{}{0em}{}[\color{sectionred}\titlerule]%
+  \titleformat{\subsection}{\normalsize\bfseries\color{sectionred!80!black}}{}{0em}{}%
+}
+
+% ── Part banner ───────────────────────────────────────────────────────────────
+\newcommand{\partbanner}[3]{%
+  \begin{tcolorbox}[colback=#1, colframe=#2, boxrule=1.2pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{center}{\LARGE\bfseries #3}\end{center}
+  \end{tcolorbox}%
+}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\divider}{\par\noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}}
+\hbadness=10000
+\hfuzz=5pt
+
+% ── TOC styling ───────────────────────────────────────────────────────────────
+\titlecontents{section}[1.5em]{\smallskip}
+  {\contentslabel{1.5em}}{\hspace*{-1.5em}}
+  {\titlerule*[6pt]{.}\contentspage}
+\titlecontents{subsection}[3.5em]{}
+  {\contentslabel{2em}}{\hspace*{-2em}}
+  {\titlerule*[6pt]{.}\contentspage}
+
+%% =============================================================================
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────────────
+\begin{center}
+  {\Huge\bfseries College Finance \& Portfolio Theory}\\[6pt]
+  {\large Personal Finance Reference --- Oscar Johnson}\\[4pt]
+  {\normalsize UW-Whitewater \quad $\cdot$ \quad April 2026}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+\end{center}
+
+\vspace{8pt}
+\tableofcontents
+\newpage
+
+%% =============================================================================
+%%  PART I – Time Value of Money & Compounding
+%% =============================================================================
+\greensections
+\addcontentsline{toc}{section}{\textcolor{sectiongreen}{PART I \textemdash\ Time Value of Money \& Compounding}}
+\addcontentsline{toc}{subsection}{The Core Idea}
+\addcontentsline{toc}{subsection}{Future Value \& Present Value}
+\addcontentsline{toc}{subsection}{Compounding Frequency}
+\addcontentsline{toc}{subsection}{The Rule of 72}
+\addcontentsline{toc}{subsection}{Annuities: Future Value of Regular Contributions}
+\addcontentsline{toc}{subsection}{Worked Examples}
+\partbanner{part2bg}{sectiongreen}{Part I \quad Time Value of Money \& Compounding}
+
+\vspace{6pt}
+\begin{center}\small\itshape
+  A dollar today is worth more than a dollar tomorrow.
+  Every financial decision flows from this single principle.
+\end{center}
+\vspace{4pt}
+
+% ── The Core Idea ─────────────────────────────────────────────────────────────
+\section*{The Core Idea}
+
+\textbf{Time Value of Money (TVM)} is the foundational concept of finance: money available now is worth more than the same amount in the future, because money today can be invested to earn a return. This creates two key operations:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Compounding (growing forward):} Taking a present value and calculating what it becomes in the future.
+  \item \textbf{Discounting (shrinking backward):} Taking a future value and calculating what it is worth in today's dollars.
+\end{itemize}
+
+% ── Future Value & Present Value ──────────────────────────────────────────────
+\section*{Future Value \& Present Value}
+
+\subsection*{Lump-Sum Formulas (Single Deposit)}
+
+\[
+  \underbrace{FV = PV \times (1 + r)^n}_{\text{Compounding forward}}
+  \qquad\qquad
+  \underbrace{PV = \frac{FV}{(1 + r)^n}}_{\text{Discounting backward}}
+\]
+
+where $PV$ = present value, $FV$ = future value, $r$ = interest rate per period, $n$ = number of periods.
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen, arc=3pt, boxrule=1pt]
+\textbf{Worked example:} You invest \$5{,}000 today at 7\% annual return. How much is it worth in 30 years?
+\[
+  FV = 5{,}000 \times (1.07)^{30} = 5{,}000 \times 7.6123 \approx \$38{,}061
+\]
+Your \$5{,}000 becomes \$38{,}061 --- a 7.6$\times$ return --- purely from compounding. You contributed nothing extra.
+\end{tcolorbox}
+
+% ── Compounding Frequency ─────────────────────────────────────────────────────
+\section*{Compounding Frequency}
+
+The more frequently interest compounds, the more you earn. The general formula for $m$ compounding periods per year over $t$ years:
+
+\[
+  FV = PV \times \left(1 + \frac{r}{m}\right)^{m \cdot t}
+\]
+
+\textbf{Continuous compounding} (the mathematical limit as $m \to \infty$):
+\[
+  FV = PV \times e^{rt}
+\]
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\centering\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheadergreen}
+\textbf{Frequency} & \textbf{$m$} & \textbf{\$1{,}000 at 10\% / 1 yr} & \textbf{Where seen} \\
+\midrule
+\rowcolor{rowA}  Annual      & 1   & \$1{,}100.00 & Most textbook problems, bonds \\
+\rowcolor{rowBg} Semi-annual & 2   & \$1{,}102.50 & Many bonds (coupon payments) \\
+\rowcolor{rowA}  Quarterly   & 4   & \$1{,}103.81 & Some savings accounts \\
+\rowcolor{rowBg} Monthly     & 12  & \$1{,}104.71 & Mortgages, most bank accounts \\
+\rowcolor{rowA}  Daily       & 365 & \$1{,}105.16 & High-yield savings, credit cards \\
+\rowcolor{rowBg} Continuous  & $\infty$ & \$1{,}105.17 & Options pricing, theoretical models \\
+\bottomrule
+\end{tabularx}}
+
+% ── Rule of 72 ────────────────────────────────────────────────────────────────
+\section*{The Rule of 72}
+
+A fast mental shortcut: divide \textbf{72 by the annual interest rate} to estimate the number of years it takes to \textbf{double} your money.
+
+\[
+  \text{Years to double} \approx \frac{72}{r\%}
+\]
+
+\textit{Examples: At 6\% it takes $72/6 = 12$ years. At 8\% it takes 9 years. At 12\% it takes 6 years.}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{Why this matters in practice:} The S\&P 500 has returned roughly 10\% annually on average over the long run. By the Rule of 72, a broad index investment doubles approximately every \textbf{7.2 years}. A 20-year-old who invests \$10{,}000 today could see it double roughly \textbf{three times} by retirement at age 65 --- growing to $\sim$\$80{,}000 without adding a single dollar.
+\end{tcolorbox}
+
+% ── Annuities ─────────────────────────────────────────────────────────────────
+\section*{Annuities: Future Value of Regular Contributions}
+
+An \textbf{annuity} is a series of equal, regular payments. This is the model for IRAs, 401(k)s, and any investment where you contribute on a schedule.
+
+\subsection*{Future Value of an Ordinary Annuity (payments at end of period)}
+\[
+  FV = PMT \times \frac{(1 + r)^n - 1}{r}
+\]
+
+\subsection*{Future Value of an Annuity Due (payments at start of period)}
+\[
+  FV_{\text{due}} = PMT \times \frac{(1 + r)^n - 1}{r} \times (1 + r)
+\]
+
+Annuity due grows slightly more because each payment earns one extra period of interest. Most retirement contributions are treated as ordinary annuities.
+
+\subsection*{Present Value of an Annuity (discounting a stream of payments)}
+\[
+  PV = PMT \times \frac{1 - (1 + r)^{-n}}{r}
+\]
+Used for valuing bonds, loans, leases --- any contract that promises a series of future cash flows.
+
+% ── Worked Examples ───────────────────────────────────────────────────────────
+\section*{Worked Examples}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Example A: Roth IRA at Maximum Contribution}, arc=3pt, boxrule=1pt]
+You contribute \$7{,}500/year to a Roth IRA starting at age 22. Assume 7\% average annual return. How much will you have at age 65 (43 years)?
+
+\[
+  FV = 7{,}500 \times \frac{(1.07)^{43} - 1}{0.07}
+     = 7{,}500 \times \frac{18.344 - 1}{0.07}
+     = 7{,}500 \times 247.78
+     \approx \$1{,}858{,}350
+\]
+Total contributed: $43 \times \$7{,}500 = \$322{,}500$. Compounding generated the other \textbf{\$1.54 million} --- all of which is withdrawn \textbf{tax-free} from a Roth.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Example B: The Cost of Waiting 10 Years}, arc=3pt, boxrule=1pt]
+Same setup, but you start at age 32 instead (33 years instead of 43):
+\[
+  FV = 7{,}500 \times \frac{(1.07)^{33} - 1}{0.07}
+     = 7{,}500 \times 118.93
+     \approx \$891{,}975
+\]
+Waiting just 10 years \textbf{cuts your ending balance roughly in half} --- from \$1.86M to \$892K --- despite contributing only \$75{,}000 less. The missing decade of compounding cost you nearly \$1 million.
+\end{tcolorbox}
+
+\newpage
+
+%% =============================================================================
+%%  PART II – Retirement Accounts
+%% =============================================================================
+\bluesections
+\addcontentsline{toc}{section}{\textcolor{sectionblue}{PART II \textemdash\ Retirement Accounts}}
+\addcontentsline{toc}{subsection}{Roth IRA vs.\ Traditional IRA}
+\addcontentsline{toc}{subsection}{401(k) \& Employer Match}
+\addcontentsline{toc}{subsection}{Contribution Limits (2026)}
+\addcontentsline{toc}{subsection}{Account Comparison Table}
+\addcontentsline{toc}{subsection}{Roth vs.\ Traditional: Which to Choose?}
+\partbanner{partbg}{sectionblue}{Part II \quad Retirement Accounts}
+
+\vspace{8pt}
+
+% ── Roth vs Traditional ───────────────────────────────────────────────────────
+\section*{Roth IRA vs.\ Traditional IRA}
+
+Both accounts let your investments grow \textbf{tax-advantaged}. The difference is \emph{when} you pay taxes.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Feature} & \textbf{Roth IRA} & \textbf{Traditional IRA} \\
+\midrule
+\rowcolor{rowA}  When taxed          & Contributions are \textbf{post-tax} (you pay now) & Contributions may be \textbf{pre-tax} (deductible) \\
+\rowcolor{rowB}  Withdrawals         & \textbf{Tax-free} after age 59.5 & Taxed as ordinary income \\
+\rowcolor{rowA}  Growth              & Tax-free & Tax-deferred \\
+\rowcolor{rowB}  Required Minimum Distributions & \textbf{None} during owner's lifetime & Start at age 73 (RMDs required) \\
+\rowcolor{rowA}  Income limits (2026)& Phase-out begins $\sim$\$146K (single) & No income limit to contribute; deductibility phases out \\
+\rowcolor{rowB}  Early withdrawal    & Contributions (not gains) can be withdrawn penalty-free at any time & 10\% penalty + taxes before 59.5 \\
+\rowcolor{rowA}  Best for            & Young investors; those expecting higher future tax rates & Those in a high bracket now, expecting lower rates later \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue, arc=3pt, boxrule=1pt]
+\textbf{As a college student:} You are almost certainly in the lowest tax bracket of your life right now. This makes the \textbf{Roth IRA the clear winner} --- pay a small amount of tax today, and every dollar of growth over the next 40+ years is \textbf{completely tax-free}. Starting a Roth in college is one of the highest-return financial decisions you can make.
+\end{tcolorbox}
+
+% ── 401(k) & Employer Match ───────────────────────────────────────────────────
+\section*{401(k) \& Employer Match}
+
+A \textbf{401(k)} is an employer-sponsored retirement account. Like a Traditional IRA, contributions are pre-tax and reduce your taxable income today. A \textbf{Roth 401(k)} option is also offered by many employers with post-tax contributions.
+
+\textbf{Employer match} is the most important benefit to understand:
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{The 100\% Instant Return:} If your employer matches 50\% of contributions up to 6\% of your salary, and you contribute 6\%, you immediately receive a \textbf{50\% return on that money} before any investment gains. \textit{Always contribute at least enough to capture the full employer match --- not doing so is leaving free money on the table.}
+\end{tcolorbox}
+
+% ── Contribution Limits ───────────────────────────────────────────────────────
+\section*{Contribution Limits (2026)}
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\centering\arraybackslash}p{3cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheader}
+\textbf{Account} & \textbf{Annual Limit} & \textbf{Notes} \\
+\midrule
+\rowcolor{rowA}  Roth IRA          & \$7{,}500      & Combined Traditional + Roth IRA limit; must have earned income $\geq$ contribution \\
+\rowcolor{rowB}  Traditional IRA   & \$7{,}500      & Combined with Roth; deductibility depends on income \& workplace plan \\
+\rowcolor{rowA}  401(k) / 403(b)   & \$23{,}500     & Employee contribution; employer match does not count toward this cap \\
+\rowcolor{rowB}  HSA (individual)  & \$4{,}300      & Triple tax advantage: deductible contributions, tax-free growth, tax-free withdrawals for medical expenses \\
+\bottomrule
+\end{tabularx}}
+
+% ── Roth vs Traditional Decision ──────────────────────────────────────────────
+\section*{Roth vs.\ Traditional: Which to Choose?}
+
+The core question is: \textbf{will your tax rate be higher now or in retirement?}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Roth wins} if your future tax rate will be \emph{higher} than today's (likely for young, lower-income students who expect career income growth).
+  \item \textbf{Traditional wins} if your future tax rate will be \emph{lower} than today's (common for high earners near peak career).
+  \item \textbf{Hedge:} Many financial planners recommend \emph{both} --- some Roth, some Traditional --- to have tax diversification in retirement.
+\end{itemize}
+
+\textbf{Mathematical comparison:} Let $t_{\text{now}}$ = current tax rate and $t_{\text{ret}}$ = retirement tax rate. You invest pre-tax \$1 for $n$ years at rate $r$:
+\[
+  \text{Roth after-tax value} = (1 - t_{\text{now}})(1+r)^n
+  \qquad
+  \text{Traditional after-tax value} = (1+r)^n(1 - t_{\text{ret}})
+\]
+Roth wins when $t_{\text{now}} < t_{\text{ret}}$, which is the typical situation for a student today.
+
+\newpage
+
+%% =============================================================================
+%%  PART III – Trading Mechanics & Order Types
+%% =============================================================================
+\orangesections
+\addcontentsline{toc}{section}{\textcolor{sectionorange}{PART III \textemdash\ Trading Mechanics \& Order Types}}
+\addcontentsline{toc}{subsection}{Market Orders vs.\ Limit Orders}
+\addcontentsline{toc}{subsection}{Stop Orders}
+\addcontentsline{toc}{subsection}{Order Type Comparison Table}
+\addcontentsline{toc}{subsection}{Bid-Ask Spread \& Liquidity}
+\addcontentsline{toc}{subsection}{How Trades Are Executed}
+\partbanner{part4bg}{sectionorange}{Part III \quad Trading Mechanics \& Order Types}
+
+\vspace{8pt}
+
+% ── Market vs Limit ───────────────────────────────────────────────────────────
+\section*{Market Orders vs.\ Limit Orders}
+
+\subsection*{Market Order}
+Executes \textbf{immediately} at the best available current price. You are guaranteed execution but \textbf{not} the price.
+\begin{itemize}[noitemsep]
+  \item Best for highly liquid stocks (e.g., Apple, S\&P 500 ETFs) where the bid-ask spread is very tight.
+  \item Risky for illiquid or fast-moving stocks --- you may pay significantly more (or receive less) than the last quoted price. This is called \textbf{slippage}.
+\end{itemize}
+
+\subsection*{Limit Order}
+Executes \textbf{only at your specified price or better}. You control the price but \textbf{not} whether it executes.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Buy limit:} Will only buy at or \emph{below} your limit price. Placed below the current market price.
+  \item \textbf{Sell limit:} Will only sell at or \emph{above} your limit price. Placed above the current market price.
+\end{itemize}
+
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange, arc=3pt, boxrule=1pt]
+\textbf{Example:} Stock XYZ is trading at \$50. You place a sell limit at \$55. Your shares won't sell unless the price rises to \$55 --- ensuring you don't sell for less than your target. However, if the stock peaks at \$54.99 and falls back, your order never executes and you miss the gain.
+\end{tcolorbox}
+
+% ── Stop Orders ───────────────────────────────────────────────────────────────
+\section*{Stop Orders}
+
+\subsection*{Stop-Loss Order}
+A stop-loss becomes a \textbf{market order} once the stock price falls to or below a trigger price. It is the primary tool for automating loss control.
+
+\begin{itemize}[noitemsep]
+  \item You buy XYZ at \$50 and set a stop-loss at \$46. If the price drops to \$46, your shares are sold automatically at the next available market price.
+  \item \textbf{Risk:} In a fast-moving market (a ``gap down''), the stock may open far below \$46, and your shares sell at the gap price --- not \$46. This is called \textbf{stop slippage}.
+\end{itemize}
+
+\subsection*{Stop-Limit Order}
+Combines a stop trigger with a limit floor. Once the stop price is hit, the order becomes a \textbf{limit order} (not a market order). This prevents selling at a terrible gap-down price, but risks the order \emph{not executing at all} if the price falls through your limit.
+
+\subsection*{Trailing Stop}
+The stop price automatically follows the stock upward by a fixed dollar amount or percentage. Locks in gains as the stock rises while still cutting losses on a reversal.
+
+% ── Order Type Comparison ─────────────────────────────────────────────────────
+\section*{Order Type Comparison Table}
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.2cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\centering\arraybackslash}p{2cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderorange}
+\textbf{Order Type} & \textbf{Price Control?} & \textbf{Execution Guaranteed?} & \textbf{Best Used For} \\
+\midrule
+\rowcolor{rowOr} Market order       & No  & Yes & Liquid stocks; urgent entries/exits \\
+\rowcolor{rowA}  Buy limit          & Yes & No  & Entering at a target price below market \\
+\rowcolor{rowOr} Sell limit         & Yes & No  & Locking in a profit target above market \\
+\rowcolor{rowA}  Stop-loss          & No  & Yes (at mkt) & Automatic loss-cutting \\
+\rowcolor{rowOr} Stop-limit         & Yes & No  & Preventing gap-down slippage \\
+\rowcolor{rowA}  Trailing stop      & Relative & Partial & Protecting gains in uptrending stock \\
+\bottomrule
+\end{tabularx}}
+
+% ── Bid-Ask Spread ────────────────────────────────────────────────────────────
+\section*{Bid-Ask Spread \& Liquidity}
+
+Every stock has two simultaneously quoted prices:
+\begin{itemize}[noitemsep]
+  \item \textbf{Bid:} The highest price a buyer is currently willing to pay.
+  \item \textbf{Ask (Offer):} The lowest price a seller is currently willing to accept.
+  \item \textbf{Spread:} $\text{Ask} - \text{Bid}$. This is the market maker's profit and your \textbf{implicit transaction cost} every time you trade.
+\end{itemize}
+
+A tight spread (e.g., \$0.01 on Apple) signals high liquidity. A wide spread (e.g., \$0.50 on a small-cap stock) signals low liquidity --- you effectively lose that spread every round-trip you make.
+
+\newpage
+
+%% =============================================================================
+%%  PART IV – Risk Management & Loss Asymmetry
+%% =============================================================================
+\redsections
+\addcontentsline{toc}{section}{\textcolor{sectionred}{PART IV \textemdash\ Risk Management \& Loss Asymmetry}}
+\addcontentsline{toc}{subsection}{The Asymmetric Math of Loss}
+\addcontentsline{toc}{subsection}{The Golden Ratio Strategy}
+\addcontentsline{toc}{subsection}{Position Sizing}
+\addcontentsline{toc}{subsection}{Risk Metrics: Sharpe \& Sortino Ratios}
+\addcontentsline{toc}{subsection}{Volatility \& Beta}
+\addcontentsline{toc}{subsection}{Portfolio Diversification}
+\partbanner{part6bg}{sectionred}{Part IV \quad Risk Management \& Loss Asymmetry}
+
+\vspace{8pt}
+
+% ── Asymmetric Loss ───────────────────────────────────────────────────────────
+\section*{The Asymmetric Math of Loss}
+
+Losses are not symmetric with gains --- they are \textbf{exponentially harder to recover from}. If you lose $L\%$ of your portfolio, the gain required to return to your starting value is:
+
+\[
+  \text{Required Gain} = \frac{L}{1 - L} \times 100\%
+  \qquad \text{where } L \text{ is expressed as a decimal}
+\]
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{3.5cm}
+                              >{\centering\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderred}
+\textbf{Loss} & \textbf{Gain to Break Even} & \textbf{Context} \\
+\midrule
+\rowcolor{rowRe} 5\%   & 5.3\%   & Easily recovered \\
+\rowcolor{rowA}  10\%  & 11.1\%  & One bad month \\
+\rowcolor{rowRe} 25\%  & 33.3\%  & A serious correction \\
+\rowcolor{rowA}  50\%  & 100\%   & Must \emph{double} your money just to break even \\
+\rowcolor{rowRe} 75\%  & 300\%   & Catastrophic --- a 4$\times$ recovery required \\
+\rowcolor{rowA}  90\%  & 900\%   & Near total loss --- almost impossible to recover \\
+\bottomrule
+\end{tabularx}}
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\textbf{Mathematical proof:} Start with \$100. A 50\% loss leaves \$50. To get back to \$100 from \$50 requires a 100\% gain. The loss percentage and the recovery percentage are \emph{not equal}. This is why cutting losses early is so critical --- a \textbf{--7\%} loss only requires a \textbf{+7.5\%} recovery. A \textbf{--50\%} loss requires a \textbf{+100\%} recovery from a much smaller base.
+\end{tcolorbox}
+
+% ── Golden Ratio Strategy ─────────────────────────────────────────────────────
+\section*{The Golden Ratio Strategy}
+
+A disciplined, rules-based approach used by many growth investors:
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries The 3:1 Reward-to-Risk Rule}, arc=3pt, boxrule=1pt]
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Take profits at +20--25\%}. Don't get greedy waiting for more.
+  \item \textbf{Cut losses at -7 to -8\%}. No exceptions. No ``waiting for it to come back.''
+  \item \textbf{Why this works mathematically:} At a 20\% gain and 7.5\% loss, your reward-to-risk ratio is approximately 3:1. This means you can be right on only \textbf{1 out of 4 trades} and still break even:
+  \[
+    3 \text{ wins} \times (+20\%) + 1 \text{ loss} \times (-7.5\%) = 60\% - 7.5\% = +52.5\% \text{ net}
+  \]
+  A 25\% win rate is \emph{profitable} with a 3:1 reward-to-risk ratio.
+\end{itemize}
+\end{tcolorbox}
+
+% ── Position Sizing ───────────────────────────────────────────────────────────
+\section*{Position Sizing}
+
+\textbf{Position sizing} determines how much of your portfolio to allocate to any single trade. The goal is ensuring that no single losing trade can materially harm your overall portfolio.
+
+\textbf{The 1--2\% Rule:} Risk no more than 1--2\% of your total portfolio on any single trade. Combined with a 7--8\% stop-loss, this determines your maximum position size:
+
+\[
+  \text{Max Position Size} = \frac{\text{Portfolio} \times \text{Risk \%}}{\text{Stop-Loss \%}}
+\]
+
+\textit{Example: Portfolio = \$10{,}000; risk per trade = 1\%; stop-loss = 8\%.}
+\[
+  \text{Max Position} = \frac{10{,}000 \times 0.01}{0.08} = \$1{,}250
+\]
+You would invest no more than \$1{,}250 in any single stock.
+
+% ── Sharpe & Sortino ──────────────────────────────────────────────────────────
+\section*{Risk Metrics: Sharpe \& Sortino Ratios}
+
+These ratios answer the question: \textbf{how much return are you getting per unit of risk?} A high ratio means you are being well compensated for the risk taken.
+
+\subsection*{Sharpe Ratio}
+\[
+  S = \frac{R_p - R_f}{\sigma_p}
+\]
+
+where $R_p$ = portfolio return, $R_f$ = risk-free rate (e.g., 3-month Treasury yield), $\sigma_p$ = standard deviation of portfolio returns (total volatility).
+
+\textbf{Interpretation:}
+\begin{itemize}[noitemsep]
+  \item $S < 1.0$: Below average risk-adjusted return.
+  \item $1.0 \leq S < 2.0$: Good.
+  \item $2.0 \leq S < 3.0$: Very good.
+  \item $S \geq 3.0$: Exceptional (rare in real portfolios over long periods).
+\end{itemize}
+
+\subsection*{Sortino Ratio}
+\[
+  \text{Sortino} = \frac{R_p - R_f}{\sigma_d}
+\]
+
+where $\sigma_d$ = \textbf{downside deviation} --- only the standard deviation of \emph{negative} returns. Upward volatility is \emph{not} penalized.
+
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred, arc=3pt, boxrule=1pt]
+\textbf{Sharpe vs.\ Sortino:} The Sharpe ratio penalizes all volatility, including big upward moves. A stock that frequently surges 10\% gets penalized by Sharpe but not by Sortino. For growth investors who \emph{want} large upside swings and only fear the downside, the \textbf{Sortino ratio is the more informative metric}.
+\end{tcolorbox}
+
+% ── Volatility & Beta ─────────────────────────────────────────────────────────
+\section*{Volatility \& Beta}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Standard deviation ($\sigma$):} Measures the dispersion of a stock's returns. A stock with $\sigma = 30\%$/year is much more volatile than one with $\sigma = 10\%$/year.
+  \item \textbf{Beta ($\beta$):} Measures a stock's \emph{sensitivity to market movements} relative to a benchmark (usually the S\&P 500):
+  \[
+    \beta > 1 \text{: more volatile than the market (amplifies moves)}
+    \qquad
+    \beta < 1 \text{: less volatile (defensive)}
+    \qquad
+    \beta < 0 \text{: moves inversely (hedge)}
+  \]
+  \item \textbf{Alpha ($\alpha$):} The excess return above what beta would predict. Positive alpha means the investment \emph{outperformed} the market on a risk-adjusted basis.
+\end{itemize}
+
+% ── Diversification ───────────────────────────────────────────────────────────
+\section*{Portfolio Diversification}
+
+\textbf{Modern Portfolio Theory (MPT)}, developed by Harry Markowitz, shows that combining assets with low \emph{correlation} reduces portfolio risk without necessarily reducing expected return.
+
+\[
+  \sigma_{\text{portfolio}}^2 = w_A^2 \sigma_A^2 + w_B^2 \sigma_B^2 + 2 w_A w_B \rho_{AB} \sigma_A \sigma_B
+\]
+
+where $w$ = portfolio weights, $\sigma$ = standard deviations, and $\rho_{AB}$ = correlation between assets A and B.
+
+\begin{itemize}[noitemsep]
+  \item When $\rho_{AB} = +1$: No diversification benefit. Assets move in lockstep.
+  \item When $\rho_{AB} = 0$: Partial diversification. Portfolio risk is reduced.
+  \item When $\rho_{AB} = -1$: Perfect diversification possible. Risk can theoretically be eliminated.
+\end{itemize}
+
+\textbf{Unsystematic (diversifiable) risk} --- company-specific events like earnings misses or scandals --- can be eliminated through diversification. \textbf{Systematic (market) risk} --- recessions, rate hikes --- cannot be diversified away.
+
+\newpage
+
+%% =============================================================================
+%%  PART V – Taxation Strategy
+%% =============================================================================
+\tealsections
+\addcontentsline{toc}{section}{\textcolor{sectionteal}{PART V \textemdash\ Taxation Strategy}}
+\addcontentsline{toc}{subsection}{Short-Term vs.\ Long-Term Capital Gains}
+\addcontentsline{toc}{subsection}{The 366-Day Rule}
+\addcontentsline{toc}{subsection}{Tax-Loss Harvesting}
+\addcontentsline{toc}{subsection}{Student Tax Deductions (2026)}
+\addcontentsline{toc}{subsection}{Dividends \& REITs -- Tax Treatment}
+\partbanner{part5bg}{sectionteal}{Part V \quad Taxation Strategy}
+
+\vspace{8pt}
+
+% ── Short vs Long Term ────────────────────────────────────────────────────────
+\section*{Short-Term vs.\ Long-Term Capital Gains}
+
+When you sell an investment for more than you paid, the profit is a \textbf{capital gain}. How it is taxed depends on how long you held the asset.
+
+\noindent
+{\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Feature} & \textbf{Short-Term (held $\leq$ 1 year)} & \textbf{Long-Term (held $>$ 1 year)} \\
+\midrule
+\rowcolor{rowTe} Tax rate     & Ordinary income brackets: 10\%, 12\%, 22\%, 24\%, 32\%, 35\%, 37\% & Preferential rates: 0\%, 15\%, or 20\% \\
+\rowcolor{rowA}  Who pays 0\% & Nobody (minimum is 10\%) & Single filers with taxable income $\lesssim$ \$47{,}025 \\
+\rowcolor{rowTe} Who pays 15\%& Not applicable & Most middle-income investors \\
+\rowcolor{rowA}  Who pays 20\%& Not applicable & High earners ($>\sim$\$518K single) \\
+\rowcolor{rowTe} Strategy     & Hold a bit longer if close to the 1-year mark & Maximize by holding beyond 1 year \\
+\bottomrule
+\end{tabularx}}
+
+% ── 366-Day Rule ──────────────────────────────────────────────────────────────
+\section*{The 366-Day Rule}
+
+\textbf{The cutoff is strictly one year} (365 days). To qualify for long-term treatment you must hold for more than 365 days --- so selling on day 366 or later gets you the lower rate.
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Strategic Decision: When to Sell a Big Gain}, arc=3pt, boxrule=1pt]
+\textbf{Scenario:} You have a 90\% gain on a position held for 8 months. You're in the 22\% income bracket.\\[4pt]
+\textbf{Option A --- Sell now (short-term):} Pay 22\% on the gain.\\
+\textbf{Option B --- Hold 4 more months (long-term):} Pay 15\% on the gain.\\[4pt]
+Saving 7 percentage points of tax sounds attractive. But consider the \textbf{risk}: the stock could pull back 20\%+ in those 4 months. A 20\% loss on a 90\% gain means you needed to hold it long-term to ``save'' the tax, and instead gave back most of that gain to the market. \\[4pt]
+\textbf{Rule of thumb:} If the position is massive (50\%+ gain) and you are uncertain about the next 4 months, the tax savings from waiting may not justify the additional market risk. Math your specific numbers.
+\end{tcolorbox}
+
+% ── Tax-Loss Harvesting ───────────────────────────────────────────────────────
+\section*{Tax-Loss Harvesting}
+
+\textbf{Tax-loss harvesting} is the deliberate sale of a losing position to generate a capital loss, which offsets capital gains (or up to \$3{,}000 of ordinary income per year).
+
+\begin{itemize}[noitemsep]
+  \item Capital losses first offset capital gains dollar-for-dollar.
+  \item If losses exceed gains, up to \$3{,}000 of the net loss can offset ordinary income.
+  \item Remaining unused losses \textbf{carry forward} to future tax years indefinitely.
+\end{itemize}
+
+\textbf{Wash-Sale Rule:} You cannot immediately repurchase the \emph{same or substantially identical} security within 30 days before or after the sale and still claim the loss. If you do, the loss is disallowed. You can, however, buy a \emph{similar but not identical} ETF to maintain market exposure during the 30-day window.
+
+% ── Student Tax Deductions ────────────────────────────────────────────────────
+\section*{Student Tax Deductions \& Credits (2026)}
+
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Key Tax Benefits for College Students}, arc=3pt, boxrule=1pt]
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Standard Deduction:} \$16{,}100 (single filer, 2026). If your income is below this, you owe \textbf{zero federal income tax} on earned income --- making Roth IRA contributions in college among the cheapest possible tax moves.
+  \item \textbf{American Opportunity Tax Credit (AOTC):} Up to \$2{,}500 credit per year for the first 4 years of higher education. A \emph{credit} directly reduces taxes owed (unlike a deduction which only reduces taxable income). 40\% is refundable (up to \$1{,}000 back even if you owe nothing).
+  \item \textbf{Student Loan Interest Deduction:} Deduct up to \$2{,}500 of interest paid on qualified student loans from your adjusted gross income (AGI). Phases out at higher incomes.
+  \item \textbf{Lifetime Learning Credit (LLC):} Up to \$2{,}000 credit per year (20\% of up to \$10{,}000 of expenses). Available beyond the first 4 years. Cannot be combined with AOTC in the same year.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=notebg, colframe=noteborder, arc=3pt, boxrule=1pt]
+\textbf{The Roth IRA + low-income year strategy:} If your total income as a student is under the standard deduction (\$16{,}100), you pay 0\% federal income tax on your earnings. Any Roth IRA contributions are made from income taxed at \emph{effectively 0\%} --- the best possible situation. Every future dollar of growth is locked in tax-free forever.
+\end{tcolorbox}
+
+% ── Dividends & REITs ─────────────────────────────────────────────────────────
+\section*{Dividends \& REITs --- Tax Treatment}
+
+\subsection*{Dividends}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Qualified dividends:} Paid by U.S.\ corporations or qualified foreign corporations on stock held for more than 60 days. Taxed at the preferential \textbf{long-term capital gains rates} (0\%, 15\%, 20\%).
+  \item \textbf{Ordinary (non-qualified) dividends:} Taxed at ordinary income rates. Common in REITs, money market funds, and some foreign stocks.
+  \item \textbf{Dividend Yield Formula:}
+  \[
+    \text{Dividend Yield} = \frac{\text{Annual Dividends per Share}}{\text{Current Stock Price}}
+  \]
+\end{itemize}
+
+\subsection*{REITs (Real Estate Investment Trusts)}
+
+REITs own income-producing real estate and by law must distribute at least \textbf{90\% of taxable income} to shareholders as dividends. This creates high, consistent yields --- but those dividends are almost always classified as \textbf{ordinary income} (not qualified), so they are taxed at your full income rate unless held inside a tax-advantaged account (like an IRA).
+
+\noindent
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.5cm}
+                              >{\raggedright\arraybackslash}X
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\rowcolor{tableheaderteal}
+\textbf{Dividend Frequency} & \textbf{Typical Source} & \textbf{Notes} \\
+\midrule
+\rowcolor{rowTe} Quarterly & Most large-cap stocks (Apple, J\&J) & Standard; paid every 3 months \\
+\rowcolor{rowA}  Monthly   & REITs, some bond ETFs             & High yield; useful for income investors \\
+\rowcolor{rowTe} Annual    & Some international companies      & Less common in U.S.\ markets \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+
+%% =============================================================================
+%%  PART VI – Quick Reference Cheat Sheet
+%% =============================================================================
+\purplesections
+\addcontentsline{toc}{section}{\textcolor{sectionpurple}{PART VI \textemdash\ Quick Reference Cheat Sheet}}
+\partbanner{part3bg}{sectionpurple}{Part VI \quad Quick Reference Cheat Sheet}
+
+\vspace{4pt}
+\begin{center}\small\itshape One page. Everything essential. Great for last-minute review.\end{center}
+\vspace{4pt}
+
+% ── Compounding ───────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part2bg, colframe=sectiongreen,
+  title={\bfseries Time Value of Money \& Compounding}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Lump sum FV:} $PV \times (1+r)^n$
+  \item \textbf{Lump sum PV:} $FV / (1+r)^n$
+  \item \textbf{Annuity FV:} $PMT \times [(1+r)^n - 1] / r$
+  \item \textbf{Annuity PV:} $PMT \times [1 - (1+r)^{-n}] / r$
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Rule of 72:} Years to double $\approx 72 / r\%$
+  \item S\&P 500 $\approx$ 10\%/yr avg $\Rightarrow$ doubles $\sim$every 7.2 yrs
+  \item More compounding periods $=$ more growth
+  \item Start early: waiting 10 yrs can cut ending balance $\approx$ in half
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Retirement Accounts ───────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=partbg, colframe=sectionblue,
+  title={\bfseries Retirement Accounts (2026)}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Roth IRA:} Post-tax in; tax-free out after 59.5. Limit: \$7{,}500/yr. Best for students (low bracket now).
+  \item \textbf{Traditional IRA:} Pre-tax in; taxed on withdrawal. Same limit.
+  \item \textbf{401(k):} \$23{,}500/yr; \emph{always} capture full employer match first.
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Roth wins} when: future tax rate $>$ current rate (typical for students)
+  \item \textbf{Trad.\ wins} when: current rate $>$ future rate
+  \item \textbf{HSA:} Triple tax advantage; \$4{,}300 limit; best medical account possible
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Trading & Risk ────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part6bg, colframe=sectionred,
+  title={\bfseries Trading Mechanics \& Risk Management}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Market order:} Guaranteed execution, not price
+  \item \textbf{Limit order:} Guaranteed price, not execution
+  \item \textbf{Stop-loss:} Becomes market order at trigger price
+  \item \textbf{Stop-limit:} Becomes limit order at trigger (safer, may not fill)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Golden ratio:} Take gains at +20--25\%; cut losses at $-7$ to $-8$\%
+  \item \textbf{Loss math:} $-50\%$ requires $+100\%$ to recover
+  \item \textbf{Position size:} Max $=$ (Portfolio $\times$ 1--2\%) / stop-loss\%
+  \item \textbf{Sharpe:} $(R_p - R_f)/\sigma_p$; Sortino uses downside $\sigma$ only
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Taxation ──────────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part5bg, colframe=sectionteal,
+  title={\bfseries Taxation Strategy}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Short-term} ($\leq$1 yr): taxed at ordinary income rate
+  \item \textbf{Long-term} ($>$1 yr): 0\%, 15\%, or 20\%
+  \item \textbf{366-day rule:} Hold one more day to cross to long-term
+  \item \textbf{Tax-loss harvest:} Sell losers to offset gains; watch wash-sale rule (30 days)
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item \textbf{Standard deduction (2026):} \$16{,}100
+  \item \textbf{AOTC:} Up to \$2{,}500 credit (first 4 yrs); 40\% refundable
+  \item \textbf{Student loan interest:} Deduct up to \$2{,}500
+  \item \textbf{REIT dividends:} Usually ordinary income --- hold in IRA to shelter
+  \item \textbf{Dividend yield:} Annual div / stock price
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+% ── Key Formulas ──────────────────────────────────────────────────────────────
+\begin{tcolorbox}[colback=part4bg, colframe=sectionorange,
+  title={\bfseries Key Formulas at a Glance}, arc=3pt, boxrule=1pt]
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Gain to recover loss $L$: $\dfrac{L}{1-L}$
+  \item Sharpe: $\dfrac{R_p - R_f}{\sigma_p}$
+  \item Sortino: $\dfrac{R_p - R_f}{\sigma_{\text{downside}}}$
+  \item Dividend yield: Annual div / price
+\end{itemize}
+\columnbreak
+\begin{itemize}[noitemsep, leftmargin=*]
+  \item Portfolio variance (2 assets): $w_A^2\sigma_A^2 + w_B^2\sigma_B^2 + 2w_Aw_B\rho_{AB}\sigma_A\sigma_B$
+  \item $\beta > 1$: amplifies market; $\beta < 1$: defensive; $\beta < 0$: inverse
+  \item Position size: (portfolio $\times$ risk\%) / stop\%
+  \item $\text{FV annuity} = PMT \times [(1+r)^n-1]/r$
+\end{itemize}
+\end{multicols}
+\end{tcolorbox}
+
+\end{document}
