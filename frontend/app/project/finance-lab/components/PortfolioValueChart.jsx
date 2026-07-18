@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { currency } from "../lib/financeLab";
+import { currency } from "../data/financeLab";
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;

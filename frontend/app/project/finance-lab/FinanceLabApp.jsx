@@ -21,10 +21,10 @@ import {
   writeActiveId,
   makeId,
   getFinderGroups,
-} from "./lib/financeLab";
+} from "./data/financeLab";
 
 import PredictorView from "./PredictorView";
-import { DEFAULT_CONFIG } from "./lib/moveTree";
+import { DEFAULT_CONFIG } from "./data/moveTree";
 
 function downloadText(filename, text, type = "application/json") {
   const blob = new Blob([text], { type });

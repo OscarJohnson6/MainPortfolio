@@ -9,7 +9,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { currency, percent, STOCKS, PRICE_MODE, priceSourceLabel } from "./lib/financeLab";
+import { currency, percent, STOCKS, PRICE_MODE, priceSourceLabel } from "./data/financeLab";
 import {
   DEFAULT_CONFIG,
   HORIZON_OPTIONS,
@@ -21,7 +21,7 @@ import {
   backtestFormula,
   SETUP_QUALITY_META,
   BEHAVIOR_LABELS,
-} from "./lib/moveTree";
+} from "./data/moveTree";
 
 const CONF_TONE = {
   high: "text-emerald-300",
@@ -414,7 +414,7 @@ function FormulaLab({ config, setConfig, scenario }) {
               </table>
             </div>
             <p className="text-xs leading-5 text-slate-600">
-              The demo price model is deterministic and smooth, so accuracy here measures the formula's mechanics
+              The demo price model is deterministic and smooth, so accuracy here measures the formula&apos;s mechanics
               against synthetic data — not real-world predictive skill.
             </p>
           </div>
