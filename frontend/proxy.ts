@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/login"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only intercept /admin routes
