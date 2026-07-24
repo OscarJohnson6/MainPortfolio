@@ -1,12 +1,17 @@
-// destination: src/app/page.tsx
-// Changes from previous version:
-// - Wordle project entry replaced with Arcade (/project/arcade)
-// - Preview type "wordle" replaced with "arcade"
-// - Arcade preview component added, wordle preview removed
-// - House Rules game project card added (/project/house-rules)
-// - Grid now has 7 cards, using xl:grid-cols-3
+"use client";
 
 import Link from "next/link";
+import {
+  useRef,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import {
+  useBackendStatus,
+  type BackendStatus,
+} from "../components/SiteHeader";
+
+type ProjectRuntime = "browser" | "backend" | "hybrid";
 
 type Project = {
   title: string;
@@ -14,211 +19,153 @@ type Project = {
   summary: string;
   action: string;
   tech: string[];
+  runtime: ProjectRuntime;
   preview:
     | "texvoice"
     | "terminal"
     | "rhythm"
     | "toolbox"
     | "arcade"
-    | "houseRules"
-    | "finance";
+    | "houseRules";
 };
 
 const projects: Project[] = [
   {
-    title: "TexVoice",
-    href: "/project/texvoice",
-    summary:
-      "A tool for turning long LaTeX or plain-text notes into audio, chapters, logs, and browser playback.",
-    action: "Open project",
-    tech: ["Python", "FastAPI", "React", "TypeScript", "TTS"],
-    preview: "texvoice",
-  },
-  {
     title: "Terminal FX",
     href: "/project/terminal-fx",
     summary:
-      "A Rust terminal wallpaper engine with animated ASCII modes, ANSI rendering, and performance-focused terminal visuals.",
-    action: "Open project",
-    tech: ["Rust", "ANSI", "Terminal UI", "Performance"],
+      "Animated terminal wallpapers in two engines: streamed Python ANSI scenes and a faster Rust/WebAssembly canvas collection.",
+    action: "Explore both engines",
+    tech: ["Python", "Rust", "WebAssembly", "Canvas"],
+    runtime: "hybrid",
     preview: "terminal",
-  },
-  {
-    title: "Rhythm Sync",
-    href: "/project/rhythm-sync",
-    summary:
-      "A real-time rhythm duel game with WebSocket match state, beat timing, nerves, accuracy, taunts, and d100 shootouts.",
-    action: "Open project",
-    tech: ["React", "Python", "FastAPI", "WebSockets", "Game UI"],
-    preview: "rhythm",
-  },
-  {
-    title: "Finance Lab",
-    href: "/project/finance-lab",
-    summary:
-      "A stock-buying simulator for testing what an account would look like after buying specific stocks at specific prices and dates.",
-    action: "Open project",
-    tech: ["React", "Finance", "Simulation", "Local Storage", "FastAPI"],
-    preview: "finance",
-  },
-  {
-    title: "Toolbox",
-    href: "/project/toolbox",
-    summary:
-      "Small utilities, scripts, converters, and calculators collected into one place instead of scattered folders.",
-    action: "Open project",
-    tech: ["TypeScript", "React", "Python", "FastAPI"],
-    preview: "toolbox",
-  },
-  {
-    title: "Arcade",
-    href: "/project/arcade",
-    summary:
-      "Browser games built from scratch: Blackjack, Snake, and Flappy Bird. Replaced the original Wordle project page.",
-    action: "Open project",
-    tech: ["React", "Canvas", "TypeScript", "Game UI"],
-    preview: "arcade",
   },
   {
     title: "House Rules",
     href: "/project/house-rules",
     summary:
-      "A blackjack roguelite about pull choices, table targets, boss rules, artifacts, shops, and saved run history.",
-    action: "Play game",
-    tech: ["React", "TypeScript", "Game Design", "Local Storage"],
+      "A blackjack-inspired roguelite with multiple modes, bosses, artifacts, events, shops, achievements, and saved runs.",
+    action: "Play the game",
+    tech: ["React", "TypeScript", "Game Systems", "Local Storage"],
+    runtime: "browser",
     preview: "houseRules",
+  },
+  {
+    title: "TexVoice",
+    href: "/project/texvoice",
+    summary:
+      "A LaTeX and PDF workspace that generates audio, chapters, timestamps, logs, and an in-browser reading view.",
+    action: "Open TexVoice",
+    tech: ["Python", "FastAPI", "LaTeX", "TTS"],
+    runtime: "backend",
+    preview: "texvoice",
+  },
+  {
+    title: "Arcade",
+    href: "/project/arcade",
+    summary:
+      "Six ad-free browser games, including more customizable versions of Wordle and Letter Connect.",
+    action: "Enter the arcade",
+    tech: ["React", "Canvas", "TypeScript", "Game Logic"],
+    runtime: "browser",
+    preview: "arcade",
+  },
+  {
+    title: "Toolbox",
+    href: "/project/toolbox",
+    summary:
+      "Small scripts and calculators kept together because each solved a specific problem or was useful enough to save.",
+    action: "Open the toolbox",
+    tech: ["TypeScript", "React", "Python", "FastAPI"],
+    runtime: "browser",
+    preview: "toolbox",
+  },
+  {
+    title: "Rhythm Sync",
+    href: "/project/rhythm-sync",
+    summary:
+      "A WebSocket rhythm duel with changing tempos, timing-based combat, AI opponents, multiplayer ready-up, and a campaign.",
+    action: "Try the experiment",
+    tech: ["React", "Python", "FastAPI", "WebSockets", "Game UI"],
+    runtime: "backend",
+    preview: "rhythm",
   },
 ];
 
-const skills = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Tailwind",
-  "Python",
-  "FastAPI",
-  "Rust",
-  "C#",
-  "SQL",
-];
-
 export default function HomePage() {
+  const backendStatus = useBackendStatus();
+  const browserProjects = projects.filter(
+    (project) => project.runtime !== "backend"
+  );
+  const serverProjects = projects.filter(
+    (project) => project.runtime === "backend"
+  );
+
   return (
-    <main className="min-h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <section className="px-6 py-16 md:py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">
-                Oscar Johnson
-              </p>
-
-              <h1 className="mt-5 text-4xl font-bold tracking-tight text-white md:text-6xl">
-                Web software projects, tools, and experiments.
-              </h1>
-
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                This is a portfolio and archive for projects I have built while
-                learning frontend, backend, systems, and app development. Some
-                are polished tools, some are older projects cleaned up enough to
-                run here, and some show the path between the two.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="#projects"
-                  className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-                >
-                  View projects
-                </Link>
-
-                <Link
-                  href="/about"
-                  className="rounded-2xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-300 hover:text-cyan-200"
-                >
-                  About this portfolio
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-slate-800 bg-slate-900/55 p-6">
-              <h2 className="text-xl font-semibold text-white">
-                Why this site exists
-              </h2>
-
-              <p className="mt-4 leading-8 text-slate-300">
-                My older portfolio could show that projects existed, but it did
-                not make them easy to try. This version is meant to host the
-                apps, keep the source linked, and give each project enough
-                context to show what I was trying to learn or solve.
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs font-medium text-slate-300"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+    <main className="home-shell min-h-screen overflow-hidden">
+      <section className="px-6 pb-7 pt-10 md:pt-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 border-b border-[var(--border)] pb-7 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="eyebrow text-xs font-bold uppercase tracking-[0.25em]">
+              Portfolio
+            </p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--foreground)] md:text-4xl">
+              Projects
+            </h1>
+            <p className="mt-3 max-w-2xl text-[var(--muted)]">
+              Games, utilities, visual experiments, and larger systems. Open any
+              project to use it or see how it works.
+            </p>
           </div>
+          <Link
+            href="/about"
+            className="site-link w-fit text-sm font-semibold transition"
+          >
+            About this portfolio →
+          </Link>
         </div>
       </section>
 
-      <section
-        id="projects"
-        className="border-y border-slate-800/80 bg-slate-900/35 px-6 py-16"
-      >
+      <section id="projects" className="px-6 pb-20 pt-4">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
-              Projects
+          <div className="mb-5">
+            <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
+              Available now
             </p>
-
-            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
-              Work that can be opened, tested, or inspected.
+            <h2 className="section-title mt-1 text-xl font-semibold">
+              Runs in the browser
             </h2>
-
-            <p className="mt-4 leading-8 text-slate-300">
-              Each card links to a project page. The page may contain a working
-              app, a demo, a technical writeup, a download, or a cleaned-up
-              version of an older project.
-            </p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project) => (
-              <ProjectCard key={project.title} project={project} />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {browserProjects.map((project) => (
+              <InteractiveProjectCard
+                key={project.title}
+                project={project}
+                backendStatus={backendStatus}
+              />
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className="px-6 py-16">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
-              Notes
+          <div className="mb-5 mt-12">
+            <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
+              Live services
             </p>
-
-            <h2 className="mt-3 text-3xl font-bold text-white">
-              A portfolio, but also a place to keep projects alive.
+            <h2 className="section-title mt-1 text-xl font-semibold">
+              Connects to the project server
             </h2>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <InfoCard
-              title="Older work stays useful"
-              text="Projects can stay visible without pretending the first version was perfect. The original source still matters, but the page can run in the current site."
-            />
+          <BackendNotice status={backendStatus} />
 
-            <InfoCard
-              title="Tools can grow into systems"
-              text="Projects like TexVoice can start as one app and later connect to saved notes, generated audio, PDFs, logs, or a small backend library."
-            />
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {serverProjects.map((project) => (
+              <InteractiveProjectCard
+                key={project.title}
+                project={project}
+                backendStatus={backendStatus}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -226,37 +173,227 @@ export default function HomePage() {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function BackendNotice({ status }: { status: BackendStatus }) {
+  const message =
+    status === "online"
+      ? "The project server is online. Live audio, streaming, and multiplayer features are ready."
+      : status === "offline"
+        ? "The live server is temporarily offline. These project pages still open, but their generated audio and multiplayer features will wait for the server to return."
+        : "The live server has not been connected to this deployment yet. These project pages remain available while their server-powered features stay paused.";
+
+  return (
+    <div
+      className="backend-notice flex items-start gap-3 rounded-2xl px-4 py-3 text-sm leading-6"
+      data-status={status}
+    >
+      <span
+        className="status-dot mt-2 h-2 w-2 shrink-0 rounded-full"
+        data-status={status}
+      />
+      <p>{message}</p>
+    </div>
+  );
+}
+
+type CardStyle = CSSProperties & {
+  "--mouse-x": string;
+  "--mouse-y": string;
+  "--rotate-x": string;
+  "--rotate-y": string;
+  "--shadow-x": string;
+  "--shadow-y": string;
+};
+
+function InteractiveProjectCard({
+  project,
+  backendStatus,
+}: {
+  project: Project;
+  backendStatus: BackendStatus;
+}) {
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const pointer = useRef({
+    id: -1,
+    startX: 0,
+    startY: 0,
+    moved: false,
+    active: false,
+  });
+  const suppressNextClick = useRef(false);
+
+  const usesBackend = project.runtime !== "browser";
+  const backendUnavailable = usesBackend && backendStatus !== "online";
+  const runtimeState = backendUnavailable
+    ? "offline"
+    : usesBackend
+      ? "online"
+      : "browser";
+  const runtimeLabel = getRuntimeLabel(project.runtime, backendStatus);
+
+  function updateCard(clientX: number, clientY: number, strength = 1) {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+    const rotateY = (x - 0.5) * 7 * strength;
+    const rotateX = (0.5 - y) * 6 * strength;
+    const shadowX = (0.5 - x) * 22 * strength;
+    const shadowY = 14 + (0.5 - y) * 12 * strength;
+
+    card.style.setProperty("--mouse-x", `${x * 100}%`);
+    card.style.setProperty("--mouse-y", `${y * 100}%`);
+    card.style.setProperty("--rotate-x", `${rotateX}deg`);
+    card.style.setProperty("--rotate-y", `${rotateY}deg`);
+    card.style.setProperty("--shadow-x", `${shadowX}px`);
+    card.style.setProperty("--shadow-y", `${shadowY}px`);
+    card.dataset.active = "true";
+  }
+
+  function resetCard() {
+    const card = cardRef.current;
+    if (!card) return;
+
+    card.style.setProperty("--mouse-x", "50%");
+    card.style.setProperty("--mouse-y", "50%");
+    card.style.setProperty("--rotate-x", "0deg");
+    card.style.setProperty("--rotate-y", "0deg");
+    card.style.setProperty("--shadow-x", "0px");
+    card.style.setProperty("--shadow-y", "16px");
+    card.dataset.active = "false";
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLAnchorElement>) {
+    pointer.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+      active: true,
+    };
+
+    if (event.pointerType !== "mouse") {
+      event.currentTarget.setPointerCapture(event.pointerId);
+      updateCard(event.clientX, event.clientY, 0.8);
+    }
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLAnchorElement>) {
+    if (event.pointerType === "mouse") {
+      updateCard(event.clientX, event.clientY);
+      return;
+    }
+
+    if (!pointer.current.active || pointer.current.id !== event.pointerId) return;
+
+    const distance = Math.hypot(
+      event.clientX - pointer.current.startX,
+      event.clientY - pointer.current.startY
+    );
+    if (distance > 9) pointer.current.moved = true;
+    updateCard(event.clientX, event.clientY, 0.8);
+  }
+
+  function finishPointer(event: ReactPointerEvent<HTMLAnchorElement>) {
+    if (pointer.current.id === event.pointerId) {
+      suppressNextClick.current = pointer.current.moved;
+      pointer.current.active = false;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    resetCard();
+  }
+
+  const initialStyle: CardStyle = {
+    "--mouse-x": "50%",
+    "--mouse-y": "50%",
+    "--rotate-x": "0deg",
+    "--rotate-y": "0deg",
+    "--shadow-x": "0px",
+    "--shadow-y": "16px",
+  };
+
   return (
     <Link
+      ref={cardRef}
       href={project.href}
-      className="group flex min-h-[28rem] flex-col rounded-[1.75rem] border border-slate-800 bg-slate-900/60 p-4 transition hover:-translate-y-1 hover:border-cyan-400/70 hover:bg-slate-900"
+      className="project-card group flex min-h-[22rem] touch-pan-y flex-col p-4"
+      style={initialStyle}
+      data-backend={backendUnavailable ? "offline" : "available"}
+      data-active="false"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={finishPointer}
+      onPointerCancel={finishPointer}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse" && !pointer.current.active) resetCard();
+      }}
+      onClick={(event) => {
+        if (suppressNextClick.current) {
+          event.preventDefault();
+          suppressNextClick.current = false;
+        }
+      }}
     >
-      <Preview type={project.preview} />
-
-      <div className="mt-5">
-        <h3 className="text-2xl font-semibold text-white">{project.title}</h3>
-        <p className="mt-3 leading-7 text-slate-300">{project.summary}</p>
+      <div className="project-card__preview">
+        <Preview type={project.preview} />
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        {project.tech.map((item) => (
+      <div className="project-card__content flex flex-1 flex-col">
+        <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
+          <h3 className="project-title text-xl font-semibold">
+            {project.title}
+          </h3>
           <span
-            key={item}
-            className="rounded-full bg-slate-950 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-slate-800"
+            className="runtime-badge rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em]"
+            data-state={runtimeState}
           >
-            {item}
+            {runtimeLabel}
           </span>
-        ))}
-      </div>
+        </div>
 
-      <div className="mt-auto pt-6">
-        <span className="inline-flex rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-950 transition group-hover:bg-cyan-300">
-          {project.action}
-        </span>
+        <p className="project-summary mt-2 text-sm leading-6">{project.summary}</p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {project.tech.slice(0, 3).map((item) => (
+            <span
+              key={item}
+              className="project-tag rounded-full px-3 py-1 text-xs font-medium"
+            >
+              {item}
+            </span>
+          ))}
+          {project.tech.length > 3 && (
+            <span className="project-tag rounded-full px-3 py-1 text-xs font-medium">
+              +{project.tech.length - 3}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-auto pt-6">
+          <span className="project-action inline-flex rounded-xl px-4 py-2 text-sm font-semibold transition">
+            {project.action} <span className="ml-2" aria-hidden="true">→</span>
+          </span>
+        </div>
       </div>
     </Link>
   );
+}
+
+function getRuntimeLabel(
+  runtime: ProjectRuntime,
+  backendStatus: BackendStatus
+) {
+  if (runtime === "browser") return "Runs in browser";
+  if (runtime === "backend") {
+    return backendStatus === "online" ? "Live service online" : "Live service offline";
+  }
+  return backendStatus === "online"
+    ? "Browser + live service"
+    : "Browser mode available";
 }
 
 
@@ -289,30 +426,55 @@ function MiniCard({
   );
 }
 
-function InfoCard({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-3 leading-7 text-slate-400">{text}</p>
-    </div>
-  );
-}
-
 function Preview({ type }: { type: Project["preview"] }) {
   if (type === "terminal") {
     return (
-      <div className="h-44 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-cyan-200">
-        <div className="mb-3 flex gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-        </div>
-        <pre className="leading-5 text-cyan-300/80">{`> terminal-fx --mode nebula
+      <div className="grid h-44 grid-cols-[1.15fr_0.85fr] overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 font-mono text-xs text-cyan-200">
+        <div className="border-r border-slate-800 p-4">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-slate-700" />
+              <span className="h-2 w-2 rounded-full bg-slate-700" />
+              <span className="h-2 w-2 rounded-full bg-slate-700" />
+            </div>
+            <span className="text-[9px] uppercase tracking-[0.18em] text-cyan-300/60">
+              Python · 15+
+            </span>
+          </div>
+          <pre className="leading-5 text-cyan-300/80">{`> mode nebula
 
    .  *     .       *
  ~~~\\___/~~~~~\\___/~~
-  .*   ANSI FIELD   *.
- [fps:45] [diff:on]`}</pre>
+   .*  ANSI FIELD  *.
+  [stream: live]`}</pre>
+        </div>
+
+        <div className="relative flex flex-col p-4">
+          <span className="text-right text-[9px] uppercase tracking-[0.18em] text-violet-300/70">
+            Rust/WASM · 30+
+          </span>
+          <div className="mt-4 grid flex-1 grid-cols-7 content-center gap-1">
+            {[
+              0, 0, 1, 0, 1, 0, 0,
+              0, 1, 1, 1, 1, 1, 0,
+              1, 1, 2, 1, 2, 1, 1,
+              0, 1, 1, 1, 1, 1, 0,
+              0, 0, 1, 2, 1, 0, 0,
+              0, 1, 0, 1, 0, 1, 0,
+            ].map((cell, index) => (
+              <span
+                key={index}
+                className={`aspect-square rounded-[2px] ${
+                  cell === 2
+                    ? "bg-amber-300 shadow-[0_0_7px_rgba(252,211,77,.65)]"
+                    : cell === 1
+                      ? "bg-violet-400/80"
+                      : "bg-slate-900"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -353,82 +515,10 @@ function Preview({ type }: { type: Project["preview"] }) {
     );
   }
 
-  if (type === "finance") {
-    return (
-      <div className="relative h-44 overflow-hidden rounded-3xl border border-emerald-700/40 bg-slate-950 p-4">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_18rem)]" />
-
-        <div className="relative flex items-start justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-emerald-300/80">
-              Finance Lab
-            </p>
-            <p className="mt-2 font-mono text-2xl font-bold text-white">
-              $12,840
-            </p>
-            <p className="mt-1 font-mono text-xs text-emerald-300">
-              +28.4% simulated
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-400/10 px-3 py-2 text-right">
-            <p className="text-[9px] uppercase tracking-[0.22em] text-emerald-200/60">
-              Cash
-            </p>
-            <p className="font-mono text-sm font-bold text-emerald-200">
-              $1.2k
-            </p>
-          </div>
-        </div>
-
-        <div className="relative mt-5 h-16 rounded-2xl border border-slate-800 bg-slate-900/80 p-3">
-          <svg viewBox="0 0 240 56" className="h-full w-full" aria-hidden="true">
-            <polyline
-              points="0,42 24,38 48,44 72,30 96,34 120,22 144,26 168,16 192,20 216,10 240,14"
-              fill="none"
-              stroke="rgb(110 231 183)"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <polyline
-              points="0,48 24,46 48,45 72,43 96,40 120,39 144,35 168,34 192,31 216,29 240,27"
-              fill="none"
-              stroke="rgb(51 65 85)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div className="absolute bottom-4 left-4 right-4 grid grid-cols-3 gap-2 text-center">
-          {[
-            ["AAPL", "+12%"],
-            ["NVDA", "+41%"],
-            ["VOO", "+8%"],
-          ].map(([symbol, change]) => (
-            <div
-              key={symbol}
-              className="rounded-xl border border-slate-800 bg-slate-950/80 px-2 py-2"
-            >
-              <p className="font-mono text-xs font-bold text-slate-200">
-                {symbol}
-              </p>
-              <p className="font-mono text-[10px] text-emerald-300">
-                {change}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   if (type === "toolbox") {
     return (
       <div className="grid h-44 grid-cols-2 gap-3 rounded-3xl border border-slate-800 bg-slate-950 p-4">
-        {["Convert", "Calculate", "Format", "Export"].map((item) => (
+        {["Electron shells", "Even divisions", "Quick audio", "More scripts"].map((item) => (
           <div
             key={item}
             className="flex items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-sm font-medium text-slate-300"

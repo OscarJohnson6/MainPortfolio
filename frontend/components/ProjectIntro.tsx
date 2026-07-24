@@ -12,25 +12,25 @@ export default function ProjectIntro({
   tech = [],
 }: ProjectIntroProps) {
   return (
-    <header className="mb-10">
-      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
+    <header className="project-intro mb-8">
+      <p className="eyebrow text-sm font-semibold uppercase tracking-[0.25em]">
         {eyebrow}
       </p>
 
-      <h1 className="mt-3 text-4xl font-bold text-white md:text-5xl">
+      <h1 className="project-intro-title mt-2 text-3xl font-bold md:text-4xl">
         {title}
       </h1>
 
-      <p className="mt-4 max-w-3xl leading-8 text-slate-300">
+      <p className="project-intro-description mt-3 max-w-3xl leading-7">
         {description}
       </p>
 
       {tech.length > 0 && (
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           {tech.map((item) => (
             <span
               key={item}
-              className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300"
+              className="project-tech rounded-full px-3 py-1 text-xs font-medium"
             >
               {item}
             </span>

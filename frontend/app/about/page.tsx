@@ -1,163 +1,162 @@
-// destination: src/app/about/page.tsx
-
 import Link from "next/link";
 
 export const metadata = {
   title: "About",
   description:
-    "About Oscar Johnson, OJ Builds, and the reasoning behind the portfolio projects.",
+    "About Oscar Johnson and the games, utilities, and software experiments in this portfolio.",
 };
 
-const skills = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Tailwind",
-  "Python",
-  "FastAPI",
-  "Rust",
-  "C#",
-  "SQL",
-  "Java",
-  "PHP",
-];
-
-// Was: 3 entries (portfolio, Wordle, TexVoice only).
-// Added: Terminal FX, Rhythm Sync, Toolbox.
-const projectReasons = [
+const stackGroups = [
   {
-    title: "This portfolio",
-    text: "My first portfolio helped me try React and connect a Java backend for a school CRUD project, but I was not satisfied with it. It felt more like a list of links than a place where the work could actually run. This version is meant to host the projects, archive them, and give each one a page that fits what it actually is.",
+    label: "Frontend",
+    items: ["React", "Next.js", "TypeScript", "Tailwind", "Canvas"],
   },
   {
-    title: "Wordle",
-    text: "Wordle was my first real attempt at making a game without a school outline or jumping into something too large. The original version helped me practice JavaScript, DOM manipulation, input handling, and game-state logic. The portfolio version keeps that project visible while cleaning it up for the current site.",
+    label: "Backend",
+    items: ["Python", "FastAPI", "WebSockets", "SQL", "TTS"],
+  },
+  {
+    label: "Other",
+    items: ["Rust", "WebAssembly", "C#", "LaTeX", "CLI tools"],
+  },
+];
+
+const projectNotes = [
+  {
+    title: "Terminal FX",
+    text: "Terminal animations built in Python and Rust. The browser version includes streamed ANSI modes and a separate WebAssembly canvas renderer.",
+  },
+  {
+    title: "House Rules",
+    text: "A blackjack-inspired roguelite with several play styles, bosses, artifacts, events, shops, achievements, and saved runs.",
   },
   {
     title: "TexVoice",
-    text: "TexVoice came from a practical problem: I had long LaTeX note files from school and wanted a way to turn them into audio with chapters, logs, and playback. I also wanted a better way to handle long PDFs and notes without depending on heavy or paid tools.",
+    text: "A tool for turning LaTeX notes and PDFs into structured audio with chapters, timestamps, logs, and a reading view.",
   },
   {
-    title: "Terminal FX",
-    text: "The idea behind Terminal FX was to make the terminal look like something more than a text box. The Python version runs animation modes and streams them to the browser through WebSockets and xterm.js. The Rust version is a separate native app with more modes and better performance. There is also a Rust/WASM path being explored for rendering pixel-based modes directly on a canvas.",
+    title: "Arcade and Toolbox",
+    text: "Smaller browser games, calculators, and scripts that are useful or interesting enough to keep available in one place.",
   },
   {
     title: "Rhythm Sync",
-    text: "Rhythm Sync came from a school multiplayer and networking assignment. I kept working on it after the deadline and it turned into a real-time rhythm duel with WebSocket match state, campaign mode, AI opponents with distinct personalities, boss abilities, and a campaign map. It replaced the older Target Transmission placeholder and ended up being the most fully built project in the portfolio.",
-  },
-  {
-    title: "Toolbox",
-    text: "Toolbox exists because I kept writing small utility scripts in separate folders and losing them. The current tools are an electron shell calculator ported from Python and an even division finder that helps with LED animation timing and brightness step calculations. The goal is to keep adding things that solve a specific annoyance without duplicating what TexVoice or other projects already do.",
+    text: "A WebSocket rhythm game with AI opponents, multiplayer ready-up, changing tempos, and a campaign mode.",
   },
 ];
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
-      <section className="mx-auto max-w-7xl">
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-cyan-300">
-              About
-            </p>
-
-            <h1 className="mt-5 text-5xl font-bold tracking-tight text-white md:text-6xl">
-              Oscar Johnson
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-              I build web apps, backend tools, terminal projects, and practical
-              systems while studying computer science and software development.
-              This site is where I can keep those projects usable instead of
-              leaving them only as repository links.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link
-                href="/"
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-              >
-                View projects
-              </Link>
-
-              <a
-                href="https://github.com/OscarJohnson6"
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-2xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-300 hover:text-cyan-200"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-slate-800 bg-slate-900/60 p-6">
-            <h2 className="text-xl font-semibold text-white">
-              What I am trying to show
-            </h2>
-
-            <p className="mt-3 leading-7 text-slate-400">
-              I care about projects that do something: process files, render an
-              interface, manage state, connect to an API, run in the terminal, or
-              solve a real annoyance I had. The goal is not to make every project
-              look identical. The goal is to make each one understandable and,
-              when possible, usable from the browser.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              {skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-300"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <section className="mt-14">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
-            Reasoning
+    <main className="site-shell min-h-screen px-6 pb-20 pt-10 md:pt-12">
+      <div className="mx-auto max-w-7xl">
+        <section className="border-b border-[var(--border)] pb-8">
+          <p className="eyebrow text-xs font-bold uppercase tracking-[0.25em]">
+            About
           </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--foreground)] md:text-4xl">
+            About this portfolio
+          </h1>
+          <div className="mt-4 max-w-3xl space-y-3 leading-7 text-[var(--muted)]">
+            <p>
+              I&apos;m Oscar Johnson, a computer science student. This portfolio
+              keeps the games, utilities, backend services, and visual projects
+              I&apos;ve built in one place.
+            </p>
+            <p>
+              Some started as coursework, some solved a problem I had, and some
+              were ideas I wanted to test. I keep the useful or interesting parts
+              available even when I stop actively developing a project.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/#projects"
+              className="accent-button rounded-xl px-4 py-2.5 text-sm font-semibold transition"
+            >
+              View projects
+            </Link>
+            <a
+              href="https://github.com/OscarJohnson6/MainPortfolio"
+              target="_blank"
+              rel="noreferrer"
+              className="surface-button rounded-xl px-4 py-2.5 text-sm font-semibold transition"
+            >
+              GitHub repository
+            </a>
+          </div>
+        </section>
 
-          <h2 className="mt-3 max-w-3xl text-3xl font-bold text-white">
-            Why these projects are here
-          </h2>
-
-          {/* Grid updated from lg:grid-cols-3 (3 items) to md:grid-cols-2 lg:grid-cols-3 (6 items) */}
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {projectReasons.map((item) => (
+        <section className="grid gap-8 py-10 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
+            <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
+              Tools I use
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
+              The stack changes with the project.
+            </h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {stackGroups.map((group) => (
               <div
-                key={item.title}
-                className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6"
+                key={group.label}
+                className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4"
               >
-                <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-                <p className="mt-3 leading-7 text-slate-400">{item.text}</p>
+                <h3 className="accent-text text-xs font-bold uppercase tracking-[0.16em]">
+                  {group.label}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+                  {group.items.join(" · ")}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-14 rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
-            Next direction
+        <section className="border-t border-[var(--border)] pt-10">
+          <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
+            Project notes
           </p>
-
-          <h2 className="mt-3 text-3xl font-bold text-white">
-            Notes, audio, and generated files may become their own library.
+          <h2 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
+            What the larger projects do
           </h2>
 
-          <p className="mt-4 max-w-4xl leading-8 text-slate-300">
-            TexVoice could eventually connect to a small collection of prepared
-            notes: PDF files, generated audio, chapters, and logs. That would let
-            someone open a note set and listen without regenerating the audio.
-            The upload and generation tool can stay separate from the archived
-            notes so the app does not become cluttered.
-          </p>
+          <div className="mt-6 divide-y divide-[var(--border)] border-y border-[var(--border)]">
+            {projectNotes.map((project) => (
+              <article
+                key={project.title}
+                className="grid gap-2 py-5 md:grid-cols-[12rem_1fr] md:gap-8"
+              >
+                <h3 className="font-semibold text-[var(--foreground)]">
+                  {project.title}
+                </h3>
+                <p className="max-w-3xl text-sm leading-6 text-[var(--muted)]">
+                  {project.text}
+                </p>
+              </article>
+            ))}
+          </div>
         </section>
-      </section>
+
+        <section className="mt-10 grid gap-3 md:grid-cols-2">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <h2 className="font-semibold text-[var(--foreground)]">
+              Browser projects
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              Vercel hosts the portfolio, games, browser tools, and Rust/WASM
+              renderer. These work without my Raspberry Pi.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <h2 className="font-semibold text-[var(--foreground)]">
+              Raspberry Pi services
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              The Pi runs FastAPI for Python animations, document processing,
+              generated audio, and WebSocket features when it is online.
+            </p>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

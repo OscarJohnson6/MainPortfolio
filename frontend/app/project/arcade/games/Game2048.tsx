@@ -376,7 +376,6 @@ export default function Game2048({ onBack }: { onBack?: () => void }) {
 
   const boardStyle = {
     "--gap": "0.75rem",
-    "--cell-size": "calc((100% - (var(--gap) * 3)) / 4)",
     maxWidth: isFullscreen ? "min(82vh, 92vw)" : "26rem",
   } as CSSProperties;
 
@@ -466,12 +465,22 @@ export default function Game2048({ onBack }: { onBack?: () => void }) {
 
         <div className="pointer-events-none absolute inset-3">
           {tiles.map((tile) => {
+            // Percentages inside transform() resolve against the tile itself, not
+            // the board. Position with left/top instead so every tile uses the
+            // exact same four-column geometry as the background grid.
+            const columnGapOffset = tile.col * 0.1875;
+            const rowGapOffset = tile.row * 0.1875;
+
             const tileStyle: CSSProperties = {
-              width: "var(--cell-size)",
-              height: "var(--cell-size)",
-              transform: `translate3d(calc(${tile.col} * (var(--cell-size) + var(--gap))), calc(${tile.row} * (var(--cell-size) + var(--gap))), 0)`,
-              transition: `transform ${MOVE_MS}ms cubic-bezier(0.2, 0.86, 0.24, 1)`,
-              willChange: "transform",
+              width: "calc((100% - 2.25rem) / 4)",
+              height: "calc((100% - 2.25rem) / 4)",
+              left: `calc(${tile.col * 25}% + ${columnGapOffset}rem)`,
+              top: `calc(${tile.row * 25}% + ${rowGapOffset}rem)`,
+              transition: [
+                `left ${MOVE_MS}ms cubic-bezier(0.2, 0.86, 0.24, 1)`,
+                `top ${MOVE_MS}ms cubic-bezier(0.2, 0.86, 0.24, 1)`,
+              ].join(", "),
+              willChange: "left, top",
               zIndex: tile.justMerged ? 3 : tile.value,
             };
 
@@ -486,7 +495,7 @@ export default function Game2048({ onBack }: { onBack?: () => void }) {
             return (
               <div
                 key={tile.id}
-                className="absolute left-0 top-0"
+                className="absolute"
                 style={tileStyle}
               >
                 <div

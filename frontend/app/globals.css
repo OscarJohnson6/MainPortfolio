@@ -1,10 +1,72 @@
-/* destination: src/app/globals.css */
-
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #e2e8f0;
+  color-scheme: dark;
+  --background: #161719;
+  --background-soft: #1b1d20;
+  --surface: #202226;
+  --surface-strong: #292c31;
+  --foreground: #f4f4f5;
+  --muted: #b2b4b9;
+  --subtle: #7c8088;
+  --border: rgba(228, 228, 231, 0.13);
+  --border-strong: rgba(228, 228, 231, 0.24);
+  --shadow: rgba(0, 0, 0, 0.34);
+  --accent: #f59e0b;
+  --accent-strong: #fbbf24;
+  --accent-soft: rgba(245, 158, 11, 0.18);
+  --accent-faint: rgba(245, 158, 11, 0.09);
+  --accent-contrast: #1d1200;
+  --success: #34d399;
+  --danger: #fb7185;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --background: #f3f5f7;
+  --background-soft: #e7ebef;
+  --surface: #fafbfc;
+  --surface-strong: #ffffff;
+  --foreground: #17202b;
+  --muted: #536171;
+  --subtle: #7b8795;
+  --border: rgba(29, 43, 58, 0.14);
+  --border-strong: rgba(29, 43, 58, 0.26);
+  --shadow: rgba(24, 39, 56, 0.2);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-faint: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+html[data-accent="copper"] {
+  --accent: #f59e0b;
+  --accent-strong: #fbbf24;
+  --accent-soft: rgba(245, 158, 11, 0.18);
+  --accent-faint: rgba(245, 158, 11, 0.09);
+  --accent-contrast: #1d1200;
+}
+
+html[data-accent="moss"] {
+  --accent: #22c55e;
+  --accent-strong: #4ade80;
+  --accent-soft: rgba(34, 197, 94, 0.18);
+  --accent-faint: rgba(34, 197, 94, 0.09);
+  --accent-contrast: #041a0c;
+}
+
+html[data-accent="violet"] {
+  --accent: #8b5cf6;
+  --accent-strong: #a78bfa;
+  --accent-soft: rgba(139, 92, 246, 0.2);
+  --accent-faint: rgba(139, 92, 246, 0.1);
+  --accent-contrast: #13062d;
+}
+
+html[data-accent="cyan"] {
+  --accent: #06b6d4;
+  --accent-strong: #22d3ee;
+  --accent-soft: rgba(6, 182, 212, 0.2);
+  --accent-faint: rgba(6, 182, 212, 0.1);
+  --accent-contrast: #03191d;
 }
 
 @theme inline {
@@ -19,36 +81,363 @@
 }
 
 html {
+  min-height: 100%;
   background: var(--background);
 }
 
 body {
   min-height: 100vh;
+  margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 28rem),
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 26rem),
+    radial-gradient(circle at 8% -8%, var(--accent-faint), transparent 28rem),
     var(--background);
   color: var(--foreground);
-  /* Removed: font-family: Arial, Helvetica, sans-serif;
-     Geist Sans is set via --font-sans in @theme inline above
-     and applied through the font-sans class on <html> in layout.tsx */
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
-::selection {
-  background: rgba(103, 232, 249, 0.32);
-  color: #f8fafc;
-}
-
-button,
 a,
+button,
 input,
 select,
 textarea {
-  outline-color: #67e8f9;
+  outline-color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
 }
 
 code,
 pre,
 .font-mono {
   font-family: var(--font-geist-mono), "Cascadia Code", "Fira Code", monospace;
+}
+
+.site-body,
+.site-shell,
+.home-shell {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.site-header {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+}
+
+.site-footer {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--background-soft) 82%, transparent);
+  color: var(--subtle);
+}
+
+.site-link,
+.muted-copy {
+  color: var(--muted);
+}
+
+.site-link:hover,
+.site-link:focus-visible,
+.accent-text,
+.eyebrow {
+  color: var(--accent-strong);
+}
+
+.accent-button {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.accent-button:hover {
+  background: var(--accent-strong);
+}
+
+.surface-button {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  color: var(--muted);
+}
+
+.surface-button:hover,
+.surface-button[aria-expanded="true"] {
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+  color: var(--foreground);
+}
+
+.theme-panel {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-strong) 96%, transparent);
+  box-shadow: 0 1.25rem 3rem var(--shadow);
+  color: var(--foreground);
+}
+
+.theme-choice {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.theme-choice:hover,
+.theme-choice[data-active="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+.accent-swatch {
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+.accent-swatch[data-active="true"] {
+  border-color: var(--surface-strong);
+  box-shadow: 0 0 0 2px var(--foreground);
+}
+
+.mobile-menu {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--background) 96%, transparent);
+}
+
+.status-dot {
+  background: var(--subtle);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--subtle) 12%, transparent);
+}
+
+.status-dot[data-status="online"] {
+  background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent);
+}
+
+.status-dot[data-status="offline"] {
+  background: var(--danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.section-title,
+.project-title,
+.project-intro-title {
+  color: var(--foreground);
+}
+
+.section-copy,
+.project-summary,
+.project-intro-description {
+  color: var(--muted);
+}
+
+.backend-notice {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  color: var(--muted);
+}
+
+.backend-notice[data-status="online"] {
+  border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.backend-notice[data-status="offline"] {
+  border-color: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.project-card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  --shadow-x: 0px;
+  --shadow-y: 1rem;
+  --lift: 0px;
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--border);
+  border-radius: 1.75rem;
+  background:
+    radial-gradient(
+      26rem circle at var(--mouse-x) var(--mouse-y),
+      var(--accent-soft),
+      transparent 58%
+    ),
+    color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow:
+    var(--shadow-x) var(--shadow-y) 1.8rem var(--shadow),
+    inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
+  color: var(--foreground);
+  transform:
+    perspective(950px)
+    rotateX(var(--rotate-x))
+    rotateY(var(--rotate-y))
+    translateY(var(--lift));
+  transform-style: preserve-3d;
+  transition:
+    transform 150ms ease-out,
+    box-shadow 180ms ease-out,
+    border-color 180ms ease-out,
+    background-color 180ms ease-out;
+  will-change: transform;
+}
+
+.project-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent 38%,
+    color-mix(in srgb, var(--background) 18%, transparent)
+  );
+  content: "";
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.project-card[data-active="true"],
+.project-card:hover,
+.project-card:focus-visible {
+  --lift: -4px;
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+}
+
+.project-card[data-backend="offline"] {
+  border-style: dashed;
+}
+
+.project-card__content {
+  transform: translateZ(12px);
+}
+
+.project-card__preview {
+  transform: translateZ(18px);
+}
+
+.project-card__preview > * {
+  height: 9rem;
+}
+
+.project-tag,
+.runtime-badge {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background-soft) 86%, transparent);
+  color: var(--muted);
+}
+
+.runtime-badge[data-state="online"] {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  color: color-mix(in srgb, var(--success) 78%, var(--foreground));
+}
+
+.runtime-badge[data-state="offline"] {
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--border));
+  color: color-mix(in srgb, var(--danger) 76%, var(--foreground));
+}
+
+.project-action {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.project-card:hover .project-action,
+.project-card:focus-visible .project-action {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.project-intro {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2.5rem;
+}
+
+.project-tech {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.project-shelf-nav {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+}
+
+.project-shelf-link {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--muted);
+}
+
+.project-shelf-link:hover,
+.project-shelf-link:focus-visible,
+.project-shelf-link[data-active="true"] {
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+.project-shelf-dot {
+  background: var(--subtle);
+}
+
+.project-shelf-dot[data-state="browser"],
+.project-shelf-dot[data-state="online"] {
+  background: var(--success);
+}
+
+.project-shelf-dot[data-state="online"] {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 15%, transparent);
+}
+
+.project-shelf-dot[data-state="hybrid"] {
+  background: var(--accent);
+}
+
+.project-shelf-dot[data-state="offline"] {
+  background: var(--danger);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .project-card {
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      border-color 180ms ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .project-card {
+    --rotate-x: 0deg !important;
+    --rotate-y: 0deg !important;
+    --shadow-x: 0px !important;
+    --shadow-y: 1rem !important;
+  }
 }
