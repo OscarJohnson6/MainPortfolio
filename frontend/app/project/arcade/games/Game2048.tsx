@@ -481,7 +481,7 @@ export default function Game2048({ onBack }: { onBack?: () => void }) {
                 `top ${MOVE_MS}ms cubic-bezier(0.2, 0.86, 0.24, 1)`,
               ].join(", "),
               willChange: "left, top",
-              zIndex: tile.justMerged ? 3 : tile.value,
+              zIndex: tile.justMerged ? 20 : 10,
             };
 
             const contentStyle: CSSProperties = {
@@ -512,7 +512,7 @@ export default function Game2048({ onBack }: { onBack?: () => void }) {
         </div>
 
         {gameOver && (
-          <div className="absolute inset-3 flex flex-col items-center justify-center gap-4 rounded-[1.35rem] bg-slate-950/88 text-center backdrop-blur-sm">
+          <div className="absolute inset-3 z-50 flex flex-col items-center justify-center gap-4 rounded-[1.35rem] bg-slate-950/90 text-center shadow-2xl shadow-black/60 backdrop-blur-sm">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-red-300">Game over</p>
               <p className="mt-2 text-sm text-slate-400">No moves left. Final score: {score}</p>
