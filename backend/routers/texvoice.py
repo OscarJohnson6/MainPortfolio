@@ -11,6 +11,7 @@ import subprocess
 import time
 from urllib.parse import quote
 from uuid import uuid4
+import os
 
 from fastapi import File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -101,6 +102,11 @@ router.mount("/static/imports", StaticFiles(directory=IMPORTS_DIR), name="texvoi
 _SAFE_FILENAME_KEEP = {".", "-", "_"}
 _SAFE_SLUG_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
 
+PUBLIC_API_BASE_URL = os.getenv(
+    "PUBLIC_API_BASE_URL",
+    "http://127.0.0.1:8000",
+).rstrip("/")
+
 
 def safe_filename(name: str) -> str:
     keep: list[str] = []
@@ -134,14 +140,9 @@ def resolve_voice(profile: str, voice_preset: str | None, voice: str | None) -> 
 
     return PROFILES[profile]["voice"]
 
-
 def public_api_url(*parts: str) -> str:
-    """
-    The frontend currently talks to the backend at localhost:8000. Returning full
-    URLs keeps the existing frontend pattern working.
-    """
     cleaned = "/".join(part.strip("/") for part in parts if part)
-    return f"http://localhost:8000/api/texvoice/{cleaned}"
+    return f"{PUBLIC_API_BASE_URL}/api/texvoice/{cleaned}"
 
 
 def public_export_url(path: Path) -> str:

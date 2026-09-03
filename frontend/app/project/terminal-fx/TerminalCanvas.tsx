@@ -75,7 +75,33 @@ export function TerminalCanvas() {
         </div>
 
         <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="text-sm font-semibold text-white">Runtime</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-white">Runtime</p>
+
+            <a
+              href="/downloads/RustWallpaper/TerminalFX-Windows.zip"
+              download
+              title="Download native Rust build"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/70 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/70 hover:text-cyan-300"
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 2v8m0 0 3-3m-3 3L5 7M3 13h10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Download
+            </a>
+          </div>
 
           <div className="mt-3 space-y-2 text-sm text-slate-400">
             <div className="flex justify-between">
