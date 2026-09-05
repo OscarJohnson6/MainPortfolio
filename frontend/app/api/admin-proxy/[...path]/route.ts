@@ -6,7 +6,7 @@ import {
   ADMIN_COOKIE_NAME,
   isSameOriginRequest,
   verifyAdminSession,
-} from "@/app/lib/admin-auth";
+} from "@/app/hooks/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

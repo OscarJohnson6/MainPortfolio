@@ -6,7 +6,7 @@ import {
   createAdminSession,
   isSameOriginRequest,
   secretsMatch,
-} from "@/app/lib/admin-auth";
+} from "@/app/hooks/admin-auth";
 
 export const runtime = "nodejs";
 

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   ADMIN_COOKIE_NAME,
   verifyAdminSession,
-} from "@/app/lib/admin-auth";
+} from "@/app/hooks/admin-auth";
 
 export const runtime = "nodejs";
 

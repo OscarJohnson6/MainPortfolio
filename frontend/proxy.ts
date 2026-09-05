@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   ADMIN_COOKIE_NAME,
   verifyAdminSession,
-} from "@/lib/admin-auth";
+} from "@/app/hooks/admin-auth";
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
