@@ -79,7 +79,7 @@ export function TerminalCanvas() {
             <p className="text-sm font-semibold text-white">Runtime</p>
 
             <a
-              href="/downloads/RustWallpaper/TerminalFX-Windows.zip"
+              href="/downloads/RustWallpaper.zip"
               download
               title="Download native Rust build"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/70 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/70 hover:text-cyan-300"

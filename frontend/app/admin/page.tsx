@@ -1,169 +1,246 @@
 // destination: src/app/admin/page.tsx
+
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
+type Usage = { used_gb: number; total_gb: number; percent: number };
 type SystemStats = {
   available: boolean;
   cpu_percent: number;
-  memory: { used_gb: number; total_gb: number; percent: number };
-  disk: { used_gb: number; total_gb: number; percent: number };
+  cpu_count: number;
+  process_count: number;
+  memory: Usage;
+  swap: Usage;
+  disk: Usage;
   temperature: number | null;
   uptime_seconds: number;
   uptime_label: string;
   load_avg: [number, number, number];
 };
-
 type ServiceStatus = {
   name: string;
   status: "ok" | "degraded" | "error";
   latency_ms: number;
 };
-
-type AdminConfig = {
-  wol_mac: string;
-  hostname: string;
+type SystemdUnit = {
+  unit: string;
+  active: string;
+  sub: string;
+  restarts?: number;
+  exit_status?: number;
+  changed_at?: string | null;
+  error?: string;
 };
+type StorageEntry = {
+  path: string;
+  exists: boolean;
+  bytes: number;
+  size_mb: number;
+  files: number;
+};
+type Overview = {
+  generated_at: string;
+  hostname: string;
+  overall: "ok" | "degraded";
+  system: SystemStats;
+  services: ServiceStatus[];
+  systemd_units: SystemdUnit[];
+  deployment: {
+    commit: string | null;
+    short_commit: string | null;
+    recorded: boolean;
+    log: string[];
+    log_updated_at: string | null;
+  };
+  updates: {
+    reboot_required: boolean;
+    apt_history_updated_at: string | null;
+    apt_history_tail: string[];
+    unattended_upgrades_updated_at: string | null;
+  };
+  storage: Record<"uploads" | "exports" | "latex_library", StorageEntry>;
+  requests: { stored: number; server_errors: number };
+};
+type AdminConfig = { wol_mac: string; hostname: string };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-// All admin data calls go through the Next.js proxy at /api/admin-proxy/
-// The proxy validates the HTTP-only cookie before forwarding to FastAPI.
-async function proxyGet<T>(path: string): Promise<T> {
-  const res = await fetch(`/api/admin-proxy/${path}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`${path} returned ${res.status}`);
-  return res.json() as Promise<T>;
+class AdminRequestError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
 }
 
-async function proxyPost<T>(path: string, body: Record<string, string> = {}): Promise<T> {
-  const form = new FormData();
-  for (const [k, v] of Object.entries(body)) form.append(k, v);
-
-  const res = await fetch(`/api/admin-proxy/${path}`, { method: "POST", body: form });
-  if (!res.ok) {
-    const data = await res.json() as { detail?: string };
-    throw new Error(data.detail ?? `${path} returned ${res.status}`);
+async function proxyGet<T>(path: string): Promise<T> {
+  const response = await fetch(`/api/admin-proxy/${path}`, { cache: "no-store" });
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new AdminRequestError(data.error ?? `${path} returned ${response.status}`, response.status);
   }
-  return res.json() as Promise<T>;
+  return response.json() as Promise<T>;
+}
+
+async function proxyPost<T>(path: string, values: Record<string, string>): Promise<T> {
+  const body = new FormData();
+  Object.entries(values).forEach(([key, value]) => body.append(key, value));
+
+  const response = await fetch(`/api/admin-proxy/${path}`, { method: "POST", body });
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as {
+      detail?: string;
+      error?: string;
+    };
+    throw new AdminRequestError(
+      data.detail ?? data.error ?? `${path} returned ${response.status}`,
+      response.status,
+    );
+  }
+  return response.json() as Promise<T>;
 }
 
 function StatCard({
   label,
   value,
-  sub,
-  warn,
+  detail,
+  warning = false,
 }: {
   label: string;
   value: string;
-  sub?: string;
-  warn?: boolean;
+  detail?: string;
+  warning?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${warn ? "text-amber-300" : "text-white"}`}>
+      <p className={`mt-1 text-2xl font-bold ${warning ? "text-amber-300" : "text-white"}`}>
         {value}
       </p>
-      {sub && <p className="mt-0.5 text-xs text-slate-500">{sub}</p>}
+      {detail && <p className="mt-1 text-xs text-slate-500">{detail}</p>}
     </div>
   );
 }
 
-function ServiceDot({ status }: { status: ServiceStatus["status"] }) {
-  const color =
-    status === "ok"
-      ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"
-      : status === "degraded"
-      ? "bg-amber-400"
-      : "bg-red-500";
-  return <span className={`inline-block h-2 w-2 rounded-full ${color}`} />;
+function StatusDot({ healthy }: { healthy: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block h-2 w-2 rounded-full ${
+        healthy ? "bg-emerald-400" : "bg-red-400"
+      }`}
+    />
+  );
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+function Section({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="mb-4">
+        <h2 className="font-semibold text-white">{title}</h2>
+        {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function formatDate(value: string | null): string {
+  if (!value) return "Not recorded";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleString();
+}
 
 export default function AdminPage() {
   const router = useRouter();
-
-  const [stats, setStats] = useState<SystemStats | null>(null);
-  const [services, setServices] = useState<ServiceStatus[]>([]);
+  const [overview, setOverview] = useState<Overview | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
-  const [config, setConfig] = useState<AdminConfig | null>(null);
   const [wolMac, setWolMac] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [wolState, setWolState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [wolError, setWolError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // ── Data fetching ────────────────────────────────────────────────────────
+  const handleRequestError = useCallback(
+    (caught: unknown, fallback: string) => {
+      if (caught instanceof AdminRequestError && caught.status === 401) {
+        router.replace("/admin/login?from=/admin");
+        router.refresh();
+        return;
+      }
+      setError(caught instanceof Error ? caught.message : fallback);
+    },
+    [router],
+  );
 
-  const fetchStats = useCallback(async () => {
+  const fetchOverview = useCallback(async () => {
     try {
-      const [s, sv] = await Promise.all([
-        proxyGet<SystemStats>("stats"),
-        proxyGet<{ services: ServiceStatus[] }>("services"),
-      ]);
-      setStats(s);
-      setServices(sv.services);
+      const data = await proxyGet<Overview>("overview");
+      setOverview(data);
       setLastUpdated(new Date());
-      setFetchError(null);
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "Failed to load stats.");
+      setError(null);
+    } catch (caught) {
+      handleRequestError(caught, "Could not load Pi status.");
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [handleRequestError]);
 
   const fetchLogs = useCallback(async () => {
     try {
-      const data = await proxyGet<{ lines: string[] }>("logs");
+      const data = await proxyGet<{ lines: string[] }>("logs?n=75");
       setLogs(data.lines);
-    } catch {
-      // Logs failing silently is fine — stats are more important
+    } catch (caught) {
+      if (caught instanceof AdminRequestError && caught.status === 401) {
+        handleRequestError(caught, "Your session expired.");
+      }
     }
-  }, []);
+  }, [handleRequestError]);
 
-  const fetchConfig = useCallback(async () => {
-    try {
-      const data = await proxyGet<AdminConfig>("config");
-      setConfig(data);
-      if (data.wol_mac) setWolMac(data.wol_mac);
-    } catch {
-      // Config is optional
-    }
-  }, []);
-
-  // Initial load + polling
   useEffect(() => {
-    // Schedule initial fetches asynchronously to avoid calling setState
-    // synchronously during the effect body which can trigger cascading renders.
-    const initTimer = setTimeout(() => {
-      void fetchStats();
+    const refreshVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      void fetchOverview();
       void fetchLogs();
-      void fetchConfig();
-    }, 0);
+    };
 
-    const statsTimer = setInterval(fetchStats, 5000);
-    const logsTimer = setInterval(fetchLogs, 3000);
+    const initialLoad = async () => {
+      try {
+        const config = await proxyGet<AdminConfig>("config");
+        setWolMac(config.wol_mac);
+      } catch (caught) {
+        handleRequestError(caught, "Could not load admin configuration.");
+      }
+      refreshVisible();
+    };
+
+    void initialLoad();
+    const overviewTimer = setInterval(() => {
+      if (document.visibilityState === "visible") void fetchOverview();
+    }, 30_000);
+    const logsTimer = setInterval(() => {
+      if (document.visibilityState === "visible") void fetchLogs();
+    }, 10_000);
+    document.addEventListener("visibilitychange", refreshVisible);
 
     return () => {
-      clearTimeout(initTimer);
-      clearInterval(statsTimer);
+      clearInterval(overviewTimer);
       clearInterval(logsTimer);
+      document.removeEventListener("visibilitychange", refreshVisible);
     };
-  }, [fetchStats, fetchLogs, fetchConfig]);
-
-  // Auto-scroll logs to bottom when new lines arrive
-  useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
-
-  // ── Actions ──────────────────────────────────────────────────────────────
+  }, [fetchLogs, fetchOverview, handleRequestError]);
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
+    router.replace("/admin/login");
+    router.refresh();
   }
 
   async function handleWol() {
@@ -171,224 +248,168 @@ export default function AdminPage() {
     setWolState("sending");
     setWolError(null);
     try {
-      await proxyPost("wol", { mac: wolMac.trim() });
+      await proxyPost<{ sent: boolean }>("wol", { mac: wolMac.trim() });
       setWolState("sent");
-      setTimeout(() => setWolState("idle"), 3000);
-    } catch (err) {
+      window.setTimeout(() => setWolState("idle"), 3_000);
+    } catch (caught) {
       setWolState("error");
-      setWolError(err instanceof Error ? err.message : "WOL failed.");
+      setWolError(caught instanceof Error ? caught.message : "Wake-on-LAN failed.");
     }
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────
-
-  const tempWarn = stats?.temperature !== null && (stats?.temperature ?? 0) > 75;
+  const system = overview?.system;
+  const storageEntries = overview ? Object.entries(overview.storage) : [];
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-slate-100">
+    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100 sm:px-6">
       <div className="mx-auto max-w-7xl">
-
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.35em] text-cyan-300">
-              OJ Builds
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.35em] text-cyan-300">OJ Builds</p>
             <h1 className="mt-1 text-2xl font-bold text-white">
-              Admin
-              {config?.hostname && (
+              Pi admin
+              {overview?.hostname && (
                 <span className="ml-3 font-mono text-sm font-normal text-slate-500">
-                  {config.hostname}
+                  {overview.hostname}
                 </span>
               )}
             </h1>
           </div>
-
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {lastUpdated && (
-              <p className="hidden text-xs text-slate-600 sm:block">
+              <span className="hidden text-xs text-slate-500 sm:inline">
                 Updated {lastUpdated.toLocaleTimeString()}
-              </p>
+              </span>
             )}
             <button
-              onClick={handleLogout}
-              className="rounded-xl border border-slate-700 px-3 py-1.5 text-sm text-slate-400 transition hover:border-slate-500 hover:text-slate-200"
+              type="button"
+              onClick={() => { void fetchOverview(); void fetchLogs(); }}
+              className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-300 hover:border-cyan-400 hover:text-cyan-300"
             >
-              Logout
+              Refresh
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleLogout()}
+              className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-400 hover:border-slate-500 hover:text-white"
+            >
+              Log out
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* Fetch error banner */}
-        {fetchError && (
-          <div className="mb-6 rounded-2xl border border-red-900/60 bg-red-950/30 px-5 py-3 text-sm text-red-300">
-            {fetchError}
-          </div>
+        {error && (
+          <p role="alert" className="mb-6 rounded-2xl border border-red-900/60 bg-red-950/30 px-5 py-3 text-sm text-red-300">
+            {error}
+          </p>
         )}
 
-        {/* System stats row */}
+        {overview?.updates.reboot_required && (
+          <p className="mb-6 rounded-2xl border border-amber-700/50 bg-amber-950/30 px-5 py-3 text-sm text-amber-200">
+            The Pi reports that a reboot is required to finish installed updates.
+          </p>
+        )}
+
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <StatCard
-            label="CPU"
-            value={stats ? `${stats.cpu_percent}%` : "—"}
-            warn={(stats?.cpu_percent ?? 0) > 80}
-          />
-          <StatCard
-            label="Memory"
-            value={stats ? `${stats.memory.percent}%` : "—"}
-            sub={stats ? `${stats.memory.used_gb} / ${stats.memory.total_gb} GB` : undefined}
-            warn={(stats?.memory.percent ?? 0) > 85}
-          />
-          <StatCard
-            label="Temperature"
-            value={stats?.temperature !== null && stats?.temperature !== undefined
-              ? `${stats.temperature}°C`
-              : "—"}
-            warn={tempWarn}
-          />
-          <StatCard
-            label="Disk"
-            value={stats ? `${stats.disk.percent}%` : "—"}
-            sub={stats ? `${stats.disk.used_gb} / ${stats.disk.total_gb} GB` : undefined}
-            warn={(stats?.disk.percent ?? 0) > 90}
-          />
+          <StatCard label="CPU" value={system ? `${system.cpu_percent}%` : "—"} detail={system ? `${system.cpu_count} cores` : undefined} warning={(system?.cpu_percent ?? 0) > 80} />
+          <StatCard label="Memory" value={system ? `${system.memory.percent}%` : "—"} detail={system ? `${system.memory.used_gb} / ${system.memory.total_gb} GB` : undefined} warning={(system?.memory.percent ?? 0) > 85} />
+          <StatCard label="Temperature" value={system?.temperature == null ? "—" : `${system.temperature}°C`} warning={(system?.temperature ?? 0) > 75} />
+          <StatCard label="Disk" value={system ? `${system.disk.percent}%` : "—"} detail={system ? `${system.disk.used_gb} / ${system.disk.total_gb} GB` : undefined} warning={(system?.disk.percent ?? 0) > 90} />
         </div>
 
-        {/* Main two-column grid */}
-        <div className="mb-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
-
-          {/* Services */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-semibold text-white">Services</h2>
-              <button
-                onClick={fetchStats}
-                className="text-xs text-slate-500 transition hover:text-cyan-300"
-              >
-                Refresh
-              </button>
-            </div>
-
-            {services.length === 0 ? (
-              <p className="text-sm text-slate-500">Loading…</p>
-            ) : (
-              <div className="space-y-2">
-                {services.map((svc) => (
-                  <div
-                    key={svc.name}
-                    className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <ServiceDot status={svc.status} />
-                      <span className="text-sm font-medium text-slate-200">{svc.name}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`text-xs ${
-                          svc.status === "ok" ? "text-emerald-400" : "text-red-400"
-                        }`}
-                      >
-                        {svc.status}
-                      </span>
-                      {svc.latency_ms >= 0 && (
-                        <span className="font-mono text-xs text-slate-500">
-                          {svc.latency_ms}ms
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Controls */}
-          <div className="flex flex-col gap-4">
-            {/* Uptime + load */}
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-              <h2 className="mb-3 font-semibold text-white">System</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Uptime</span>
-                  <span className="font-mono text-slate-200">{stats?.uptime_label ?? "—"}</span>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Section title="Application checks" subtitle="Internal health endpoints on 127.0.0.1:8000">
+            <div className="space-y-2">
+              {overview?.services.map((service) => (
+                <div key={service.name} className="flex items-center justify-between rounded-2xl bg-slate-950 px-4 py-3">
+                  <span className="flex items-center gap-3 text-sm"><StatusDot healthy={service.status === "ok"} />{service.name}</span>
+                  <span className="font-mono text-xs text-slate-500">{service.status} · {service.latency_ms}ms</span>
                 </div>
-                {stats?.load_avg && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Load avg</span>
-                    <span className="font-mono text-slate-200">
-                      {stats.load_avg.map((v) => v.toFixed(2)).join(" ")}
-                    </span>
-                  </div>
-                )}
-              </div>
+              )) ?? <p className="text-sm text-slate-500">{loading ? "Loading…" : "No checks available."}</p>}
             </div>
+          </Section>
 
-            {/* Wake on LAN */}
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-              <h2 className="mb-3 font-semibold text-white">Wake on LAN</h2>
+          <Section title="System services" subtitle="systemd units required by the deployment">
+            <div className="space-y-2">
+              {overview?.systemd_units.map((unit) => (
+                <div key={unit.unit} className="flex items-center justify-between rounded-2xl bg-slate-950 px-4 py-3">
+                  <span className="flex items-center gap-3 text-sm"><StatusDot healthy={unit.active === "active"} />{unit.unit}</span>
+                  <span className="font-mono text-xs text-slate-500">{unit.active} / {unit.sub}</span>
+                </div>
+              )) ?? <p className="text-sm text-slate-500">Loading…</p>}
+            </div>
+          </Section>
+
+          <Section title="System details">
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <dt className="text-slate-500">Uptime</dt><dd className="text-right font-mono">{system?.uptime_label ?? "—"}</dd>
+              <dt className="text-slate-500">Load average</dt><dd className="text-right font-mono">{system?.load_avg.map((value) => value.toFixed(2)).join("  ") ?? "—"}</dd>
+              <dt className="text-slate-500">Processes</dt><dd className="text-right font-mono">{system?.process_count ?? "—"}</dd>
+              <dt className="text-slate-500">Swap</dt><dd className="text-right font-mono">{system ? `${system.swap.percent}%` : "—"}</dd>
+              <dt className="text-slate-500">Stored requests</dt><dd className="text-right font-mono">{overview?.requests.stored ?? "—"}</dd>
+              <dt className="text-slate-500">Server errors</dt><dd className="text-right font-mono">{overview?.requests.server_errors ?? "—"}</dd>
+            </dl>
+          </Section>
+
+          <Section title="Storage" subtitle="Runtime directories and the TexVoice source library">
+            <div className="space-y-3">
+              {storageEntries.map(([name, entry]) => (
+                <div key={name} className="flex items-center justify-between text-sm">
+                  <span className="text-slate-400">{name.replace("_", " ")}</span>
+                  <span className="font-mono text-slate-200">{entry.exists ? `${entry.size_mb} MB · ${entry.files} files` : "not created"}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Deployment" subtitle={`Last log update: ${formatDate(overview?.deployment.log_updated_at ?? null)}`}>
+            <p className="mb-3 text-sm text-slate-400">
+              Commit <span className="font-mono text-cyan-300">{overview?.deployment.short_commit ?? "not recorded"}</span>
+            </p>
+            <div className="max-h-40 overflow-y-auto rounded-2xl bg-slate-950 p-3 font-mono text-xs text-slate-400">
+              {overview?.deployment.log.length ? overview.deployment.log.map((line, index) => <p key={`${index}-${line}`}>{line}</p>) : <p>No deployment log yet.</p>}
+            </div>
+          </Section>
+
+          <Section title="Updates" subtitle="Read-only apt and reboot information">
+            <dl className="space-y-3 text-sm">
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">APT activity</dt><dd className="text-right">{formatDate(overview?.updates.apt_history_updated_at ?? null)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Unattended upgrades</dt><dd className="text-right">{formatDate(overview?.updates.unattended_upgrades_updated_at ?? null)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Reboot required</dt><dd>{overview?.updates.reboot_required ? "Yes" : "No"}</dd></div>
+            </dl>
+          </Section>
+
+          <Section title="Wake main PC" subtitle="Sends a Wake-on-LAN packet from the Pi">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="text"
                 value={wolMac}
-                onChange={(e) => setWolMac(e.target.value)}
+                onChange={(event) => setWolMac(event.target.value)}
                 placeholder="AA:BB:CC:DD:EE:FF"
-                className="mb-3 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-sm text-slate-100 placeholder-slate-600 outline-none focus:border-cyan-400"
+                aria-label="Wake-on-LAN MAC address"
+                className="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-sm outline-none focus:border-cyan-400"
               />
               <button
-                onClick={handleWol}
+                type="button"
+                onClick={() => void handleWol()}
                 disabled={!wolMac.trim() || wolState === "sending"}
-                className={`w-full rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed ${
-                  wolState === "sent"
-                    ? "bg-emerald-400 text-slate-950"
-                    : wolState === "error"
-                    ? "bg-red-500/20 text-red-300"
-                    : "bg-cyan-300 text-slate-950 hover:bg-cyan-200 disabled:bg-slate-700 disabled:text-slate-400"
-                }`}
+                className="rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
               >
-                {wolState === "sending"
-                  ? "Sending…"
-                  : wolState === "sent"
-                  ? "Packet sent ✓"
-                  : wolState === "error"
-                  ? "Failed"
-                  : "⚡ Wake main PC"}
+                {wolState === "sending" ? "Sending…" : wolState === "sent" ? "Packet sent" : "Wake PC"}
               </button>
-              {wolError && (
-                <p className="mt-2 text-xs text-red-400">{wolError}</p>
-              )}
-              <p className="mt-2 text-xs text-slate-600">
-                Set WOL_MAC in your env to pre-fill this field.
-              </p>
             </div>
-          </div>
+            {wolError && <p className="mt-2 text-xs text-red-400">{wolError}</p>}
+          </Section>
         </div>
 
-        {/* Request logs */}
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold text-white">Backend activity</h2>
-              <p className="text-xs text-slate-500">Live request log · refreshes every 3s</p>
+        <div className="mt-6">
+          <Section title="Backend activity" subtitle="Most recent public API requests; refreshes every 10 seconds while this tab is visible">
+            <div className="max-h-80 space-y-1 overflow-y-auto pr-1">
+              {logs.length ? logs.map((line, index) => (
+                <p key={`${index}-${line}`} className="rounded-xl bg-slate-950 px-3 py-2 font-mono text-xs text-slate-400">{line}</p>
+              )) : <p className="text-sm text-slate-500">No requests recorded yet.</p>}
             </div>
-            <span className="rounded-lg bg-slate-800 px-2 py-1 font-mono text-xs text-slate-400">
-              {logs.length} entries
-            </span>
-          </div>
-
-          <div className="max-h-80 space-y-1 overflow-y-auto pr-1">
-            {logs.length === 0 ? (
-              <p className="text-sm text-slate-500">No requests yet.</p>
-            ) : (
-              logs.map((line, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl bg-slate-950 px-3 py-1.5 font-mono text-xs text-slate-400"
-                >
-                  {line}
-                </div>
-              ))
-            )}
-            <div ref={logsEndRef} />
-          </div>
+          </Section>
         </div>
       </div>
     </main>

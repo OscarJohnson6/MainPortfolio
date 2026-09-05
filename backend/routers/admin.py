@@ -1,159 +1,149 @@
-# destination: routers/admin.py
-#
-# FastAPI router for admin and public status endpoints.
-#
-# Admin endpoints (/api/admin/*) are ONLY called by the Next.js proxy route, which
-# validates the admin cookie before forwarding here. nginx should block direct external
-# access to /api/admin/* — see the proxy route file for the nginx config snippet.
-#
-# Public endpoint (/api/status) is safe to expose: returns limited read-only info.
-#
-# Install psutil before using:
-#   pip install psutil --break-system-packages
-#
-# WOL uses only the standard library (socket module) — no extra package needed.
+# destination: backend/routers/admin.py
 
 from __future__ import annotations
 
 import asyncio
 import os
 import socket
+import subprocess
 import time
-import urllib.error
 import urllib.request
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import APIRouter, Form, HTTPException
 
 try:
     import psutil  # type: ignore
+
     _HAS_PSUTIL = True
 except ImportError:
     _HAS_PSUTIL = False
 
 router = APIRouter()
-
-# ── In-memory request log ──────────────────────────────────────────────────────
-# main.py should add a middleware that appends to this deque.
-# See the updated main.py for how to wire this up.
 REQUEST_LOGS: deque[str] = deque(maxlen=200)
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DEPLOYMENT_STATE_DIR = Path(
+    os.environ.get(
+        "DEPLOYMENT_STATE_DIR",
+        "/home/oscarj/.local/state/mainportfolio",
+    )
+)
 
-# ── Services to health-check ───────────────────────────────────────────────────
-# Maps display name → URL path on this same server (localhost:8000)
 _LOCAL_SERVICES = {
-    "API":        "http://localhost:8000/api/health",
-    "TexVoice":   "http://localhost:8000/api/texvoice/health",
-    "Rhythm Sync":"http://localhost:8000/api/rhythm-sync/health",
+    "API": "http://127.0.0.1:8000/api/health",
+    "TexVoice": "http://127.0.0.1:8000/api/texvoice/health",
+    "Rhythm Sync": "http://127.0.0.1:8000/api/rhythm-sync/health",
 }
 
+_SYSTEMD_UNITS = (
+    "oj-builds-api.service",
+    "cloudflared.service",
+    "nginx.service",
+)
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+
+def _utc_timestamp(timestamp: float | None = None) -> str | None:
+    if timestamp is None:
+        return None
+    return datetime.fromtimestamp(timestamp, timezone.utc).isoformat()
+
 
 def _check_service(name: str, url: str) -> dict:
-    """
-    Synchronous HTTP health check. Returns a dict with status and latency.
-    Run via asyncio.to_thread so the async handler isn't blocked.
-    """
-    start = time.perf_counter()
+    started_at = time.perf_counter()
     try:
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=2) as response:
-            latency_ms = round((time.perf_counter() - start) * 1000)
-            return {
-                "name": name,
-                "status": "ok" if response.status == 200 else "degraded",
-                "latency_ms": latency_ms,
-            }
+        request = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(request, timeout=2) as response:
+            status = "ok" if response.status == 200 else "degraded"
     except Exception:
-        latency_ms = round((time.perf_counter() - start) * 1000)
-        return {"name": name, "status": "error", "latency_ms": latency_ms}
+        status = "error"
+
+    return {
+        "name": name,
+        "status": status,
+        "latency_ms": round((time.perf_counter() - started_at) * 1000),
+    }
 
 
 def _get_pi_temperature() -> float | None:
-    """
-    Read CPU temperature from psutil. On Pi 5 the sensor is usually
-    'cpu_thermal'. Returns None if unavailable.
-    """
     if not _HAS_PSUTIL:
         return None
+
     try:
-        temps = psutil.sensors_temperatures()
-        for key in ("cpu_thermal", "cpu-thermal", "coretemp"):
-            if key in temps and temps[key]:
-                return round(temps[key][0].current, 1)
-        # Take the first available sensor if the Pi names differ
-        for entries in temps.values():
+        temperatures = psutil.sensors_temperatures()
+        for sensor_name in ("cpu_thermal", "cpu-thermal", "coretemp"):
+            entries = temperatures.get(sensor_name, [])
+            if entries:
+                return round(entries[0].current, 1)
+
+        for entries in temperatures.values():
             if entries:
                 return round(entries[0].current, 1)
     except Exception:
         pass
+
     return None
 
 
 def _format_uptime(uptime_seconds: float) -> str:
     total = int(uptime_seconds)
-    days = total // 86400
-    hours = (total % 86400) // 3600
-    minutes = (total % 3600) // 60
-    if days > 0:
+    days, remainder = divmod(total, 86_400)
+    hours, remainder = divmod(remainder, 3_600)
+    minutes = remainder // 60
+
+    if days:
         return f"{days}d {hours}h {minutes}m"
-    if hours > 0:
+    if hours:
         return f"{hours}h {minutes}m"
     return f"{minutes}m"
 
 
-def _send_wol(mac_address: str) -> None:
-    """
-    Send a Wake-on-LAN magic packet using only the standard library.
-    The magic packet is 6 bytes of 0xFF followed by 16 repetitions of the MAC.
-    """
-    clean = mac_address.upper().replace(":", "").replace("-", "").replace(".", "")
-    if len(clean) != 12 or not all(c in "0123456789ABCDEF" for c in clean):
-        raise ValueError(f"Invalid MAC address format: {mac_address!r}")
-
-    mac_bytes = bytes.fromhex(clean)
-    packet = b"\xff" * 6 + mac_bytes * 16
-
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.sendto(packet, ("<broadcast>", 9))
+def _empty_system_stats() -> dict:
+    return {
+        "available": False,
+        "cpu_percent": 0.0,
+        "cpu_count": 0,
+        "process_count": 0,
+        "memory": {"used_gb": 0.0, "total_gb": 0.0, "percent": 0.0},
+        "swap": {"used_gb": 0.0, "total_gb": 0.0, "percent": 0.0},
+        "disk": {"used_gb": 0.0, "total_gb": 0.0, "percent": 0.0},
+        "temperature": None,
+        "uptime_seconds": 0,
+        "uptime_label": "unknown",
+        "load_avg": [0.0, 0.0, 0.0],
+    }
 
 
 def _get_system_stats() -> dict:
-    """Gather all psutil stats. Returns empty/default values if psutil is missing."""
     if not _HAS_PSUTIL:
-        return {
-            "available": False,
-            "cpu_percent": 0.0,
-            "memory": {"used_gb": 0.0, "total_gb": 0.0, "percent": 0.0},
-            "disk": {"used_gb": 0.0, "total_gb": 0.0, "percent": 0.0},
-            "temperature": None,
-            "uptime_seconds": 0,
-            "uptime_label": "unknown",
-            "load_avg": [0.0, 0.0, 0.0],
-        }
+        return _empty_system_stats()
 
-    cpu = psutil.cpu_percent(interval=0.1)
-    mem = psutil.virtual_memory()
+    memory = psutil.virtual_memory()
+    swap = psutil.swap_memory()
     disk = psutil.disk_usage("/")
-    boot_time = psutil.boot_time()
-    uptime = time.time() - boot_time
+    uptime = time.time() - psutil.boot_time()
 
     try:
-        load = list(psutil.getloadavg())
-    except AttributeError:
-        # Windows doesn't have getloadavg
-        load = [0.0, 0.0, 0.0]
+        load_average = list(psutil.getloadavg())
+    except (AttributeError, OSError):
+        load_average = [0.0, 0.0, 0.0]
 
     return {
         "available": True,
-        "cpu_percent": round(cpu, 1),
+        "cpu_percent": round(psutil.cpu_percent(interval=0.1), 1),
+        "cpu_count": psutil.cpu_count() or 0,
+        "process_count": len(psutil.pids()),
         "memory": {
-            "used_gb": round(mem.used / 1_073_741_824, 2),
-            "total_gb": round(mem.total / 1_073_741_824, 2),
-            "percent": round(mem.percent, 1),
+            "used_gb": round(memory.used / 1_073_741_824, 2),
+            "total_gb": round(memory.total / 1_073_741_824, 2),
+            "percent": round(memory.percent, 1),
+        },
+        "swap": {
+            "used_gb": round(swap.used / 1_073_741_824, 2),
+            "total_gb": round(swap.total / 1_073_741_824, 2),
+            "percent": round(swap.percent, 1),
         },
         "disk": {
             "used_gb": round(disk.used / 1_073_741_824, 1),
@@ -163,86 +153,227 @@ def _get_system_stats() -> dict:
         "temperature": _get_pi_temperature(),
         "uptime_seconds": int(uptime),
         "uptime_label": _format_uptime(uptime),
-        "load_avg": [round(x, 2) for x in load],
+        "load_avg": [round(value, 2) for value in load_average],
     }
 
 
-# ── Admin endpoints (protected by Next.js proxy + nginx block) ─────────────────
+def _systemd_unit_status(unit: str) -> dict:
+    command = [
+        "systemctl",
+        "show",
+        unit,
+        "--property=ActiveState,SubState,NRestarts,ExecMainStatus,StateChangeTimestamp",
+        "--no-pager",
+    ]
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        return {"unit": unit, "active": "unknown", "sub": "unknown", "error": str(error)}
+
+    values: dict[str, str] = {}
+    for line in result.stdout.splitlines():
+        key, separator, value = line.partition("=")
+        if separator:
+            values[key] = value
+
+    return {
+        "unit": unit,
+        "active": values.get("ActiveState", "unknown"),
+        "sub": values.get("SubState", "unknown"),
+        "restarts": int(values.get("NRestarts", "0") or 0),
+        "exit_status": int(values.get("ExecMainStatus", "0") or 0),
+        "changed_at": values.get("StateChangeTimestamp") or None,
+    }
+
+
+def _directory_usage(path: Path) -> dict:
+    if not path.exists():
+        return {
+            "path": str(path),
+            "exists": False,
+            "bytes": 0,
+            "size_mb": 0.0,
+            "files": 0,
+        }
+
+    total_bytes = 0
+    file_count = 0
+    try:
+        for entry in path.rglob("*"):
+            if entry.is_file():
+                total_bytes += entry.stat().st_size
+                file_count += 1
+    except OSError:
+        pass
+
+    return {
+        "path": str(path),
+        "exists": True,
+        "bytes": total_bytes,
+        "size_mb": round(total_bytes / 1_048_576, 2),
+        "files": file_count,
+    }
+
+
+def _read_tail(path: Path, line_count: int = 12) -> list[str]:
+    try:
+        return path.read_text(encoding="utf-8", errors="replace").splitlines()[-line_count:]
+    except OSError:
+        return []
+
+
+def _read_git_commit() -> str | None:
+    head_path = PROJECT_ROOT / ".git" / "HEAD"
+    try:
+        head = head_path.read_text(encoding="utf-8").strip()
+        if head.startswith("ref: "):
+            reference = head.removeprefix("ref: ")
+            return (PROJECT_ROOT / ".git" / reference).read_text(encoding="utf-8").strip()
+        return head or None
+    except OSError:
+        return None
+
+
+def _deployment_info() -> dict:
+    commit_file = DEPLOYMENT_STATE_DIR / "current-commit"
+    log_file = DEPLOYMENT_STATE_DIR / "deployments.log"
+
+    try:
+        recorded_commit = commit_file.read_text(encoding="utf-8").strip() or None
+    except OSError:
+        recorded_commit = None
+
+    commit = recorded_commit or _read_git_commit()
+    return {
+        "commit": commit,
+        "short_commit": commit[:8] if commit else None,
+        "recorded": recorded_commit is not None,
+        "log": _read_tail(log_file),
+        "log_updated_at": _utc_timestamp(log_file.stat().st_mtime) if log_file.exists() else None,
+    }
+
+
+def _update_info() -> dict:
+    apt_history = Path("/var/log/apt/history.log")
+    unattended_log = Path("/var/log/unattended-upgrades/unattended-upgrades.log")
+
+    return {
+        "reboot_required": Path("/var/run/reboot-required").exists(),
+        "apt_history_updated_at": (
+            _utc_timestamp(apt_history.stat().st_mtime) if apt_history.exists() else None
+        ),
+        "apt_history_tail": _read_tail(apt_history, 8),
+        "unattended_upgrades_updated_at": (
+            _utc_timestamp(unattended_log.stat().st_mtime)
+            if unattended_log.exists()
+            else None
+        ),
+    }
+
+
+def _request_summary() -> dict:
+    lines = list(REQUEST_LOGS)
+    errors = 0
+    for line in lines:
+        fields = line.rsplit(" ", 2)
+        if len(fields) >= 2 and fields[-2].isdigit() and int(fields[-2]) >= 500:
+            errors += 1
+
+    return {"stored": len(lines), "server_errors": errors}
+
+
+def _send_wol(mac_address: str) -> None:
+    clean = mac_address.upper().replace(":", "").replace("-", "").replace(".", "")
+    if len(clean) != 12 or not all(character in "0123456789ABCDEF" for character in clean):
+        raise ValueError("Invalid MAC address format.")
+
+    packet = b"\xff" * 6 + bytes.fromhex(clean) * 16
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
+        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        udp_socket.sendto(packet, ("<broadcast>", 9))
+
+
+async def _service_checks() -> list[dict]:
+    return list(
+        await asyncio.gather(
+            *[
+                asyncio.to_thread(_check_service, name, url)
+                for name, url in _LOCAL_SERVICES.items()
+            ]
+        )
+    )
+
+
+@router.get("/overview")
+async def admin_overview() -> dict:
+    system, services, systemd_units, deployment, updates, storage = await asyncio.gather(
+        asyncio.to_thread(_get_system_stats),
+        _service_checks(),
+        asyncio.gather(*[asyncio.to_thread(_systemd_unit_status, unit) for unit in _SYSTEMD_UNITS]),
+        asyncio.to_thread(_deployment_info),
+        asyncio.to_thread(_update_info),
+        asyncio.gather(
+            asyncio.to_thread(_directory_usage, PROJECT_ROOT / "uploads"),
+            asyncio.to_thread(_directory_usage, PROJECT_ROOT / "exports"),
+            asyncio.to_thread(_directory_usage, PROJECT_ROOT / "imports" / "latex"),
+        ),
+    )
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "hostname": socket.gethostname(),
+        "overall": "ok" if all(service["status"] == "ok" for service in services) else "degraded",
+        "system": system,
+        "services": services,
+        "systemd_units": list(systemd_units),
+        "deployment": deployment,
+        "updates": updates,
+        "storage": {
+            "uploads": storage[0],
+            "exports": storage[1],
+            "latex_library": storage[2],
+        },
+        "requests": _request_summary(),
+    }
+
 
 @router.get("/stats")
 async def admin_stats() -> dict:
-    """Full system stats for the admin dashboard."""
-    stats = await asyncio.to_thread(_get_system_stats)
-    return stats
+    return await asyncio.to_thread(_get_system_stats)
 
 
 @router.get("/services")
 async def admin_services() -> dict:
-    """Health check all registered backend services."""
-    results = await asyncio.gather(*[
-        asyncio.to_thread(_check_service, name, url)
-        for name, url in _LOCAL_SERVICES.items()
-    ])
-    return {"services": list(results)}
+    return {"services": await _service_checks()}
 
 
 @router.get("/logs")
 async def admin_logs(n: int = 50) -> dict:
-    """Return the most recent n request log lines."""
-    n = max(1, min(n, 200))
-    lines = list(REQUEST_LOGS)[-n:]
-    return {"lines": lines}
+    count = max(1, min(n, 200))
+    return {"lines": list(REQUEST_LOGS)[-count:]}
 
 
-@router.post("/wol")
-async def admin_wol(mac: str = Form(...)) -> dict:
-    """
-    Send a Wake-on-LAN magic packet to the given MAC address.
-    Set WOL_MAC in your environment to pre-fill the target.
-    Example MAC format: AA:BB:CC:DD:EE:FF
-    """
-    try:
-        await asyncio.to_thread(_send_wol, mac)
-        return {"sent": True, "mac": mac}
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    except OSError as exc:
-        raise HTTPException(status_code=500, detail=f"Could not send packet: {exc}")
-
-
-# ── Public status endpoint (no auth needed) ────────────────────────────────────
-# This is mounted at /api/status (not /api/admin/status) so nginx doesn't block it.
-# Mount this router at /api in main.py, NOT at /api/admin.
-# See updated main.py for the correct include_router calls.
-
-@router.get("/status")
-async def public_status() -> dict:
-    """
-    Public system status — limited info, safe to expose without auth.
-    Omits memory details and load averages; just enough for the /status page.
-    """
-    stats = await asyncio.to_thread(_get_system_stats)
-    services = await asyncio.gather(*[
-        asyncio.to_thread(_check_service, name, url)
-        for name, url in _LOCAL_SERVICES.items()
-    ])
-
-    return {
-        "overall": "ok" if all(s["status"] == "ok" for s in services) else "degraded",
-        "services": list(services),
-        "cpu_percent": stats["cpu_percent"],
-        "temperature": stats["temperature"],
-        "uptime_label": stats["uptime_label"],
-        "uptime_seconds": stats["uptime_seconds"],
-        "psutil_available": stats["available"],
-    }
-
-
-# ── Convenience: default WOL MAC from env ─────────────────────────────────────
 @router.get("/config")
 async def admin_config() -> dict:
-    """Return non-sensitive config the dashboard needs (e.g., default WOL MAC)."""
     return {
         "wol_mac": os.environ.get("WOL_MAC", ""),
         "hostname": socket.gethostname(),
     }
+
+
+@router.post("/wol")
+async def admin_wol(mac: str = Form(...)) -> dict:
+    try:
+        await asyncio.to_thread(_send_wol, mac)
+        return {"sent": True, "mac": mac}
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except OSError as error:
+        raise HTTPException(status_code=500, detail="Could not send Wake-on-LAN packet.") from error

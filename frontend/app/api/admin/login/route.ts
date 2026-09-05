@@ -1,40 +1,62 @@
-// destination: src/app/api/admin/login/route.ts
-//
-// Accepts a POST with { token: string }.
-// If it matches ADMIN_SECRET, sets an HTTP-only cookie and returns ok.
-// The redirect happens client-side after receiving the ok response.
-
 import { NextRequest, NextResponse } from "next/server";
 
-const COOKIE_NAME = "admin_token";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+import {
+  ADMIN_COOKIE_NAME,
+  ADMIN_SESSION_TTL_SECONDS,
+  createAdminSession,
+  isSameOriginRequest,
+  secretsMatch,
+} from "@/app/lib/admin-auth";
+
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
-  const body = await request.json() as { token?: string };
-  const provided = body.token?.trim() ?? "";
-  const secret = process.env.ADMIN_SECRET ?? "";
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  }
 
-  if (!secret) {
+  const adminSecret = process.env.ADMIN_SECRET?.trim() ?? "";
+  const sessionSecret = process.env.ADMIN_SESSION_SECRET?.trim() ?? "";
+
+  if (!adminSecret || !sessionSecret) {
     return NextResponse.json(
       { error: "Admin access is not configured on this server." },
-      { status: 503 }
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 
-  if (!provided || provided !== secret) {
-    // Generic error — don't reveal whether the secret exists or what it is
-    return NextResponse.json({ error: "Invalid token." }, { status: 401 });
+  let body: { password?: unknown };
+
+  try {
+    body = (await request.json()) as { password?: unknown };
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request body." },
+      { status: 400, headers: { "Cache-Control": "no-store" } },
+    );
   }
 
-  const response = NextResponse.json({ ok: true });
+  const providedPassword =
+    typeof body.password === "string" ? body.password.trim() : "";
 
-  // HTTP-only: JS cannot read this cookie. Secure: HTTPS only in production.
-  // SameSite lax: allows the cookie on navigation but not cross-site POST.
-  response.cookies.set(COOKIE_NAME, secret, {
+  if (!providedPassword || !(await secretsMatch(providedPassword, adminSecret))) {
+    return NextResponse.json(
+      { error: "Invalid credentials." },
+      { status: 401, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
+  const session = await createAdminSession(sessionSecret);
+  const response = NextResponse.json(
+    { ok: true },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+
+  response.cookies.set(ADMIN_COOKIE_NAME, session, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: COOKIE_MAX_AGE,
+    sameSite: "strict",
+    maxAge: ADMIN_SESSION_TTL_SECONDS,
     path: "/",
   });
 
