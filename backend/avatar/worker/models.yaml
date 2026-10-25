@@ -1,0 +1,29 @@
+# Model profiles. The worker auto-picks the most demanding profile whose
+# min_vram_mb fits the detected GPU (or set WORKER_PROFILE to force one).
+#
+# GPU upgrade path: `ollama pull <bigger model>`, and the 16GB profile is
+# picked automatically once the new card is detected. No code changes.
+#
+# Find newer models at https://ollama.com/library and just change chat_model.
+
+profiles:
+  vram_16gb:
+    min_vram_mb: 15000
+    chat_model: "qwen3:14b"
+    num_ctx: 16384
+    think: false        # Qwen3 reasons before answering by default; off = snappier chat
+    temperature: 0.8
+
+  vram_8gb:             # RTX 3070 (+ system RAM for the MoE experts)
+    min_vram_mb: 7000
+    chat_model: "qwen3:30b-a3b"
+    num_ctx: 8192
+    think: true         # default for avatars set to "auto"; each avatar can override
+    temperature: 0.8
+
+  cpu:                  # Raspberry Pi 5 fallback (or any machine without a GPU)
+    min_vram_mb: 0
+    chat_model: "qwen3:1.7b"
+    num_ctx: 4096
+    think: false
+    temperature: 0.8

@@ -81,8 +81,6 @@ var/
 sdist/
 develop-eggs/
 .installed.cfg
-lib/
-lib64/
 
 # Python test/coverage
 backend/.pytest_cache/
@@ -107,6 +105,12 @@ pyvenv.cfg
 # Older/backend-scoped runtime folders, kept ignored in case they get recreated.
 backend/exports/
 backend/uploads/
+
+# Local databases (e.g. the avatar gateway's conversations).
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
 
 
 # ────────────────────────────────────────────────────────────────────────────────
