@@ -1,0 +1,17 @@
+# Keep secrets, local environments and runtime data out of the image.
+.env
+**/.env
+.venv/
+venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+logs/
+exports/
+uploads/
+data/
+
+# The avatar services have their own images.
+avatar/
