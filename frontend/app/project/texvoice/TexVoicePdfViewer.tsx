@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
+
+import {
+  alignSentences,
+  buildPdfTextIndex,
+  highlightedSentence,
+  sentenceForSelection,
+  type PdfLine,
+  type PdfTextIndex,
+  type SentenceTiming,
+} from "./highlight";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -37,9 +47,17 @@ type TexVoicePdfViewerProps = {
   onSeek?: (seconds: number) => void;
   onTogglePlay?: () => void;
   onPdfTextSelected?: (text: string) => void;
+  /** Sentence timings for the selected audio; turns on read-along highlighting. */
+  timings?: SentenceTiming[] | null;
 };
 
-const CONTINUOUS_PAGE_LIMIT = 8;
+// "Auto" shows every page up to this many. Continuous scrolling stays smooth
+// well past 80 pages; only the first load takes a moment.
+const CONTINUOUS_PAGE_LIMIT = 150;
+// After the reader scrolls by hand, follow-along waits this long before taking over again.
+const MANUAL_SCROLL_PAUSE_MS = 5000;
+const HIGHLIGHT_COLOR = "rgba(250, 204, 21, 0.38)";
+const POINTER_COLOR = "rgb(234, 179, 8)";
 const PRELOAD_BEFORE = 1;
 const PRELOAD_AFTER = 2;
 
@@ -87,6 +105,7 @@ export default function TexVoicePdfViewer({
   onSeek,
   onTogglePlay,
   onPdfTextSelected,
+  timings = null,
 }: TexVoicePdfViewerProps) {
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
@@ -96,14 +115,67 @@ export default function TexVoicePdfViewer({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedPdfText, setSelectedPdfText] = useState<string | null>(null);
+  // Both are tagged with what they belong to, so switching documents can't show stale text positions.
+  const [loadedPdf, setLoadedPdf] = useState<{ url: string; proxy: PDFDocumentProxy } | null>(null);
+  const [indexed, setIndexed] = useState<{ proxy: PDFDocumentProxy; index: PdfTextIndex } | null>(null);
+  const [followAlong, setFollowAlong] = useState(true);
+  const surfaceRefs = useRef<(HTMLDivElement | null)[]>([null, null]);
+  const lastManualScroll = useRef(0);
 
   const file = useMemo(() => ({ url: pdfUrl, withCredentials: false }), [pdfUrl]);
+  const hasTimings = Boolean(timings && timings.length > 0);
+  const pdfProxy = loadedPdf?.url === pdfUrl ? loadedPdf.proxy : null;
+  const textIndex = indexed && indexed.proxy === pdfProxy ? indexed.index : null;
+
+  // Read the PDF's text once per document, only when there's audio to follow.
+  useEffect(() => {
+    if (!pdfProxy || !hasTimings) return;
+    let cancelled = false;
+    buildPdfTextIndex(pdfProxy)
+      .then((index) => {
+        if (!cancelled) setIndexed({ proxy: pdfProxy, index });
+      })
+      .catch(() => {
+        // Highlighting just stays off if the text layer can't be read.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pdfProxy, hasTimings]);
+
+  const matches = useMemo(
+    () => (timings && textIndex ? alignSentences(timings, textIndex) : []),
+    [timings, textIndex],
+  );
+  const placedCount = useMemo(() => matches.filter(Boolean).length, [matches]);
+
+  const activeSentence = timings && matches.length ? highlightedSentence(timings, matches, currentTime) : -1;
+  const activeMatch = activeSentence >= 0 ? matches[activeSentence] : null;
+
+  // The lines to highlight, grouped by page; the first one carries the pointer.
+  const highlightByPage = useMemo(() => {
+    const byPage = new Map<number, { line: PdfLine; isFirst: boolean }[]>();
+    if (!activeMatch || !textIndex) return byPage;
+    for (let i = activeMatch.firstLine; i <= activeMatch.lastLine; i += 1) {
+      const line = textIndex.lines[i];
+      const list = byPage.get(line.page) ?? [];
+      list.push({ line, isFirst: i === activeMatch.firstLine });
+      byPage.set(line.page, list);
+    }
+    return byPage;
+  }, [activeMatch, textIndex]);
+  const activePage = activeMatch && textIndex ? textIndex.lines[activeMatch.firstLine].page : null;
 
   const resolvedViewMode = useMemo<"single" | "continuous">(() => {
     if (viewMode === "continuous") return "continuous";
     if (viewMode === "single") return "single";
     return numPages > 0 && numPages <= CONTINUOUS_PAGE_LIMIT ? "continuous" : "single";
   }, [numPages, viewMode]);
+
+  // In single-page view, following along means showing the page being read.
+  // Turning a page by hand switches following off, so the two never fight.
+  const followingPage = resolvedViewMode === "single" && followAlong && activePage !== null;
+  const shownPage = followingPage && activePage !== null ? activePage : pageNumber;
 
   const renderedPages = useMemo(() => {
     if (numPages <= 0) return [];
@@ -112,8 +184,8 @@ export default function TexVoicePdfViewer({
       return getPageNumbers(numPages);
     }
 
-    const start = clamp(pageNumber - PRELOAD_BEFORE, 1, numPages);
-    const end = clamp(pageNumber + PRELOAD_AFTER, 1, numPages);
+    const start = clamp(shownPage - PRELOAD_BEFORE, 1, numPages);
+    const end = clamp(shownPage + PRELOAD_AFTER, 1, numPages);
     const pages: number[] = [];
 
     for (let page = start; page <= end; page += 1) {
@@ -121,17 +193,50 @@ export default function TexVoicePdfViewer({
     }
 
     return pages;
-  }, [numPages, pageNumber, resolvedViewMode]);
+  }, [numPages, shownPage, resolvedViewMode]);
 
   function handleLoadSuccess(pdf: PDFDocumentProxy) {
     setNumPages(pdf.numPages);
     setPageNumber(1);
     setPageInput("1");
     setLoadError(null);
+    // Fullscreen mounts a second copy of the same document; keep the first one's
+    // text index instead of reading every page again.
+    setLoadedPdf((previous) => (previous?.url === pdfUrl ? previous : { url: pdfUrl, proxy: pdf }));
+  }
+
+  // Follow along: keep the highlighted line in view as the audio moves on.
+  useEffect(() => {
+    if (!followAlong || activeSentence < 0 || activePage === null) return;
+    if (resolvedViewMode === "single") return; // handled by shownPage
+    if (Date.now() - lastManualScroll.current < MANUAL_SCROLL_PAUSE_MS) return;
+
+    for (const surface of surfaceRefs.current) {
+      const target = surface?.querySelector<HTMLElement>("[data-reading-pointer]");
+      if (!surface || !target) continue;
+      const surfaceBox = surface.getBoundingClientRect();
+      const targetBox = target.getBoundingClientRect();
+      const offset = targetBox.top - surfaceBox.top - surface.clientHeight / 3;
+      // Only move when the line is drifting out of the comfortable middle area.
+      if (Math.abs(offset) > surface.clientHeight / 4) {
+        surface.scrollTo({ top: surface.scrollTop + offset, behavior: "smooth" });
+      }
+    }
+  }, [activeSentence, activePage, followAlong, resolvedViewMode]);
+
+  function playFromSelection() {
+    if (!selectedPdfText || !timings || !textIndex || !onSeek) return;
+    const near = activeMatch?.lastWord ?? 0;
+    const index = sentenceForSelection(selectedPdfText, textIndex, matches, near);
+    if (index >= 0) {
+      lastManualScroll.current = 0;
+      onSeek(timings[index].start);
+    }
   }
 
   function goToPage(nextPage: number) {
     const next = clamp(nextPage, 1, Math.max(numPages, 1));
+    setFollowAlong(false);
     setPageNumber(next);
     setPageInput(String(next));
   }
@@ -141,7 +246,7 @@ export default function TexVoicePdfViewer({
 
     const parsed = Number(pageInput);
     if (!Number.isFinite(parsed)) {
-      setPageInput(String(pageNumber));
+      setPageInput(String(shownPage));
       return;
     }
 
@@ -181,12 +286,34 @@ export default function TexVoicePdfViewer({
           {numPages > 0
             ? resolvedViewMode === "continuous"
               ? `${numPages} pages • continuous view`
-              : `Page ${pageNumber} of ${numPages} • preloading ${PRELOAD_BEFORE} back / ${PRELOAD_AFTER} ahead`
+              : `Page ${shownPage} of ${numPages} • preloading ${PRELOAD_BEFORE} back / ${PRELOAD_AFTER} ahead`
             : "Loading PDF preview..."}
+          {hasTimings &&
+            (textIndex
+              ? ` • read-along: ${placedCount.toLocaleString()} of ${(timings?.length ?? 0).toLocaleString()} sentences placed`
+              : " • preparing read-along…")}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
+        {hasTimings && (
+          <label
+            className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs text-zinc-300"
+            title="Highlight the line being read and keep it in view. Scrolling by hand pauses this for a few seconds."
+          >
+            <input
+              type="checkbox"
+              checked={followAlong}
+              onChange={(event) => {
+                setFollowAlong(event.target.checked);
+                lastManualScroll.current = 0;
+              }}
+              className="accent-emerald-300"
+            />
+            Follow along
+          </label>
+        )}
+
         <div className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1">
           {(["auto", "single", "continuous"] as const).map((mode) => (
             <button
@@ -207,8 +334,14 @@ export default function TexVoicePdfViewer({
         <form onSubmit={submitPageJump} className="flex items-center gap-2">
           <span className="text-xs text-zinc-500">Page</span>
           <input
-            value={pageInput}
-            onChange={(event) => setPageInput(event.target.value)}
+            value={followingPage ? String(shownPage) : pageInput}
+            onChange={(event) => {
+              if (followingPage) {
+                setFollowAlong(false);
+                setPageNumber(shownPage);
+              }
+              setPageInput(event.target.value);
+            }}
             disabled={numPages === 0}
             className="w-16 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 disabled:opacity-40"
           />
@@ -217,8 +350,8 @@ export default function TexVoicePdfViewer({
 
         <button
           type="button"
-          onClick={() => goToPage(pageNumber - 1)}
-          disabled={numPages === 0 || pageNumber <= 1 || resolvedViewMode === "continuous"}
+          onClick={() => goToPage(shownPage - 1)}
+          disabled={numPages === 0 || shownPage <= 1 || resolvedViewMode === "continuous"}
           className="rounded-lg border border-zinc-700 px-3 py-1.5 text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Prev
@@ -226,8 +359,8 @@ export default function TexVoicePdfViewer({
 
         <button
           type="button"
-          onClick={() => goToPage(pageNumber + 1)}
-          disabled={numPages === 0 || pageNumber >= numPages || resolvedViewMode === "continuous"}
+          onClick={() => goToPage(shownPage + 1)}
+          disabled={numPages === 0 || shownPage >= numPages || resolvedViewMode === "continuous"}
           className="rounded-lg border border-zinc-700 px-3 py-1.5 text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next
@@ -262,19 +395,37 @@ export default function TexVoicePdfViewer({
     </div>
   );
 
-  const documentSurface = (
-    <div className="h-full overflow-auto bg-zinc-900 p-4">
+  const renderSurface = (slot: 0 | 1) => (
+    <div
+      ref={(element) => {
+        surfaceRefs.current[slot] = element;
+      }}
+      onWheel={() => (lastManualScroll.current = Date.now())}
+      onTouchMove={() => (lastManualScroll.current = Date.now())}
+      className="h-full overflow-auto bg-zinc-900 p-4"
+    >
       {selectedPdfText && (
         <div className="sticky top-0 z-10 mb-3 rounded-xl border border-cyan-700/60 bg-cyan-950/80 p-3 text-sm text-cyan-100 backdrop-blur">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <p className="line-clamp-2">Selected for Start at: “{selectedPdfText}”</p>
-            <button
-              type="button"
-              onClick={() => setSelectedPdfText(null)}
-              className="self-start rounded-lg border border-cyan-700/70 px-3 py-1 text-xs text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-400/10 md:self-auto"
-            >
-              Clear
-            </button>
+            <div className="flex gap-2 self-start md:self-auto">
+              {textIndex && matches.length > 0 && onSeek && (
+                <button
+                  type="button"
+                  onClick={playFromSelection}
+                  className="rounded-lg border border-cyan-700/70 px-3 py-1 text-xs text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-400/10"
+                >
+                  Play from here
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setSelectedPdfText(null)}
+                className="rounded-lg border border-cyan-700/70 px-3 py-1 text-xs text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-400/10"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -294,7 +445,7 @@ export default function TexVoicePdfViewer({
         >
           <div className="relative flex min-w-max flex-col items-center gap-6">
             {renderedPages.map((page) => {
-              const isCurrentPage = page === pageNumber;
+              const isCurrentPage = page === shownPage;
               const isHiddenPreload = resolvedViewMode === "single" && !isCurrentPage;
 
               return (
@@ -304,13 +455,39 @@ export default function TexVoicePdfViewer({
                   onMouseUp={handlePdfTextSelection}
                   className={isHiddenPreload ? "absolute -left-[99999px] top-0 h-0 overflow-hidden" : "flex justify-center"}
                 >
-                  <Page
-                    pageNumber={page}
-                    scale={scale}
-                    renderAnnotationLayer
-                    renderTextLayer
-                    loading={<p className="text-sm text-zinc-500">Loading page {page}...</p>}
-                  />
+                  <div className="relative inline-block">
+                    <Page
+                      pageNumber={page}
+                      scale={scale}
+                      renderAnnotationLayer
+                      renderTextLayer
+                      loading={<p className="text-sm text-zinc-500">Loading page {page}...</p>}
+                    />
+                    {/* Read-along highlight, sized in % of the page so it follows zoom. */}
+                    <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                      {highlightByPage.get(page)?.map(({ line, isFirst }, index) => (
+                        <div
+                          key={index}
+                          data-reading-pointer={isFirst ? "" : undefined}
+                          className="absolute rounded-[3px] mix-blend-multiply transition-all duration-200"
+                          style={{
+                            left: `${(line.left - 0.004) * 100}%`,
+                            top: `${line.top * 100}%`,
+                            width: `${(line.width + 0.008) * 100}%`,
+                            height: `${line.height * 100}%`,
+                            backgroundColor: HIGHLIGHT_COLOR,
+                          }}
+                        >
+                          {isFirst && (
+                            <span
+                              className="absolute -left-2.5 top-0 h-full w-1 rounded-full"
+                              style={{ backgroundColor: POINTER_COLOR }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -420,7 +597,7 @@ export default function TexVoicePdfViewer({
     <>
       <div className={`overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 ${className}`}>
         {controls}
-        <div className="h-[36rem]">{documentSurface}</div>
+        <div className="h-[36rem]">{renderSurface(0)}</div>
       </div>
 
       {isFullscreen && (
@@ -428,7 +605,7 @@ export default function TexVoicePdfViewer({
           <div className="grid h-full min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
             <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
               {controls}
-              <div className="min-h-0 flex-1">{documentSurface}</div>
+              <div className="min-h-0 flex-1">{renderSurface(1)}</div>
             </section>
 
             {miniMenu}

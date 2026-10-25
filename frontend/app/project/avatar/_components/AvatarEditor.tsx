@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import { api, streamApi, textOn } from "../_lib/api";
 import { DEFAULT_SETTINGS, type Avatar, type AvatarDraft, type AvatarSettings, type ThinkingMode } from "../_lib/types";
 import AvatarIcon from "./AvatarIcon";
-import InfoTip from "./InfoTip";
+import InfoTip from "@/components/InfoTip";
 
 const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#ef4444", "#f59e0b", "#10b981", "#0ea5e9", "#64748b"];
 

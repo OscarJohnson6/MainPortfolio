@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../_lib/api";
 import type { GlobalSettings, KeepAlive, Status } from "../_lib/types";
-import InfoTip from "./InfoTip";
+import InfoTip from "@/components/InfoTip";
 
 type Props = {
   settings: GlobalSettings;

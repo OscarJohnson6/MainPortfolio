@@ -195,6 +195,101 @@ def convert_tables_basic(tex: str, mode: str = "announce") -> str:
     return re.sub(table_pattern, "\n\nTable skipped.\n\n", tex, flags=re.DOTALL)
 
 
+def _balanced_end(text: str, start: int, open_char: str, close_char: str) -> int:
+    """Index just past the group opening at text[start], honoring nesting; -1 if unclosed."""
+    depth = 0
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == "\\":
+            continue
+        if char == open_char and (index == 0 or text[index - 1] != "\\"):
+            depth += 1
+        elif char == close_char and text[index - 1] != "\\":
+            depth -= 1
+            if depth == 0:
+                return index + 1
+    return -1
+
+
+def _tikz_labels(picture: str) -> list[str]:
+    """
+    Text drawn by \\node and path `node {...}` labels, in source order.
+
+    A label looks like:  \\node[style] (name) at (x, y) {Text};  or  -- node[above] {Text}
+    so after the word `node`, skip any [options], (name) and `at (coords)`, then read {...}.
+    """
+    labels: list[str] = []
+
+    for match in re.finditer(r"\\?\bnode\b", picture):
+        pos = match.end()
+        while pos < len(picture):
+            while pos < len(picture) and picture[pos].isspace():
+                pos += 1
+            if pos >= len(picture):
+                break
+            char = picture[pos]
+            if char == "[":
+                end = _balanced_end(picture, pos, "[", "]")
+            elif char == "(":
+                end = _balanced_end(picture, pos, "(", ")")
+            elif picture.startswith("at", pos) and not picture[pos + 2: pos + 3].isalpha():
+                end = pos + 2
+            elif char == "{":
+                end = _balanced_end(picture, pos, "{", "}")
+                if end > 0:
+                    labels.append(picture[pos + 1: end - 1])
+                break
+            else:
+                break
+            if end < 0:
+                break
+            pos = end
+
+    cleaned: list[str] = []
+    for label in labels:
+        text = re.sub(r"\\\\", " — ", label)
+        text = re.sub(r"\\(?:textbf|textit|emph|text)\{([^{}]*)\}", r"\1", text)
+        text = re.sub(r"\\(?:tiny|scriptsize|footnotesize|small|normalsize|large|Large|bfseries|itshape)\b\s*", "", text)
+        text = re.sub(r"\s+", " ", text).strip(" —")
+        # Bare math labels ("$1$", "$45^\circ$", "$\sqrt{2}$") are noise when read
+        # out of context, so keep only labels with real words outside the math.
+        words_outside_math = re.sub(r"\$[^$]*\$", "", text)
+        if len(re.findall(r"[A-Za-z]", words_outside_math)) >= 2 and text not in cleaned:
+            cleaned.append(text)
+
+    return cleaned
+
+
+def convert_diagrams(tex: str, mode: str = "announce") -> str:
+    """
+    Handle TikZ pictures (diagrams and pgfplots graphs), which are drawing code,
+    not prose. Read literally they come out as "every node divided by.style
+    equals rounded corners…".
+
+    Modes:
+    - omit: remove diagrams silently
+    - announce: say "Diagram skipped." or, for pgfplots axes, "Graph skipped."
+    - labels: read the words written in the diagram, e.g. "Diagram: Complex
+      Numbers. Real Numbers." Graphs with no worded labels are announced.
+    """
+
+    def replace(match: re.Match) -> str:
+        picture = match.group(0)
+        kind = "Graph" if re.search(r"\\begin\{(?:semilog|loglog)?axis\}", picture) else "Diagram"
+
+        if mode == "omit":
+            return "\n\n"
+
+        if mode == "labels":
+            labels = _tikz_labels(picture)
+            if labels:
+                return f"\n\n{kind}: " + ". ".join(label.rstrip(".") for label in labels) + ".\n\n"
+
+        return f"\n\n{kind} skipped.\n\n"
+
+    return re.sub(r"\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}", replace, tex, flags=re.DOTALL)
+
+
 def remove_visual_commands(tex: str) -> str:
     """
     Remove commands that mostly affect PDF appearance.
@@ -336,11 +431,15 @@ def tex_to_speech_text(
     path: str | Path,
     table_mode: str = "announce",
     remove_exam_notes: bool = False,
+    diagram_mode: str = "announce",
 ) -> str:
     tex = read_tex_file(path)
 
     tex = strip_preamble(tex)
     tex = remove_comments(tex)
+    # Before anything else touches it: TikZ code is full of braces and
+    # commands the later steps would half-convert into nonsense.
+    tex = convert_diagrams(tex, mode=diagram_mode)
     tex = remove_tcolorbox_options(tex)
     tex = convert_custom_structure(tex)
     tex = convert_lists(tex)

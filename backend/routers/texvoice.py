@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass, field
@@ -18,7 +19,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 
+from projects.texvoice import md_cleaner, speech_formatter, speech_rules, tex_cleaner
 from projects.texvoice.chapters import estimate_chapters_from_script, write_chapter_files
+from projects.texvoice.md_cleaner import markdown_to_speech_text
 from projects.texvoice.cli import PROFILES, VOICE_PRESETS, build_default_base_name, effective_wpm
 from projects.texvoice.speech_formatter import (
     format_for_speech,
@@ -42,8 +45,28 @@ TEXVOICE_EXPORTS_DIR = EXPORTS_DIR / "texvoice"
 # Your current imported LaTeX/PDF archive lives here:
 LATEX_IMPORTS_DIR = IMPORTS_DIR / "latex"
 
-for directory in (UPLOADS_DIR, EXPORTS_DIR, IMPORTS_DIR, TEXVOICE_EXPORTS_DIR, LATEX_IMPORTS_DIR):
+# Compiled PDFs and full speech scripts, reused when the same source is
+# generated again with only voice/rate/pitch/start/length changes. Lives under
+# the exports dir, so the file sweeper clears entries unused for 2 days.
+TEXVOICE_CACHE_DIR = TEXVOICE_EXPORTS_DIR / "_cache"
+
+for directory in (UPLOADS_DIR, EXPORTS_DIR, IMPORTS_DIR, TEXVOICE_EXPORTS_DIR, LATEX_IMPORTS_DIR, TEXVOICE_CACHE_DIR):
     directory.mkdir(parents=True, exist_ok=True)
+
+
+def _module_fingerprint(*modules) -> str:
+    """Hash of the script-building code, so editing the cleaner invalidates cached scripts."""
+    digest = hashlib.sha256()
+    for module in modules:
+        digest.update(Path(module.__file__).read_bytes())
+    return digest.hexdigest()[:16]
+
+
+# Every format's front end, plus the shared formatter and rules behind them.
+_SCRIPT_PIPELINE_FINGERPRINT = _module_fingerprint(tex_cleaner, md_cleaner, speech_formatter, speech_rules)
+
+# Source formats, picked by file extension; .markdown is read as .md.
+SUPPORTED_SUFFIXES = (".tex", ".md", ".markdown", ".txt")
 
 # Drop completed/errored jobs from JOBS after this many seconds. Files remain on
 # disk; this only keeps the in-memory status table from growing forever.
@@ -84,6 +107,7 @@ class JobState:
     source_url: str | None = None
     pdf_url: str | None = None
     highlight_map_url: str | None = None
+    timings_url: str | None = None
 
     logs: list[str] = field(default_factory=list)
     error: str | None = None
@@ -236,6 +260,25 @@ def apply_script_audio_options(
     return cleaned.strip()
 
 
+def source_cache_key(source_path: Path, *settings: object) -> str:
+    """Key for cached outputs: the source file's bytes plus the settings that shape them."""
+    digest = hashlib.sha256(source_path.read_bytes())
+    for value in settings:
+        digest.update(b"\0" + str(value).encode("utf-8"))
+    return digest.hexdigest()
+
+
+def read_cache(cache_path: Path) -> bool:
+    """True if the entry exists; touching it keeps the sweeper from deleting it while in use."""
+    if not cache_path.is_file():
+        return False
+    try:
+        os.utime(cache_path)
+    except OSError:
+        pass
+    return True
+
+
 def media_type_for_path(path: Path) -> str:
     suffix = path.suffix.lower()
 
@@ -247,6 +290,8 @@ def media_type_for_path(path: Path) -> str:
         return "application/json"
     if suffix in {".tex", ".txt", ".log"}:
         return "text/plain; charset=utf-8"
+    if suffix in {".md", ".markdown"}:
+        return "text/markdown; charset=utf-8"
 
     return "application/octet-stream"
 
@@ -461,6 +506,7 @@ def build_run_manifest(
     start_at: str | None,
     announce_headings: bool = True,
     speak_list_ordinals: bool = True,
+    diagrams: str = "announce",
 ) -> dict:
     return {
         "kind": "generated",
@@ -482,6 +528,7 @@ def build_run_manifest(
             "volume": selected_volume,
             "pitch": selected_pitch,
             "tables": tables,
+            "diagrams": diagrams,
             "maxWords": max_words,
             "startAt": start_at,
             "announceHeadings": announce_headings,
@@ -496,6 +543,7 @@ def build_run_manifest(
             "log": job.log_url,
             "pdf": job.pdf_url,
             "highlightMap": job.highlight_map_url,
+            "timings": job.timings_url,
         },
     }
 
@@ -523,6 +571,7 @@ async def run_generation_job(
     words_per_minute: int,
     announce_headings: bool = True,
     speak_list_ordinals: bool = True,
+    diagrams: str = "announce",
 ) -> None:
     manifest_kwargs = {
         "job": job,
@@ -538,6 +587,7 @@ async def run_generation_job(
         "start_at": start_at,
         "announce_headings": announce_headings,
         "speak_list_ordinals": speak_list_ordinals,
+        "diagrams": diagrams,
     }
 
     try:
@@ -552,6 +602,7 @@ async def run_generation_job(
         chapters_json_path = run_dir / "chapters.json"
         chapters_txt_path = run_dir / "chapters.txt"
         audio_path = run_dir / "audio.mp3"
+        timings_path = run_dir / "timings.json"
         pdf_path = run_dir / "document.pdf"
         log_path = run_dir / "job.log"
         manifest_path = run_dir / "manifest.json"
@@ -573,12 +624,24 @@ async def run_generation_job(
         eff_wpm = effective_wpm(words_per_minute, selected_rate)
         suffix = upload_path.suffix.lower()
 
-        if suffix == ".tex":
-            update_job(job, "Compiling LaTeX PDF preview.", status="formatting", progress=5)
-            write_log_file(log_path, job)
+        if suffix not in SUPPORTED_SUFFIXES:
+            raise ValueError("Only .tex, .md and .txt files are supported right now.")
 
-            pdf_ok, pdf_message = compile_tex_to_pdf(source_path, pdf_path)
-            update_job(job, pdf_message, progress=7)
+        if suffix == ".tex":
+            cached_pdf = TEXVOICE_CACHE_DIR / f"{source_cache_key(upload_path, 'pdf')}.pdf"
+
+            if read_cache(cached_pdf):
+                shutil.copyfile(cached_pdf, pdf_path)
+                pdf_ok = True
+                update_job(job, "Reused the PDF compiled earlier from this same source.", status="formatting", progress=7)
+            else:
+                update_job(job, "Compiling LaTeX PDF preview.", status="formatting", progress=5)
+                write_log_file(log_path, job)
+
+                pdf_ok, pdf_message = compile_tex_to_pdf(source_path, pdf_path)
+                update_job(job, pdf_message, progress=7)
+                if pdf_ok:
+                    shutil.copyfile(pdf_path, cached_pdf)
 
             if pdf_ok:
                 job.pdf_url = public_export_url(pdf_path)
@@ -586,7 +649,25 @@ async def run_generation_job(
             write_log_file(log_path, job)
             write_run_manifest(manifest_path, **manifest_kwargs)
 
-        if suffix == ".tex":
+        # The full script depends only on the source and these settings. Voice,
+        # rate, pitch, Start at and Max words are applied afterwards, so changing
+        # those reuses the cached script instead of parsing the file again.
+        cached_script = TEXVOICE_CACHE_DIR / (
+            source_cache_key(upload_path, suffix, tables, diagrams, style, remove_exam_notes, _SCRIPT_PIPELINE_FINGERPRINT)
+            + ".txt"
+        )
+
+        if read_cache(cached_script):
+            speech_script = read_text_file(cached_script)
+            update_job(
+                job,
+                "Reused the speech script from an earlier run of this file (only voice, length or start settings changed).",
+                status="formatting",
+                progress=18,
+            )
+            write_log_file(log_path, job)
+
+        elif suffix == ".tex":
             update_job(job, "Parsing LaTeX source.", status="parsing", progress=8)
             write_log_file(log_path, job)
 
@@ -594,6 +675,7 @@ async def run_generation_job(
                 upload_path,
                 table_mode=tables,
                 remove_exam_notes=remove_exam_notes,
+                diagram_mode=diagrams,
             )
 
             update_job(job, "Formatting final speech script.", status="formatting", progress=18)
@@ -604,8 +686,30 @@ async def run_generation_job(
                 style=style,
                 skip_front_matter=True,
             )
+            cached_script.write_text(speech_script, encoding="utf-8")
 
-        elif suffix == ".txt":
+        elif suffix in (".md", ".markdown"):
+            update_job(job, "Reading Markdown structure (headings, lists, tables).", status="parsing", progress=8)
+            write_log_file(log_path, job)
+
+            speech_base_text = markdown_to_speech_text(
+                upload_path,
+                table_mode=tables,
+                diagram_mode=diagrams,
+            )
+
+            update_job(job, "Formatting final speech script.", status="formatting", progress=18)
+            write_log_file(log_path, job)
+
+            # Markdown has no LaTeX-style title page or contents to skip.
+            speech_script = format_for_speech(
+                speech_base_text,
+                style=style,
+                skip_front_matter=False,
+            )
+            cached_script.write_text(speech_script, encoding="utf-8")
+
+        else:
             update_job(job, "Reading plain text source.", status="parsing", progress=8)
             write_log_file(log_path, job)
 
@@ -620,9 +724,7 @@ async def run_generation_job(
                 style=style,
                 skip_front_matter=False,
             )
-
-        else:
-            raise ValueError("Only .tex and .txt files are supported right now.")
+            cached_script.write_text(speech_script, encoding="utf-8")
 
         if start_at:
             update_job(job, f'Trimming script to start near "{start_at}".', progress=22)
@@ -695,7 +797,9 @@ async def run_generation_job(
             volume=selected_volume,
             pitch=selected_pitch,
             progress_callback=progress_callback,
+            timings_path=timings_path,
         )
+        job.timings_url = public_export_url(timings_path)
 
         job.generated_audio_bytes = file_size(audio_path)
         job.actual_audio_bytes = job.generated_audio_bytes
@@ -807,6 +911,7 @@ async def create_generation_job(
     words_per_minute: int = Form(150),
     announce_headings: bool = Form(True),
     speak_list_ordinals: bool = Form(True),
+    diagrams: str = Form("announce"),
 ) -> dict[str, str]:
     if profile not in PROFILES:
         raise HTTPException(status_code=400, detail=f"Unknown profile: {profile}")
@@ -817,12 +922,15 @@ async def create_generation_job(
     if tables not in {"announce", "omit", "rough"}:
         raise HTTPException(status_code=400, detail=f"Unknown table mode: {tables}")
 
+    if diagrams not in {"announce", "omit", "labels"}:
+        raise HTTPException(status_code=400, detail=f"Unknown diagram mode: {diagrams}")
+
     if not file.filename:
         raise HTTPException(status_code=400, detail="Missing filename")
 
     lower_filename = file.filename.lower()
-    if not lower_filename.endswith(".tex") and not lower_filename.endswith(".txt"):
-        raise HTTPException(status_code=400, detail="Only .tex and .txt files are supported right now")
+    if not lower_filename.endswith(SUPPORTED_SUFFIXES):
+        raise HTTPException(status_code=400, detail="Only .tex, .md and .txt files are supported right now")
 
     safe_name = safe_filename(file.filename)
     upload_path = UPLOADS_DIR / f"{uuid4().hex}_{safe_name}"
@@ -860,6 +968,7 @@ async def create_generation_job(
             words_per_minute=words_per_minute,
             announce_headings=announce_headings,
             speak_list_ordinals=speak_list_ordinals,
+            diagrams=diagrams,
         )
     )
 
@@ -884,6 +993,7 @@ async def create_library_generation_job(
     words_per_minute: int = Form(150),
     announce_headings: bool = Form(True),
     speak_list_ordinals: bool = Form(True),
+    diagrams: str = Form("announce"),
 ) -> dict[str, str]:
     """
     Generate temporary preview audio from an imported archive source.
@@ -901,6 +1011,9 @@ async def create_library_generation_job(
 
     if tables not in {"announce", "omit", "rough"}:
         raise HTTPException(status_code=400, detail=f"Unknown table mode: {tables}")
+
+    if diagrams not in {"announce", "omit", "labels"}:
+        raise HTTPException(status_code=400, detail=f"Unknown diagram mode: {diagrams}")
 
     source_path = LATEX_IMPORTS_DIR / f"{slug}.tex"
     if not source_path.exists() or not source_path.is_file():
@@ -936,6 +1049,7 @@ async def create_library_generation_job(
             words_per_minute=words_per_minute,
             announce_headings=announce_headings,
             speak_list_ordinals=speak_list_ordinals,
+            diagrams=diagrams,
         )
     )
 
@@ -1026,6 +1140,7 @@ def scan_latex_library() -> list[dict]:
       BioNotes.mp3                 optional later
       BioNotes-chapters.json       optional later
       BioNotes-highlight-map.json  optional later
+      BioNotes-timings.json        optional; written by the CLI next to the mp3
     """
     items: list[dict] = []
 
@@ -1039,6 +1154,7 @@ def scan_latex_library() -> list[dict]:
         audio_path = LATEX_IMPORTS_DIR / f"{stem}.mp3"
         chapters_path = LATEX_IMPORTS_DIR / f"{stem}-chapters.json"
         highlight_map_path = LATEX_IMPORTS_DIR / f"{stem}-highlight-map.json"
+        timings_path = LATEX_IMPORTS_DIR / f"{stem}-timings.json"
         preview_path = LATEX_IMPORTS_DIR / f"{stem}-preview.txt"
 
         summary = (
@@ -1059,6 +1175,7 @@ def scan_latex_library() -> list[dict]:
                 "audioUrl": public_import_url(audio_path) if audio_path.exists() else None,
                 "chaptersUrl": public_import_url(chapters_path) if chapters_path.exists() else None,
                 "highlightMapUrl": public_import_url(highlight_map_path) if highlight_map_path.exists() else None,
+                "timingsUrl": public_import_url(timings_path) if timings_path.exists() else None,
             }
         )
 

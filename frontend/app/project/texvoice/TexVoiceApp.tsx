@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import InfoTip from "@/components/InfoTip";
+import { sentenceAt, sentenceKey, type SentenceTiming, type TimingsFile } from "./highlight";
+import TexVoiceMarkdownViewer from "./TexVoiceMarkdownViewer";
 import TexVoicePdfViewer from "./TexVoicePdfViewerClient";
 
 type JobStatus = "idle" | "uploading" | "queued" | "parsing" | "formatting" | "generating" | "done" | "error";
@@ -38,6 +41,7 @@ type JobState = {
   source_url?: string;
   pdf_url?: string;
   highlight_map_url?: string;
+  timings_url?: string;
   logs: string[];
   error?: string;
 };
@@ -53,6 +57,7 @@ type LibraryItem = {
   audioUrl?: string | null;
   chaptersUrl?: string | null;
   transcriptUrl?: string | null;
+  timingsUrl?: string | null;
 };
 
 type LibraryResponse = {
@@ -84,6 +89,65 @@ const voicePresets = [
 
 const profiles = ["sleep", "study", "default", "fast"] as const;
 const styles = ["sleep", "narrated", "literal"] as const;
+
+const tableModes = [
+  { value: "omit", label: "Skip", hint: "Leave tables out of the audio entirely." },
+  { value: "announce", label: "Say “Table skipped”", hint: "Mention that a table was there, then move on." },
+  { value: "rough", label: "Read rows", hint: "Read simple tables row by row. Works best on small tables." },
+] as const;
+type TableMode = (typeof tableModes)[number]["value"];
+
+const diagramModes = [
+  { value: "omit", label: "Skip", hint: "Leave diagrams and graphs out of the audio." },
+  { value: "announce", label: "Say “Diagram skipped”", hint: "Mention that a diagram or graph was there (“Graph skipped” for plots)." },
+  { value: "labels", label: "Read labels", hint: "Read the words written in the diagram, like box titles. Bare numbers and math labels are left out." },
+] as const;
+type DiagramMode = (typeof diagramModes)[number]["value"];
+
+// Where you left off is kept in this browser only (localStorage), per audio
+// file and per document. Saved as both the audio time and the sentence being
+// read: the time is exact for the same audio file, and the sentence still
+// works after the audio is regenerated at a different rate.
+const POSITION_PREFIX = "texvoice:position:";
+const DOCUMENT_PREFIX = "texvoice:document:";
+const SAVE_EVERY_SECONDS = 3;
+
+type SavedPosition = { time: number; sentence: string | null; audioUrl: string; savedAt: number };
+
+function readSaved(key: string): SavedPosition | null {
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as SavedPosition) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSaved(key: string, value: SavedPosition) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Private mode or storage full: resuming just won't be available.
+  }
+}
+
+function forgetSaved(key: string) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Nothing to do.
+  }
+}
+
+/** A field label with an optional ⓘ explanation. */
+function FieldLabel({ children, info }: { children: ReactNode; info?: string }) {
+  return (
+    <span className="flex items-center gap-1.5 text-sm text-zinc-400">
+      {children}
+      {info && <InfoTip text={info} />}
+    </span>
+  );
+}
 
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
@@ -148,8 +212,16 @@ function getActiveChapter(chapters: Chapter[], currentTime: number): Chapter | n
   return active;
 }
 
+// The file's extension decides how it's read; nothing for the user to pick.
+const ACCEPTED_EXTENSIONS = [".tex", ".md", ".markdown", ".txt"];
+
+function isMarkdownFile(name: string): boolean {
+  return /\.(md|markdown)$/i.test(name);
+}
+
 function getAcceptedFileDescription(file: File): string {
   if (file.name.toLowerCase().endsWith(".tex")) return "LaTeX source";
+  if (isMarkdownFile(file.name)) return "Markdown";
   if (file.name.toLowerCase().endsWith(".txt")) return "plain text";
   return "unsupported";
 }
@@ -159,6 +231,8 @@ export default function TexVoiceApp() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [file, setFile] = useState<File | null>(null);
+  // Markdown is previewed straight from the file in the browser; no PDF to compile.
+  const [markdownSource, setMarkdownSource] = useState<string | null>(null);
   const [status, setStatus] = useState<JobStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Drop a .tex file to preview the PDF, or generate audio when ready.");
@@ -183,6 +257,14 @@ export default function TexVoiceApp() {
   const [style, setStyle] = useState<(typeof styles)[number]>("sleep");
   const [announceHeadings, setAnnounceHeadings] = useState(true);
   const [speakListOrdinals, setSpeakListOrdinals] = useState(true);
+  const [tables, setTables] = useState<TableMode>("announce");
+  const [diagrams, setDiagrams] = useState<DiagramMode>("announce");
+  // Tagged with the URL it came from, so switching audio never shows another file's timings.
+  const [loadedTimings, setLoadedTimings] = useState<{ url: string; sentences: SentenceTiming[] } | null>(null);
+  const [resumeNotice, setResumeNotice] = useState<{ text: string; from: number } | null>(null);
+  const [resumeOffer, setResumeOffer] = useState<{ text: string; time: number } | null>(null);
+  const resumeCheckedFor = useRef<string | null>(null);
+  const lastSavedAt = useRef(0);
   const [voicePreset, setVoicePreset] = useState("aria");
   const [rate, setRate] = useState("+10%");
   const [pitch, setPitch] = useState("-7Hz");
@@ -209,6 +291,10 @@ export default function TexVoiceApp() {
       };
     }
 
+    if (file && markdownSource !== null && job?.status !== "done") {
+      return { kind: "generated", title: file.name };
+    }
+
     if (job?.status === "done" && (job.audio_url || job.pdf_url || job.source_url || job.script_url)) {
       return {
         kind: "generated",
@@ -224,7 +310,7 @@ export default function TexVoiceApp() {
     }
 
     return null;
-  }, [file?.name, job, selectedLibraryItem]);
+  }, [file, markdownSource, job, selectedLibraryItem]);
 
   const officialAudioUrl = selectedLibraryItem?.audioUrl ?? null;
   const generatedPreviewAudioUrl = selectedLibraryItem && job?.status === "done" ? job.audio_url ?? null : null;
@@ -246,6 +332,16 @@ export default function TexVoiceApp() {
         ? generatedPreviewChaptersUrl
         : generatedPreviewChaptersUrl ?? officialChaptersUrl
     : activeDocument?.chaptersUrl ?? null;
+
+  const officialTimingsUrl = selectedLibraryItem?.timingsUrl ?? null;
+  const generatedTimingsUrl = job?.status === "done" ? job.timings_url ?? null : null;
+  const activeTimingsUrl = selectedLibraryItem
+    ? audioUrl === officialAudioUrl
+      ? officialTimingsUrl
+      : generatedTimingsUrl
+    : generatedTimingsUrl;
+  const documentKey = selectedLibraryItem?.slug ?? file?.name ?? activeDocument?.title ?? null;
+  const timings = loadedTimings && loadedTimings.url === activeTimingsUrl ? loadedTimings.sentences : null;
 
   const hasAudioSourceToggle = Boolean(officialAudioUrl && generatedPreviewAudioUrl);
   const activeChapter = useMemo(() => getActiveChapter(chapters, currentTime), [chapters, currentTime]);
@@ -293,8 +389,92 @@ export default function TexVoiceApp() {
     void loadChapters();
   }, [activeChaptersUrl]);
 
+  useEffect(() => {
+    if (!activeTimingsUrl) return;
+    let cancelled = false;
+    const url = activeTimingsUrl;
+
+    fetch(url)
+      .then((response) => (response.ok ? (response.json() as Promise<TimingsFile>) : null))
+      .then((data) => {
+        if (cancelled || !data?.sentences) return;
+        setLoadedTimings({ url, sentences: data.sentences });
+        tryResume(data.sentences);
+      })
+      .catch(() => {
+        // No timings: playback works, just without highlighting.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // tryResume reads the latest audio element itself; rerunning on its identity would refetch every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTimingsUrl]);
+
+  /**
+   * Pick up where you left off, once per audio file. Runs when the audio's
+   * length is known and again when its timings arrive, whichever is last.
+   */
+  function tryResume(sentences: SentenceTiming[] | null) {
+    const audio = audioRef.current;
+    // Read the length from the element: the `duration` state can briefly hold the previous file's.
+    const length = audio?.duration ?? Number.NaN;
+    if (!audio || !audioUrl || !Number.isFinite(length) || length <= 0) return;
+    if (activeTimingsUrl && !sentences) return;
+    if (resumeCheckedFor.current === audioUrl) return;
+    resumeCheckedFor.current = audioUrl;
+    setResumeNotice(null);
+    setResumeOffer(null);
+
+    const saved = readSaved(POSITION_PREFIX + audioUrl);
+    if (saved && saved.time > 5 && saved.time < length - 5) {
+      // Start at the beginning of the sentence that was playing, not mid-word.
+      const index = sentences ? sentenceAt(sentences, saved.time) : -1;
+      const from = index >= 0 && sentences ? sentences[index].start : Math.max(0, saved.time - 2);
+      audio.currentTime = from;
+      setCurrentTime(from);
+      setResumeNotice({ text: `Picked up where you left off, at ${formatTimestamp(from)}.`, from });
+      return;
+    }
+
+    // New audio for a document you were partway through (e.g. regenerated at a
+    // different rate): the old time doesn't apply, so look for the sentence.
+    const lastInDocument = documentKey ? readSaved(DOCUMENT_PREFIX + documentKey) : null;
+    if (lastInDocument?.sentence && lastInDocument.audioUrl !== audioUrl && sentences) {
+      const index = sentences.findIndex((sentence) => sentenceKey(sentence.text) === lastInDocument.sentence);
+      if (index > 0) {
+        setResumeOffer({ text: sentences[index].text, time: sentences[index].start });
+      }
+    }
+  }
+
+  function savePosition(time: number) {
+    if (!audioUrl || time < 1) return;
+    const index = timings ? sentenceAt(timings, time) : -1;
+    const value: SavedPosition = {
+      time,
+      sentence: index >= 0 && timings ? sentenceKey(timings[index].text) : null,
+      audioUrl,
+      savedAt: Date.now(),
+    };
+    writeSaved(POSITION_PREFIX + audioUrl, value);
+    if (documentKey) writeSaved(DOCUMENT_PREFIX + documentKey, value);
+  }
+
+  function startOver() {
+    if (audioUrl) forgetSaved(POSITION_PREFIX + audioUrl);
+    setResumeNotice(null);
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      setCurrentTime(0);
+    }
+  }
+
   function resetForNewFile(nextFile: File) {
     setFile(nextFile);
+    setMarkdownSource(null);
     setStatus("idle");
     setProgress(0);
     setJob(null);
@@ -310,7 +490,13 @@ export default function TexVoiceApp() {
     setDownloadTotalBytes(0);
     setDownloadSpeed(0);
     setAudioMode("auto");
-    setStatusText(nextFile.name.toLowerCase().endsWith(".tex") ? "Preparing PDF preview..." : "Ready to generate audio.");
+    setStatusText(
+      nextFile.name.toLowerCase().endsWith(".tex")
+        ? "Preparing PDF preview..."
+        : isMarkdownFile(nextFile.name)
+          ? "Markdown preview ready below. Generate audio when you want it."
+          : "Ready to generate audio.",
+    );
   }
 
   async function previewUploadedTex(nextFile: File) {
@@ -353,8 +539,8 @@ export default function TexVoiceApp() {
     if (!nextFile) return;
 
     const lower = nextFile.name.toLowerCase();
-    if (!lower.endsWith(".tex") && !lower.endsWith(".txt")) {
-      setError("Upload a .tex or .txt file.");
+    if (!ACCEPTED_EXTENSIONS.some((extension) => lower.endsWith(extension))) {
+      setError("Upload a .tex, .md or .txt file.");
       return;
     }
 
@@ -362,6 +548,11 @@ export default function TexVoiceApp() {
 
     if (lower.endsWith(".tex")) {
       void previewUploadedTex(nextFile);
+    } else if (isMarkdownFile(lower)) {
+      nextFile
+        .text()
+        .then(setMarkdownSource)
+        .catch(() => setError("Could not read that Markdown file."));
     }
   }
 
@@ -399,6 +590,8 @@ export default function TexVoiceApp() {
     formData.append("pitch", pitch);
     formData.append("announce_headings", String(announceHeadings));
     formData.append("speak_list_ordinals", String(speakListOrdinals));
+    formData.append("tables", tables);
+    formData.append("diagrams", diagrams);
 
     if (maxWords.trim()) {
       formData.append("max_words", maxWords.trim());
@@ -502,6 +695,7 @@ export default function TexVoiceApp() {
 
   function selectLibraryItem(item: LibraryItem) {
     setSelectedLibraryItem(item);
+    setMarkdownSource(null);
     setJob(null);
     setFile(null);
     setStatus("idle");
@@ -656,14 +850,14 @@ export default function TexVoiceApp() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".tex,.txt,text/plain"
+                accept=".tex,.md,.markdown,.txt,text/plain,text/markdown"
                 className="hidden"
                 onChange={(event) => handleFiles(event.target.files)}
               />
 
               <div className="flex flex-col items-center justify-center gap-4 text-center">
                 <div className="rounded-2xl bg-zinc-800 px-5 py-3 text-sm text-zinc-300">
-                  {fileSummary ?? "Drop your .tex or .txt file here"}
+                  {fileSummary ?? "Drop your .tex, .md or .txt file here"}
                 </div>
 
                 <button
@@ -677,8 +871,38 @@ export default function TexVoiceApp() {
             </section>
 
             <section className="grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 md:grid-cols-2">
+              {/* How much gets read comes first: it's the setting that matters most and is easy to miss. */}
+              <div className="grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 md:col-span-2 md:grid-cols-[10rem_minmax(0,1fr)]">
+                <label className="flex flex-col gap-2">
+                  <FieldLabel info="How much of the document to read, counted from where it starts. Leave it empty to read the whole thing. The default of 250 words makes quick test clips.">
+                    Max words
+                  </FieldLabel>
+                  <input
+                    value={maxWords}
+                    onChange={(event) => setMaxWords(event.target.value)}
+                    placeholder="All"
+                    inputMode="numeric"
+                    className="rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2">
+                  <FieldLabel info="Start reading at the first heading or line containing this text, like “Properties of Water”. Selecting text in the PDF preview fills this in.">
+                    Start at
+                  </FieldLabel>
+                  <input
+                    value={startAt}
+                    onChange={(event) => setStartAt(event.target.value)}
+                    placeholder="Optional: a heading or phrase from the document"
+                    className="rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2"
+                  />
+                </label>
+              </div>
+
               <label className="flex flex-col gap-2">
-                <span className="text-sm text-zinc-400">Profile</span>
+                <FieldLabel info="A starting preset for voice and pacing (sleep, study, default, fast). The Voice, Rate and Pitch fields below override it.">
+                  Profile
+                </FieldLabel>
                 <select
                   value={profile}
                   onChange={(event) => setProfile(event.target.value as (typeof profiles)[number])}
@@ -691,7 +915,9 @@ export default function TexVoiceApp() {
               </label>
 
               <label className="flex flex-col gap-2">
-                <span className="text-sm text-zinc-400">Speech style</span>
+                <FieldLabel info="How headings are introduced. Sleep uses soft phrases (“Next topic”, “Now”); narrated and literal use plainer ones (“New section”, “Subsection”), and literal keeps the text closest to the source.">
+                  Speech style
+                </FieldLabel>
                 <select
                   value={style}
                   onChange={(event) => setStyle(event.target.value as (typeof styles)[number])}
@@ -735,11 +961,44 @@ export default function TexVoiceApp() {
                       <span className="text-xs text-zinc-500">Say First, Second, Third before list items.</span>
                     </span>
                   </label>
+
+                  <label className="flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-300">
+                    <span className="font-medium text-zinc-100">Tables</span>
+                    <select
+                      value={tables}
+                      onChange={(event) => setTables(event.target.value as TableMode)}
+                      className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm"
+                    >
+                      {tableModes.map((mode) => (
+                        <option key={mode.value} value={mode.value}>{mode.label}</option>
+                      ))}
+                    </select>
+                    <span className="text-xs text-zinc-500">{tableModes.find((mode) => mode.value === tables)?.hint}</span>
+                  </label>
+
+                  <label className="flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-300">
+                    <span className="flex items-center gap-1.5 font-medium text-zinc-100">
+                      Diagrams and graphs
+                      <InfoTip text="TikZ pictures and pgfplots graphs are drawing code, not text. Without this they'd be read out as instructions like “rounded corners equals 4pt”." />
+                    </span>
+                    <select
+                      value={diagrams}
+                      onChange={(event) => setDiagrams(event.target.value as DiagramMode)}
+                      className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm"
+                    >
+                      {diagramModes.map((mode) => (
+                        <option key={mode.value} value={mode.value}>{mode.label}</option>
+                      ))}
+                    </select>
+                    <span className="text-xs text-zinc-500">{diagramModes.find((mode) => mode.value === diagrams)?.hint}</span>
+                  </label>
                 </div>
               </div>
 
               <label className="flex flex-col gap-2">
-                <span className="text-sm text-zinc-400">Voice preset</span>
+                <FieldLabel info="The text-to-speech voice. Changing only the voice, rate or pitch reuses the script from your last run of the same file, so it starts faster.">
+                  Voice preset
+                </FieldLabel>
                 <select
                   value={voicePreset}
                   onChange={(event) => setVoicePreset(event.target.value)}
@@ -751,25 +1010,19 @@ export default function TexVoiceApp() {
                 </select>
               </label>
 
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3">
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm text-zinc-400">Rate</span>
+                  <FieldLabel info="Speaking speed relative to normal, as a percent: +10% is a little faster, -10% a little slower.">
+                    Rate
+                  </FieldLabel>
                   <input value={rate} onChange={(event) => setRate(event.target.value)} className="rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2" />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                  <span className="text-sm text-zinc-400">Pitch</span>
+                  <FieldLabel info="Voice pitch in hertz: negative values sound deeper and calmer, positive values higher.">
+                    Pitch
+                  </FieldLabel>
                   <input value={pitch} onChange={(event) => setPitch(event.target.value)} className="rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2" />
-                </label>
-
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-zinc-400">Max words</span>
-                  <input value={maxWords} onChange={(event) => setMaxWords(event.target.value)} placeholder="250" className="rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2" />
-                </label>
-
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-zinc-400">Start at</span>
-                  <input value={startAt} onChange={(event) => setStartAt(event.target.value)} placeholder="optional" className="rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2" />
                 </label>
               </div>
             </section>
@@ -921,15 +1174,75 @@ export default function TexVoiceApp() {
                       src={audioUrl}
                       controls
                       className="w-full"
-                      onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-                      onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
-                      onPlay={() => setIsAudioPlaying(true)}
-                      onPause={() => setIsAudioPlaying(false)}
-                      onEnded={() => setIsAudioPlaying(false)}
+                      onTimeUpdate={(event) => {
+                        const time = event.currentTarget.currentTime;
+                        setCurrentTime(time);
+                        if (Math.abs(time - lastSavedAt.current) >= SAVE_EVERY_SECONDS) {
+                          lastSavedAt.current = time;
+                          savePosition(time);
+                        }
+                      }}
+                      onLoadedMetadata={(event) => {
+                        setDuration(event.currentTarget.duration);
+                        tryResume(timings);
+                      }}
+                      onPlay={() => {
+                        setIsAudioPlaying(true);
+                        setResumeNotice(null);
+                      }}
+                      onPause={(event) => {
+                        setIsAudioPlaying(false);
+                        savePosition(event.currentTarget.currentTime);
+                      }}
+                      onEnded={() => {
+                        setIsAudioPlaying(false);
+                        if (audioUrl) forgetSaved(POSITION_PREFIX + audioUrl);
+                      }}
                     />
                   ) : (
                     <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-500">
                       No audio is selected yet. Generate preview audio from the archive source or use the source as an upload.
+                    </div>
+                  )}
+
+                  {audioUrl && resumeNotice && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+                      <span>{resumeNotice.text} Press play to continue.</span>
+                      <button
+                        type="button"
+                        onClick={startOver}
+                        className="rounded-lg border border-emerald-300/40 px-3 py-1 text-xs transition hover:bg-emerald-300/10"
+                      >
+                        Start over
+                      </button>
+                    </div>
+                  )}
+
+                  {audioUrl && resumeOffer && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-700/60 bg-cyan-950/60 px-4 py-3 text-sm text-cyan-100">
+                      <span className="min-w-0 flex-1">
+                        This is new audio for a document you were partway through. Resume at “
+                        <span className="italic">{resumeOffer.text.length > 70 ? `${resumeOffer.text.slice(0, 70)}…` : resumeOffer.text}</span>”?
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            seekTo(resumeOffer.time);
+                            setResumeOffer(null);
+                          }}
+                          className="rounded-lg border border-cyan-600/70 px-3 py-1 text-xs transition hover:bg-cyan-400/10"
+                        >
+                          Resume
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setResumeOffer(null)}
+                          className="rounded-lg border border-cyan-600/70 px-3 py-1 text-xs transition hover:bg-cyan-400/10"
+                        >
+                          Start from the beginning
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -958,7 +1271,13 @@ export default function TexVoiceApp() {
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">Document preview</p>
-                        <p className="text-sm text-zinc-500">PDF display now, synced highlighting later.</p>
+                        <p className="text-sm text-zinc-500">
+                          {timings
+                            ? "The line being read is highlighted. Select text in the PDF to play from there."
+                            : audioUrl
+                              ? "Read-along highlighting needs audio generated with the latest version of TexVoice."
+                              : "Generate audio to have the PDF highlight along as it reads."}
+                        </p>
                       </div>
                     </div>
 
@@ -976,10 +1295,20 @@ export default function TexVoiceApp() {
                         onSeek={seekTo}
                         onTogglePlay={toggleAudioPlayback}
                         onPdfTextSelected={(text) => setStartAt(text)}
+                        timings={timings}
+                      />
+                    ) : markdownSource !== null ? (
+                      <TexVoiceMarkdownViewer
+                        title={activeDocument.title}
+                        markdown={markdownSource}
+                        currentTime={currentTime}
+                        timings={timings}
+                        onSeek={seekTo}
+                        onTextSelected={(text) => setStartAt(text)}
                       />
                     ) : (
                       <p className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-500">
-                        No PDF is available yet. Upload a .tex file to compile a preview, or generate audio from text without a PDF.
+                        No PDF is available yet. Upload a .tex file to compile a preview or a .md file to see it rendered, or generate audio from plain text without a preview.
                       </p>
                     )}
                   </div>
@@ -1043,51 +1372,56 @@ export default function TexVoiceApp() {
                 ))}
               </div>
             </section>
-            <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5">
+            {/* Fills the rest of the sidebar, which stretches to the main column's height,
+                so the list grows when a document preview makes the page taller. */}
+            <section className="flex flex-col rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5 lg:flex-1">
               <div className="mb-4">
                 <p className="font-medium">Archive examples</p>
                 <p className="text-sm text-zinc-500">Imported LaTeX/PDF notes. Audio and timestamps can be added later.</p>
               </div>
 
-              <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
-                {libraryStatus === "loading" && <p className="text-sm text-zinc-500">Loading archive...</p>}
-                {libraryStatus === "ready" && libraryItems.length === 0 && (
-                  <p className="text-sm text-zinc-500">No archive items yet. Add .tex/.pdf files under imports/latex.</p>
-                )}
-                {libraryStatus === "error" && (
-                  <p className="text-sm text-red-200">Archive could not load. The generator can still run.</p>
-                )}
+              {/* Absolutely positioned on large screens so the list's own length
+                  never makes the page taller; it only fills the space it's given. */}
+              <div className="relative lg:min-h-96 lg:flex-1">
+                <div className="max-h-96 space-y-2 overflow-y-auto pr-1 lg:absolute lg:inset-0 lg:max-h-none">
+                  {libraryStatus === "loading" && <p className="text-sm text-zinc-500">Loading archive...</p>}
+                  {libraryStatus === "ready" && libraryItems.length === 0 && (
+                    <p className="text-sm text-zinc-500">No archive items yet. Add .tex/.pdf files under imports/latex.</p>
+                  )}
+                  {libraryStatus === "error" && (
+                    <p className="text-sm text-red-200">Archive could not load. The generator can still run.</p>
+                  )}
 
-                {libraryItems.map((item) => {
-                  const isSelected = selectedLibraryItem?.slug === item.slug;
+                  {libraryItems.map((item) => {
+                    const isSelected = selectedLibraryItem?.slug === item.slug;
 
-                  return (
-                    <button
-                      key={item.slug}
-                      type="button"
-                      onClick={() => selectLibraryItem(item)}
-                      className={`w-full rounded-2xl border p-3 text-left text-sm transition ${
-                        isSelected
-                          ? "border-cyan-300 bg-cyan-300/10 text-cyan-100"
-                          : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-900"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="font-medium">{item.title}</span>
-                        <span className="shrink-0 text-xs text-zinc-500">{item.course ?? "Archive"}</span>
-                      </div>
-                      {item.summary && <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{item.summary}</p>}
-                      <div className="mt-2 flex flex-wrap gap-1 text-[11px] text-zinc-500">
-                        {item.audioUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">audio</span>}
-                        {item.pdfUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">pdf</span>}
-                        {item.chaptersUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">timestamps</span>}
-                      </div>
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={item.slug}
+                        type="button"
+                        onClick={() => selectLibraryItem(item)}
+                        className={`w-full rounded-2xl border p-3 text-left text-sm transition ${
+                          isSelected
+                            ? "border-cyan-300 bg-cyan-300/10 text-cyan-100"
+                            : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-900"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="font-medium">{item.title}</span>
+                          <span className="shrink-0 text-xs text-zinc-500">{item.course ?? "Archive"}</span>
+                        </div>
+                        {item.summary && <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{item.summary}</p>}
+                        <div className="mt-2 flex flex-wrap gap-1 text-[11px] text-zinc-500">
+                          {item.audioUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">audio</span>}
+                          {item.pdfUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">pdf</span>}
+                          {item.chaptersUrl && <span className="rounded-full bg-zinc-900 px-2 py-1">timestamps</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </section>
-
           </aside>
         </section>
       </div>

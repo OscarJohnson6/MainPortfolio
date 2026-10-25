@@ -8,7 +8,7 @@ attrs==26.1.0
 certifi==2026.5.20
 click==8.4.1
 colorama==0.4.6
-edge-tts==7.2.8
+edge-tts==7.3.1
 fastapi==0.136.3
 frozenlist==1.8.0
 h11==0.16.0

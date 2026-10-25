@@ -220,7 +220,9 @@ def final_rule_cleanup(text: str) -> str:
 
     # Clean common math/text artifacts that can leak out of pylatexenc.
     text = re.sub(r"\bln\s+", "natural log of ", text)
-    text = re.sub(r"\blim[_\s]*", "limit as ", text)
+    # Only a standalone "lim" (from "\lim_{x \to 0}"), never the start of
+    # "limit", "limits" or "limited", which used to become "limit as its".
+    text = re.sub(r"\blim(?![a-zA-Z])[_\s]*", "limit as ", text)
     text = re.sub(r"\bsub\s+0\b", "sub zero", text)
     text = re.sub(r"less than\s+ref\s+greater than", "reference", text, flags=re.IGNORECASE)
 

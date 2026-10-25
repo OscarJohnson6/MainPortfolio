@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBackendStatus } from "../../components/SiteHeader";
 
-type ProjectRuntime = "browser" | "backend" | "hybrid";
+// "private": behind an access code and served from my PC, not the Pi.
+type ProjectRuntime = "browser" | "backend" | "hybrid" | "private";
 
 const projectLinks: Array<{
   href: string;
@@ -17,6 +18,8 @@ const projectLinks: Array<{
   { href: "/project/arcade", label: "Arcade", runtime: "browser" },
   { href: "/project/toolbox", label: "Toolbox", runtime: "browser" },
   { href: "/project/rhythm-sync", label: "Rhythm Sync", runtime: "backend" },
+  { href: "/project/explain", label: "e(x)plain", runtime: "hybrid" },
+  { href: "/project/avatar", label: "AIvatar", runtime: "private" },
 ];
 
 export default function ProjectLayout({
@@ -84,7 +87,8 @@ function getRuntimeState(
   runtime: ProjectRuntime,
   backendStatus: "online" | "offline" | "unconfigured"
 ) {
-  if (runtime === "browser") return "browser";
+  // Private projects don't depend on the Pi, so they get the neutral dot.
+  if (runtime === "browser" || runtime === "private") return "browser";
   if (runtime === "hybrid") {
     return backendStatus === "online" ? "online" : "hybrid";
   }

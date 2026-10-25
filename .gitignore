@@ -122,6 +122,9 @@ backend/uploads/
 /imports/latex/*.wav
 /imports/latex/*-chapters.json
 /imports/latex/*-highlight-map.json
+/imports/latex/*-timings.json
+# Which notes build_archive_audio.py has built, and with what settings.
+/imports/latex/.archive-audio.json
 /imports/latex/*.pdf
 
 

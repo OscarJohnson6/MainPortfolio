@@ -4,12 +4,15 @@
 FROM python:3.12-slim
 
 # TexVoice compiles uploaded .tex files to PDF when latexmk is available.
-# TeX adds a few hundred MB, so it can be skipped:  --build-arg INSTALL_LATEX=false
+# TeX adds several hundred MB, so it can be skipped:  --build-arg INSTALL_LATEX=false
+# latex-extra (multirow, titlesec, tcolorbox, enumitem…), pictures (tikz,
+# pgfplots) and tipa cover every package the notes in imports/latex use.
 ARG INSTALL_LATEX=true
 RUN if [ "$INSTALL_LATEX" = "true" ]; then \
         apt-get update \
         && apt-get install -y --no-install-recommends \
             latexmk texlive-latex-base texlive-latex-recommended texlive-fonts-recommended \
+            texlive-latex-extra texlive-pictures tipa \
         && rm -rf /var/lib/apt/lists/*; \
     fi
 

@@ -110,19 +110,101 @@ export function StepsPanel(props: Props) {
             ))}
           </ol>
 
+          {/* Removed steps only appear here, after everything still in use. */}
           {compare && hasPrevious && diff.removed.length > 0 && (
-            <div className="mt-4 rounded-xl border border-dashed border-zinc-300 p-3 text-sm dark:border-zinc-700">
-              <p className="font-medium text-zinc-700 dark:text-zinc-300">Removed since the last run</p>
-              <ul className="mt-1 list-disc pl-5 text-zinc-500 line-through dark:text-zinc-400">
+            <details className="mt-4 rounded-xl border border-dashed border-zinc-300 text-sm dark:border-zinc-700">
+              <summary className="cursor-pointer px-3 py-2 font-medium text-zinc-700 select-none dark:text-zinc-300">
+                {diff.removed.length} step{diff.removed.length === 1 ? '' : 's'} no longer needed since the last run
+              </summary>
+              <ul className="space-y-2 px-3 pb-3">
                 {diff.removed.map((s) => (
-                  <li key={s.id}>{s.title}</li>
+                  <li key={s.id} className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800/40">
+                    <p className="font-medium text-zinc-500 line-through dark:text-zinc-400">{s.title}</p>
+                    <OldStepBody step={s} />
+                    {s.children?.length ? (
+                      <p className="mt-1 text-xs text-zinc-500">
+                        Had {s.children.length} sub-step{s.children.length === 1 ? '' : 's'}.
+                      </p>
+                    ) : null}
+                  </li>
                 ))}
               </ul>
-            </div>
+            </details>
           )}
         </div>
       )}
     </section>
+  );
+}
+
+/** A step's formula, condition and explanation, shown greyed out as an older version. */
+function OldStepBody({ step }: { step: Step }) {
+  return (
+    <>
+      {step.latex && (
+        <div className="mt-1 overflow-x-auto py-0.5 text-zinc-500 dark:text-zinc-400">
+          <Tex tex={step.latex} />
+        </div>
+      )}
+      {step.condition && (
+        <p className="mt-1 text-xs text-zinc-500">
+          only valid where <RichText text={`$${step.condition}$`} />
+        </p>
+      )}
+      {step.detail && <p className="mt-1 text-xs whitespace-pre-line text-zinc-500 dark:text-zinc-400">{step.detail}</p>}
+    </>
+  );
+}
+
+/** What a changed step said in the last run, limited to the parts that changed. */
+function BeforeThisRun({ before, now }: { before: Step; now: Step }) {
+  const titleChanged = before.title !== now.title;
+  const latexChanged = (before.latex ?? '') !== (now.latex ?? '');
+  const conditionChanged = (before.condition ?? '') !== (now.condition ?? '');
+  const detailChanged = (before.detail ?? '') !== (now.detail ?? '');
+  const checkChanged = (before.verification ?? '') !== (now.verification ?? '');
+
+  return (
+    <details className="mt-2 rounded-lg border border-amber-200 bg-amber-50/60 text-sm dark:border-amber-500/30 dark:bg-amber-500/5">
+      <summary className="cursor-pointer px-2.5 py-1 text-xs font-medium text-amber-800 select-none dark:text-amber-300">
+        What it said before
+      </summary>
+      <div className="space-y-1.5 px-2.5 pb-2">
+        {titleChanged && (
+          <p className="text-xs text-zinc-500">
+            Was titled <span className="line-through">{before.title}</span>
+          </p>
+        )}
+        {latexChanged &&
+          (before.latex ? (
+            <div className="overflow-x-auto py-0.5 text-zinc-500 dark:text-zinc-400">
+              <Tex tex={before.latex} />
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-500">Had no formula.</p>
+          ))}
+        {conditionChanged && (
+          <p className="text-xs text-zinc-500">
+            {before.condition ? (
+              <>
+                Was only valid where <RichText text={`$${before.condition}$`} />
+              </>
+            ) : (
+              'Had no validity condition.'
+            )}
+          </p>
+        )}
+        {detailChanged && before.detail && (
+          <p className="text-xs whitespace-pre-line text-zinc-500 dark:text-zinc-400">{before.detail}</p>
+        )}
+        {checkChanged && (
+          <p className="inline-flex items-center gap-1.5 text-xs text-zinc-500">
+            Self-check was <VerificationBadge value={before.verification} />
+            {(!before.verification || before.verification === 'unchecked') && 'not run'}
+          </p>
+        )}
+      </div>
+    </details>
   );
 }
 
@@ -133,6 +215,7 @@ function StepNode({ step, index, depth, ...p }: Props & { step: Step; index: num
   const childChanged = p.compare && p.hasPrevious && !isOpen && hasChangedDescendant(step, p.diff.status);
   const focused = p.focus?.id === step.id;
   const st = status !== 'same' ? STATUS_STYLE[status] : null;
+  const previous = p.diff.previous.get(step.id);
 
   const head = (
     <span className="flex min-w-0 flex-wrap items-center gap-2">
@@ -188,6 +271,7 @@ function StepNode({ step, index, depth, ...p }: Props & { step: Step; index: num
             </p>
           )}
           {step.detail && <p className="mt-1.5 text-sm whitespace-pre-line text-zinc-600 dark:text-zinc-400">{step.detail}</p>}
+          {status === 'changed' && previous && <BeforeThisRun before={previous} now={step} />}
         </div>
       </div>
 

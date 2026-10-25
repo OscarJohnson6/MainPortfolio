@@ -14,6 +14,7 @@ from projects.texvoice.speech_formatter import (
     trim_script_to_max_words,
     trim_script_to_start_at,
 )
+from projects.texvoice.md_cleaner import markdown_to_speech_text
 from projects.texvoice.tex_cleaner import tex_to_speech_text
 from projects.texvoice.tts import text_to_mp3
 
@@ -121,7 +122,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Convert LaTeX notes or a saved speech script into natural speech audio.",
     )
 
-    parser.add_argument("input", nargs="?", help="Path to a .tex file or speech script .txt file.")
+    parser.add_argument("input", nargs="?", help="Path to a .tex or .md file, or a speech script .txt file.")
 
     parser.add_argument("--from-script", action="store_true", help="Treat input as an already-prepared speech script.")
     parser.add_argument("--out", default=None, help="Output MP3 path.")
@@ -139,6 +140,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pitch", default=None, help='Override pitch, such as "-7Hz".')
 
     parser.add_argument("--tables", choices=["announce", "omit", "rough"], default="announce")
+    parser.add_argument(
+        "--diagrams",
+        choices=["announce", "omit", "labels"],
+        default="announce",
+        help="TikZ diagrams and pgfplots graphs: say they were skipped, leave them out, or read their worded labels.",
+    )
     parser.add_argument("--remove-exam-notes", action="store_true")
     parser.add_argument("--include-front-matter", action="store_true", help="Include title/table-of-contents style front matter.")
     parser.add_argument("--start-at", default=None, help='Start generated script/audio near a heading or phrase, e.g. --start-at "Verbs".')
@@ -233,7 +240,8 @@ def main() -> None:
 
     logger.log("Starting projects.texvoice.run.")
     logger.log(f"Input file: {input_path}")
-    logger.log(f"Input mode: {'speech script' if args.from_script else 'LaTeX'}")
+    is_markdown = input_path.suffix.lower() in (".md", ".markdown")
+    logger.log(f"Input mode: {'speech script' if args.from_script else 'Markdown' if is_markdown else 'LaTeX'}")
     logger.log(f"Profile: {args.profile} - {profile['description']}")
     logger.log(f"Speech script style: {style}")
     logger.log(f"Voice: {voice}")
@@ -245,20 +253,30 @@ def main() -> None:
 
     if not args.from_script:
         logger.log(f"Table mode: {args.tables}")
+        logger.log(f"Diagram mode: {args.diagrams}")
         logger.log(f"Remove exam notes: {args.remove_exam_notes}")
-        logger.log("Parsing and cleaning LaTeX...")
-
-        speech_base_text = tex_to_speech_text(
-            input_path,
-            table_mode=args.tables,
-            remove_exam_notes=args.remove_exam_notes,
-        )
+        if is_markdown:
+            logger.log("Reading Markdown structure...")
+            speech_base_text = markdown_to_speech_text(
+                input_path,
+                table_mode=args.tables,
+                diagram_mode=args.diagrams,
+            )
+        else:
+            logger.log("Parsing and cleaning LaTeX...")
+            speech_base_text = tex_to_speech_text(
+                input_path,
+                table_mode=args.tables,
+                remove_exam_notes=args.remove_exam_notes,
+                diagram_mode=args.diagrams,
+            )
 
         logger.log("Formatting final speech script...")
         speech_script = format_for_speech(
             speech_base_text,
             style=style,
-            skip_front_matter=not args.include_front_matter,
+            # Markdown has no title page or contents to skip.
+            skip_front_matter=not args.include_front_matter and not is_markdown,
         )
 
     else:
@@ -311,6 +329,8 @@ def main() -> None:
             volume=volume,
             pitch=pitch,
             progress_callback=logger.log,
+            # BioNotes.mp3 -> BioNotes-timings.json, the name the web library looks for.
+            timings_path=out_path.with_name(f"{out_path.stem}-timings.json"),
         )
     )
 
