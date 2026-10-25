@@ -11,12 +11,14 @@ import {
   type BackendStatus,
 } from "../components/SiteHeader";
 
-type ProjectRuntime = "browser" | "backend" | "hybrid";
+// "private": behind an access code and served from my PC, not the Pi.
+type ProjectRuntime = "browser" | "backend" | "hybrid" | "private";
 
 type Project = {
   title: string;
   href: string;
   summary: string;
+  why: string;
   action: string;
   tech: string[];
   runtime: ProjectRuntime;
@@ -26,12 +28,15 @@ type Project = {
     | "rhythm"
     | "toolbox"
     | "arcade"
-    | "houseRules";
+    | "houseRules"
+    | "explain"
+    | "avatar";
 };
 
 const projects: Project[] = [
   {
     title: "Terminal FX",
+    why: "Built to replace Wallpaper Engine with something lighter. Still runs straight from a terminal.",
     href: "/project/terminal-fx",
     summary:
       "Animated terminal wallpapers in two engines: streamed Python ANSI scenes and a faster Rust/WebAssembly canvas collection.",
@@ -42,6 +47,7 @@ const projects: Project[] = [
   },
   {
     title: "House Rules",
+    why: "A blackjack game designed around user stories: what actually makes a run fun to replay.",
     href: "/project/house-rules",
     summary:
       "A blackjack-inspired roguelite with multiple modes, bosses, artifacts, events, shops, achievements, and saved runs.",
@@ -52,6 +58,7 @@ const projects: Project[] = [
   },
   {
     title: "TexVoice",
+    why: "Made so I can listen to my LaTeX notes while falling asleep. Also makes notes more accessible.",
     href: "/project/texvoice",
     summary:
       "A LaTeX and PDF workspace that generates audio, chapters, timestamps, logs, and an in-browser reading view.",
@@ -62,6 +69,7 @@ const projects: Project[] = [
   },
   {
     title: "Arcade",
+    why: "The games I actually play, without ads and with the rules I want (six-letter Wordle, free hints).",
     href: "/project/arcade",
     summary:
       "Six ad-free browser games, including more customizable versions of Wordle and Letter Connect.",
@@ -72,6 +80,7 @@ const projects: Project[] = [
   },
   {
     title: "Toolbox",
+    why: "Small scripts from learning a topic or solving one problem, kept where I can reach them.",
     href: "/project/toolbox",
     summary:
       "Small scripts and calculators kept together because each solved a specific problem or was useful enough to save.",
@@ -82,6 +91,7 @@ const projects: Project[] = [
   },
   {
     title: "Rhythm Sync",
+    why: "Started as a networking class project to learn real-time sockets, then given a solo campaign.",
     href: "/project/rhythm-sync",
     summary:
       "A WebSocket rhythm duel with changing tempos, timing-based combat, AI opponents, multiplayer ready-up, and a campaign.",
@@ -90,55 +100,100 @@ const projects: Project[] = [
     runtime: "backend",
     preview: "rhythm",
   },
+  {
+    title: "e(x)plain",
+    why: "Built to check calculus homework by showing every step, not just the answer.",
+    href: "/project/explain",
+    summary:
+      "Type any function to get its derivatives, domain, critical points, holes, asymptotes and limits, each with the steps shown and checked against your input.",
+    action: "Analyze a function",
+    tech: ["Python", "SymPy", "FastAPI", "React", "KaTeX"],
+    runtime: "hybrid",
+    preview: "explain",
+  },
+  {
+    title: "Avatar Lab",
+    why: "Wanted AI characters with real personalities, running on my own GPU instead of a paid API.",
+    href: "/project/avatar",
+    summary:
+      "Design AI characters with a personality, speaking style and dials, then chat with them through a local model served by Ollama.",
+    action: "Open the lab",
+    tech: ["Ollama", "Python", "FastAPI", "Next.js", "SQLite"],
+    runtime: "private",
+    preview: "avatar",
+  },
 ];
 
 export default function HomePage() {
   const backendStatus = useBackendStatus();
-  const browserProjects = projects.filter(
-    (project) => project.runtime !== "backend"
-  );
-  const serverProjects = projects.filter(
-    (project) => project.runtime === "backend"
-  );
 
   return (
     <main className="home-shell min-h-screen overflow-hidden">
-      <section className="px-6 pb-7 pt-10 md:pt-12">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 border-b border-[var(--border)] pb-7 md:flex-row md:items-end md:justify-between">
+      <section className="px-6 pb-8 pt-10 md:pt-14">
+        <div className="home-intro mx-auto grid max-w-7xl gap-6 pb-8 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div>
             <p className="eyebrow text-xs font-bold uppercase tracking-[0.25em]">
-              Portfolio
+              OJ Builds
             </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--foreground)] md:text-4xl">
-              Projects
+            <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-[var(--foreground)] md:text-[2.6rem]">
+              Hi, I&apos;m Oscar. I build software I end up using.
             </h1>
-            <p className="mt-3 max-w-2xl text-[var(--muted)]">
-              Games, utilities, visual experiments, and larger systems. Open any
-              project to use it or see how it works.
+            <p className="mt-4 max-w-2xl leading-7 text-[var(--muted)]">
+              I&apos;m a computer science student at UW-Whitewater. Every project
+              below started because I wanted it for something: a lighter desktop
+              background, audio versions of my notes, games without ads. Each one
+              also works on its own. This site is where they all live and stay
+              usable.
             </p>
           </div>
-          <Link
-            href="/about"
-            className="site-link w-fit text-sm font-semibold transition"
-          >
-            About this portfolio →
-          </Link>
+
+          <div className="home-facts grid gap-3 text-sm">
+            <div className="home-fact hidden items-start gap-3 rounded-2xl px-4 py-3 sm:flex">
+              <span
+                className="status-dot mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                data-status={backendStatus}
+              />
+              <p className="leading-6 text-[var(--muted)]">
+                <span className="font-semibold text-[var(--foreground)]">
+                  {backendStatus === "online"
+                    ? "Project server online."
+                    : "Project server offline."}
+                </span>{" "}
+                Python services run on a Raspberry Pi 5 at home; everything
+                else runs in your browser.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/about"
+                className="surface-button rounded-xl px-4 py-2 font-semibold transition"
+              >
+                About me
+              </Link>
+              <a
+                href="https://github.com/OscarJohnson6"
+                target="_blank"
+                rel="noreferrer"
+                className="surface-button rounded-xl px-4 py-2 font-semibold transition"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="projects" className="px-6 pb-20 pt-4">
+      <section id="projects" className="px-6 pb-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-5">
-            <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
-              Available now
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+            <h2 className="section-title text-xl font-semibold">Projects</h2>
+            <p className="text-sm text-[var(--subtle)]">
+              Open any card to use the project.
             </p>
-            <h2 className="section-title mt-1 text-xl font-semibold">
-              Runs in the browser
-            </h2>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {browserProjects.map((project) => (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project) => (
               <InteractiveProjectCard
                 key={project.title}
                 project={project}
@@ -147,51 +202,29 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mb-5 mt-12">
-            <p className="eyebrow text-xs font-bold uppercase tracking-[0.22em]">
-              Live services
-            </p>
-            <h2 className="section-title mt-1 text-xl font-semibold">
-              Connects to the project server
-            </h2>
-          </div>
-
-          <BackendNotice status={backendStatus} />
-
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {serverProjects.map((project) => (
-              <InteractiveProjectCard
-                key={project.title}
-                project={project}
-                backendStatus={backendStatus}
-              />
-            ))}
+          <div className="mt-12">
+            <h2 className="section-title text-xl font-semibold">Behind the scenes</h2>
+            <Link
+              href="/admin"
+              className="admin-card mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-5 py-4 transition"
+            >
+              <div>
+                <h3 className="font-semibold text-[var(--foreground)]">
+                  Admin dashboard
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
+                  Server health, request logs and deploy history for the Pi,
+                  plus waking my PC remotely. Sign-in required.
+                </p>
+              </div>
+              <span className="surface-button rounded-xl px-4 py-2 text-sm font-semibold">
+                Sign in <span className="ml-1" aria-hidden="true">→</span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
     </main>
-  );
-}
-
-function BackendNotice({ status }: { status: BackendStatus }) {
-  const message =
-    status === "online"
-      ? "The project server is online. Live audio, streaming, and multiplayer features are ready."
-      : status === "offline"
-        ? "The live server is temporarily offline. These project pages still open, but their generated audio and multiplayer features will wait for the server to return."
-        : "The live server has not been connected to this deployment yet. These project pages remain available while their server-powered features stay paused.";
-
-  return (
-    <div
-      className="backend-notice flex items-start gap-3 rounded-2xl px-4 py-3 text-sm leading-6"
-      data-status={status}
-    >
-      <span
-        className="status-dot mt-2 h-2 w-2 shrink-0 rounded-full"
-        data-status={status}
-      />
-      <p>{message}</p>
-    </div>
   );
 }
 
@@ -221,7 +254,8 @@ function InteractiveProjectCard({
   });
   const suppressNextClick = useRef(false);
 
-  const usesBackend = project.runtime !== "browser";
+  // Private projects run on my PC, so the Pi's status says nothing about them.
+  const usesBackend = project.runtime === "backend" || project.runtime === "hybrid";
   const backendUnavailable = usesBackend && backendStatus !== "online";
   const runtimeState = backendUnavailable
     ? "offline"
@@ -356,6 +390,7 @@ function InteractiveProjectCard({
         </div>
 
         <p className="project-summary mt-2 text-sm leading-6">{project.summary}</p>
+        <p className="project-why mt-3 text-sm leading-6">{project.why}</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
           {project.tech.slice(0, 3).map((item) => (
@@ -388,6 +423,7 @@ function getRuntimeLabel(
   backendStatus: BackendStatus
 ) {
   if (runtime === "browser") return "Runs in browser";
+  if (runtime === "private") return "Access code";
   if (runtime === "backend") {
     return backendStatus === "online" ? "Live service online" : "Live service offline";
   }
@@ -640,6 +676,58 @@ function Preview({ type }: { type: Project["preview"] }) {
               <div className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-slate-900" />
             </div>
             <span className="absolute bottom-1.5 text-[8px] text-slate-600">Flappy</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "explain") {
+    return (
+      <div className="relative h-44 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-4">
+        <div className="flex items-center justify-between font-mono text-[11px]">
+          <span className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-slate-200">
+            f(x) = x³ − 3x
+          </span>
+          <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[10px] text-emerald-300">
+            ✓ verified
+          </span>
+        </div>
+        <svg viewBox="0 0 200 100" className="absolute inset-x-4 bottom-3 h-28 w-[calc(100%-2rem)]" aria-hidden="true">
+          <line x1="0" y1="55" x2="200" y2="55" stroke="#334155" strokeWidth="1" />
+          <line x1="100" y1="0" x2="100" y2="100" stroke="#334155" strokeWidth="1" />
+          {/* f′(x) = 3x² − 3 */}
+          <path d="M40 5 Q100 120 160 5" fill="none" stroke="#a78bfa" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.7" />
+          {/* f(x) = x³ − 3x */}
+          <path d="M30 100 C55 -10 75 25 100 55 S145 120 170 10" fill="none" stroke="#22d3ee" strokeWidth="2.5" />
+          <circle cx="66" cy="27" r="3.5" fill="#fbbf24" />
+          <circle cx="134" cy="83" r="3.5" fill="#fbbf24" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === "avatar") {
+    return (
+      <div className="h-44 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/80 text-sm">🦊</span>
+          <div>
+            <div className="text-xs font-semibold text-slate-200">Juniper</div>
+            <div className="text-[10px] text-emerald-300/80">● local model</div>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-col gap-2 text-[11px] leading-4">
+          <div className="max-w-[80%] self-end rounded-2xl rounded-br-sm bg-slate-800 px-3 py-1.5 text-slate-200">
+            Any idea what to cook tonight?
+          </div>
+          <div className="max-w-[85%] rounded-2xl rounded-bl-sm border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-violet-100">
+            Ooh, something cozy. Got rice and an egg? I have a plan.
+          </div>
+          <div className="flex gap-1 pl-2" aria-hidden="true">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-300/70" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-300/70 [animation-delay:150ms]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-300/70 [animation-delay:300ms]" />
           </div>
         </div>
       </div>

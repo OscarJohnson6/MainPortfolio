@@ -10,7 +10,7 @@ const tech = ["Python", "FastAPI", "React", "TypeScript", "LaTeX", "TTS"];
 
 export default function TexVoicePage() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12">
+    <section className="theme-invert mx-auto max-w-7xl px-6 py-12">
       <header className="mb-10">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
           Python / FastAPI / TTS

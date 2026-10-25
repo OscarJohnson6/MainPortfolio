@@ -24,23 +24,27 @@ const stackGroups = [
 const projectNotes = [
   {
     title: "Terminal FX",
-    text: "Terminal animations built in Python and Rust. The browser version includes streamed ANSI modes and a separate WebAssembly canvas renderer.",
+    text: "Started as a Python ASCII wallpaper so I could drop Wallpaper Engine and get some processing power back. The Rust version renders pixel-sized blocks instead of characters, and part of it compiles to WebAssembly so it runs in the browser here. Both still run from a normal terminal.",
   },
   {
     title: "House Rules",
-    text: "A blackjack-inspired roguelite with several play styles, bosses, artifacts, events, shops, achievements, and saved runs.",
+    text: "A blackjack roguelite built around user stories: what would actually make a run feel fair, fun, and worth replaying. The card mode is close to done; the alphabet mode is the part I still want to rethink.",
   },
   {
     title: "TexVoice",
-    text: "A tool for turning LaTeX notes and PDFs into structured audio with chapters, timestamps, logs, and a reading view.",
+    text: "Turns my LaTeX notes into audio so I can listen to them while falling asleep. It doubles as a way to give any LaTeX document an accessible audio version, and it holds the archive of my own notes.",
   },
   {
-    title: "Arcade and Toolbox",
-    text: "Smaller browser games, calculators, and scripts that are useful or interesting enough to keep available in one place.",
+    title: "Arcade",
+    text: "Copies of games I play, without ads and with the changes I wanted, like six-letter Wordle and hints you don't have to watch a video for.",
+  },
+  {
+    title: "Toolbox",
+    text: "Small scripts from learning a topic or solving one specific problem. Not complex, but useful enough to keep in one place.",
   },
   {
     title: "Rhythm Sync",
-    text: "A WebSocket rhythm game with AI opponents, multiplayer ready-up, changing tempos, and a campaign mode.",
+    text: "Built for a networking class that only required a socket game. I wanted to actually learn real-time WebSockets, so I made a rhythm duel, then added a solo campaign for the portfolio.",
   },
 ];
 
@@ -139,20 +143,20 @@ export default function AboutPage() {
         <section className="mt-10 grid gap-3 md:grid-cols-2">
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <h2 className="font-semibold text-[var(--foreground)]">
-              Browser projects
+              How it&apos;s hosted
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Vercel hosts the portfolio, games, browser tools, and Rust/WASM
-              renderer. These work without my Raspberry Pi.
+              The site and the browser projects are on Vercel. The Python
+              services (audio generation, streamed terminal scenes, multiplayer)
+              run on a Raspberry Pi 5 at my place through FastAPI.
             </p>
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
-            <h2 className="font-semibold text-[var(--foreground)]">
-              Raspberry Pi services
-            </h2>
+            <h2 className="font-semibold text-[var(--foreground)]">Resume</h2>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              The Pi runs FastAPI for Python animations, document processing,
-              generated audio, and WebSocket features when it is online.
+              I keep contact details off the public site. If you&apos;re
+              reviewing my work and need my resume, reach out through GitHub or
+              wherever you found this link.
             </p>
           </div>
         </section>

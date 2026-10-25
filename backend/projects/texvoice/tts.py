@@ -5,6 +5,9 @@ from pathlib import Path
 import time
 from typing import Callable
 
+import asyncio
+
+import aiohttp
 import edge_tts
 
 
@@ -24,7 +27,51 @@ ESTIMATED_KB_PER_WORD = 3.8
 _SPEED_WINDOW_SECONDS = 2.0
 
 
+# Microsoft's Edge TTS endpoint answers with HTTP 403 when its signed request
+# token is rejected. That usually means the Pi's clock disagreed with the
+# server, or the token format changed and edge-tts needs an upgrade. It is not
+# an error from this backend, so retry a couple of times before giving up.
+_TTS_ATTEMPTS = 3
+
+
+class TTSRejectedError(RuntimeError):
+    """The upstream text-to-speech service refused the connection."""
+
+
 async def text_to_mp3(
+    text: str,
+    out_path: str | Path,
+    voice: str = DEFAULT_VOICE,
+    rate: str = "-10%",
+    volume: str = "+0%",
+    pitch: str = "+0Hz",
+    progress_callback: Callable[[str], None] | None = None,
+) -> Path:
+    last_error: Exception | None = None
+
+    for attempt in range(1, _TTS_ATTEMPTS + 1):
+        try:
+            return await _text_to_mp3_once(
+                text, out_path, voice, rate, volume, pitch, progress_callback
+            )
+        except aiohttp.ClientResponseError as exc:
+            if exc.status != 403:
+                raise
+            last_error = exc
+            if progress_callback:
+                progress_callback(
+                    f"TTS service returned 403 (attempt {attempt}/{_TTS_ATTEMPTS}); retrying..."
+                )
+            await asyncio.sleep(attempt * 2)
+
+    raise TTSRejectedError(
+        "The Microsoft Edge TTS service rejected the request (HTTP 403). "
+        "This comes from the speech service, not the TexVoice server. "
+        "Check the Pi's clock (timedatectl) and that edge-tts is up to date."
+    ) from last_error
+
+
+async def _text_to_mp3_once(
     text: str,
     out_path: str | Path,
     voice: str = DEFAULT_VOICE,
