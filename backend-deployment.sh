@@ -152,6 +152,16 @@ log "Building TexVoice library PDFs."
     done
 )
 
+# Only new or changed notes are rebuilt, so this is quick on most deploys.
+# It needs the internet (Microsoft's speech service); if that fails, the site
+# keeps the previous audio, so a warning is enough.
+log "Building TexVoice archive audio for new or changed notes."
+if (cd "$BACKEND_DIR" && "$PYTHON_BIN" build_archive_audio.py); then
+    log "Archive audio is up to date."
+else
+    log "Warning: some archive audio could not be built. The site keeps the previous audio."
+fi
+
 log "Restarting $SERVICE_NAME."
 sudo systemctl restart "$SERVICE_NAME"
 
