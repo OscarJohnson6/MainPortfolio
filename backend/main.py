@@ -11,7 +11,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from routers import admin, rhythm_sync, texvoice, wallpaper
+from routers import admin, explain, rhythm_sync, texvoice, wallpaper
 from routers.admin import REQUEST_LOGS
 
 app = FastAPI(title="OJ Builds API", version="1.0.0")
@@ -82,6 +82,7 @@ app.include_router(
     prefix="/api/rhythm-sync",
     tags=["rhythm-sync"],
 )
+app.include_router(explain.router, prefix="/api/explain", tags=["explain"])
 
 app.include_router(
     admin.router,
