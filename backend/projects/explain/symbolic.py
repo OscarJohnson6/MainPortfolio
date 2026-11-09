@@ -10,11 +10,13 @@ caller falls back to the unsimplified tree.
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from concurrent.futures import TimeoutError as FutureTimeout
 from typing import Any
 
 import sympy as sp
 
+from .latex import to_tex
 from .nodes import Node, bin_, call, const, neg, num, size, var
 
 # sp.simplify can be slow on large trig expressions; past this size, or past
@@ -168,7 +170,15 @@ def light(n: Node, settings: dict[str, Any]) -> Node:
 
 
 def _full(expr: sp.Expr) -> list[sp.Expr]:
-    out = [sp.cancel(expr)] if expr.is_rational_function() else []
+    out: list[sp.Expr] = []
+    if expr.is_rational_function():
+        cancelled = sp.cancel(expr)
+        num, den = sp.fraction(cancelled)
+        # Cancelled, plus the factored forms people write: (x² + 1)² rather
+        # than x⁴ + 2x² + 1 underneath, and a factored numerator when it helps.
+        out += [cancelled, sp.factor(cancelled)]
+        if den != 1:
+            out.append(sp.Mul(sp.expand(num), sp.Pow(sp.factor(den), -1), evaluate=False))
     if sp.count_ops(expr) <= FULL_SIMPLIFY_MAX_OPS:
         out.append(sp.simplify(expr))
     return out
@@ -219,3 +229,114 @@ def simplest(n: Node, settings: dict[str, Any]) -> Node:
         pass
     # Ties keep the earlier candidate, so an already-simple input stays as typed.
     return min(candidates, key=size)
+
+
+# ---------------------------------------------------------------------------
+# Shown work for rational expressions: the factor / expand / cancel steps a
+# person would write out, instead of jumping straight to SymPy's answer.
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class AlgebraStep:
+    key: str  # stable id suffix, e.g. "expand"
+    title: str
+    before: Node
+    after: Node
+    condition: Node | None = None  # cancelling a factor is only valid where it isn't 0
+
+
+def _node(e: sp.Expr) -> Node | None:
+    try:
+        return from_sympy(e)
+    except (Unsupported, RecursionError):
+        return None
+
+
+def _fraction_parts(n: Node, settings: dict[str, Any]) -> tuple[sp.Expr, sp.Expr] | None:
+    try:
+        expr = sp.together(to_sympy(n, settings))
+    except (TypeError, ValueError, RecursionError, sp.SympifyError):
+        return None
+    num, den = sp.fraction(expr)
+    return num, den
+
+
+def _over(num: sp.Expr, den: sp.Expr) -> Node | None:
+    """num/den as a node without letting SymPy re-combine it."""
+    top, bottom = _node(num), _node(den)
+    if top is None or bottom is None:
+        return None
+    return top if den == 1 else bin_("/", top, bottom)
+
+
+def factor_and_cancel_steps(n: Node, settings: dict[str, Any]) -> list[AlgebraStep]:
+    """
+    Before differentiating: factor the numerator and denominator, then cancel
+    what they share. Empty unless there is a common factor to cancel.
+    """
+    parts = _fraction_parts(n, settings)
+    if parts is None:
+        return []
+    num, den = parts
+    if den == 1 or not (num.is_polynomial() and den.is_polynomial()):
+        return []
+    common = sp.gcd(num, den)
+    if common.is_number:
+        return []
+
+    steps: list[AlgebraStep] = []
+    fnum, fden = sp.factor(num), sp.factor(den)
+    current = n
+    if fnum != num or fden != den:
+        factored = _over(fnum, fden)
+        if factored is not None:
+            steps.append(AlgebraStep("factor", "Factor the numerator and denominator", current, factored))
+            current = factored
+    cancelled = _over(*sp.fraction(sp.factor(sp.cancel(num / den))))
+    condition = _node(sp.factor(common))
+    if cancelled is not None and condition is not None:
+        steps.append(AlgebraStep("cancel", "Cancel the common factor", current, cancelled, condition))
+    return steps
+
+
+def quotient_cleanup_steps(raw: Node, final: Node, settings: dict[str, Any]) -> list[AlgebraStep]:
+    """
+    After the quotient rule: expand the numerator and combine like terms,
+    factor it, cancel anything shared with the denominator, then any last
+    simplification to reach `final`.
+    """
+    start = light(raw, settings)
+    # Split the quotient rule's own (u'v - uv') / v² rather than letting SymPy
+    # combine the fraction first, which would quietly cancel factors before
+    # the "cancel" step gets to show it.
+    if raw["type"] == "bin" and raw["op"] == "/":
+        try:
+            num, den = to_sympy(raw["left"], settings), to_sympy(raw["right"], settings)
+        except (TypeError, ValueError, RecursionError, sp.SympifyError):
+            return []
+    else:
+        parts = _fraction_parts(raw, settings)
+        if parts is None:
+            return []
+        num, den = parts
+    steps: list[AlgebraStep] = []
+    current = start
+
+    def add(key: str, title: str, after: Node | None, condition: Node | None = None) -> None:
+        nonlocal current
+        if after is not None and to_tex(after) != to_tex(current):
+            steps.append(AlgebraStep(key, title, current, after, condition))
+            current = after
+
+    if den != 1:
+        expanded = sp.expand(num)
+        add("expand", "Expand the numerator and combine like terms", _over(expanded, den))
+        factored = sp.factor(expanded)
+        add("factor", "Factor the numerator", _over(factored, den))
+        common = sp.gcd(expanded, den)
+        if not common.is_number:
+            reduced = sp.cancel(expanded / den)
+            add("cancel", "Cancel factors shared with the denominator", _over(*sp.fraction(sp.factor(reduced))), _node(sp.factor(common)))
+    add("simplify", "Simplify", final)
+    return steps

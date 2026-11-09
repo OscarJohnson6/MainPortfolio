@@ -13,7 +13,7 @@ from typing import Any
 
 from .latex import to_tex
 from .nodes import Node, bin_, call, contains_var, neg, num
-from .symbolic import light, simplest
+from .symbolic import light, quotient_cleanup_steps, simplest
 
 FN_LABEL = {"asin": "arcsin", "acos": "arccos", "atan": "arctan", "sqrt": "√"}
 
@@ -172,6 +172,31 @@ def derivative(f: Node, v: str, step_id: str, title: str, settings: dict[str, An
         "latex": f"{dx}\\left[{to_tex(f)}\\right] = {to_tex(node)}",
         "form": "simplified",
     }
-    if root:
-        step["children"] = [root]
+    children: list[Step] = [root] if root else []
+
+    # The rules above leave results like (u'v - uv')/v² unexpanded; show the
+    # algebra that turns them into the final answer.
+    # Skipped when the rules' own result is already the final answer, so there's
+    # no detour like 1 - 1/x² → (x² - 1)/x² → 1 - 1/x².
+    already_final = to_tex(light(raw, settings)) == to_tex(node)
+    cleanup = [] if already_final else quotient_cleanup_steps(raw, node, settings)
+    if cleanup:
+        clean_id = f"{step_id}.clean"
+        children.append({
+            "id": clean_id,
+            "title": "Clean up the result",
+            "latex": f"{to_tex(cleanup[0].before)} = {to_tex(node)}",
+            "children": [
+                {
+                    "id": f"{clean_id}.{part.key}",
+                    "title": part.title,
+                    "latex": f"{to_tex(part.before)} \\;\\longrightarrow\\; {to_tex(part.after)}",
+                    **({"condition": f"{to_tex(part.condition)} \\neq 0"} if part.condition else {}),
+                }
+                for part in cleanup
+            ],
+        })
+
+    if children:
+        step["children"] = children
     return DerivativeResult(node, step)

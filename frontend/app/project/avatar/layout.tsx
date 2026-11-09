@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Avatar Lab",
+  title: "AIvatar",
   robots: { index: false, follow: false }, // keep it out of search engines
 };
 

@@ -22,7 +22,7 @@ from .numeric import (
     num_latex, recognize, same_limit, sgn, side_limit, simpson, snap, table_tex,
 )
 from .parser import Token, parse_input
-from .symbolic import simplest
+from .symbolic import factor_and_cancel_steps, simplest
 
 INF = float("inf")
 MAX_POINTS = 24
@@ -425,9 +425,21 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
                      + (" The rewrite conditions above show exactly where." if conds else ""))
         else:
             check = f"Original and simplified forms agree at {agree} random points."
+        # Show the algebra (factor, then cancel) when the simplification is
+        # cancelling a common factor; otherwise one rewrite step.
+        shown = factor_and_cancel_steps(ast, settings)
+        if shown and to_tex(shown[-1].after) == g_tex:
+            rewrites = [
+                {"id": f"simplify.{step.key}", "title": step.title,
+                 "latex": f"{to_tex(step.before)} \\;\\longrightarrow\\; {to_tex(step.after)}",
+                 "condition": f"{to_tex(step.condition)} \\neq 0" if step.condition else None}
+                for step in shown
+            ]
+        else:
+            rewrites = [{"id": "simplify.0", "title": "Rewrite: simplify", "latex": f"{f_tex} \\;\\longrightarrow\\; {g_tex}",
+                         "condition": ",\\ ".join(conds) if conds else None}]
         simplify_step["children"] = [
-            {"id": "simplify.0", "title": "Rewrite: SymPy simplify", "latex": f"{f_tex} \\;\\longrightarrow\\; {g_tex}",
-             "condition": ",\\ ".join(conds) if conds else None},
+            *rewrites,
             {"id": "simplify.check", "title": "Self-check against the original", "verification": simp_verification, "detail": check},
         ]
     steps.append(simplify_step)
@@ -555,9 +567,13 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
             return fmt(lv.value)
         return "oscillates" if lv.kind == "dne" else "undefined"
 
+    # Where f shoots off to ±∞ (sign, where), used to decide absolute extremes.
+    blowups: list[tuple[int, str]] = []
+
     for e in excluded:
         L = side_limit(f, e, -1)
         R = side_limit(f, e, 1)
+        blowups += [(side.value.sign, f"near {v} = {fmt(e)}") for side in (L, R) if side.value.kind == "inf"]
         sid = f"disc.{id_num(e)}"
         kids = [
             {"id": f"{sid}.left", "title": "Approach from the left", "latex": table_tex(L.table, v)},
@@ -590,6 +606,7 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
             S = side_limit(f, b, direction)
             if S.value.kind != "inf":
                 continue
+            blowups.append((S.value.sign, f"near {v} = {fmt(b)}"))
             sid = f"disc.{id_num(b)}"
             side = "right" if direction > 0 else "left"
             disc_items.append({"id": f"va-{id_num(b)}", "label": "Vertical asymptote (one-sided)", "latex": f"{v} = {X(b)}",
@@ -716,6 +733,10 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
         "detail": "Split the domain at the critical points (for f′) and at f″ = 0 (for f″), then checked the sign in the middle of each piece.",
     })
 
+    # ---- 10b. Maximums and minimums ---------------------------------------------
+    extrema_items, extrema_step = find_extrema(f, v, crit, domain, ends, blowups, f1_varies, approx_note, pair, kind_label)
+    steps.append(extrema_step)
+
     # ---- 11. Limits (always from the original) -----------------------------------
     limit_items: list[Item] = []
     for q in req.get("limits", []):
@@ -822,6 +843,7 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
         {"id": "asymptotes", "title": "Holes and asymptotes", "items": disc_items + end_items, "emptyText": "None."},
         {"id": "intercepts", "title": "Intercepts", "items": intercept_items, "emptyText": "None."},
         {"id": "behavior", "title": "Behavior", "items": behavior_items},
+        {"id": "extrema", "title": "Maximums and minimums", "items": extrema_items, "emptyText": "None found on the scanned range."},
     ]
     if limit_items:
         sections.append({"id": "limits", "title": "Limits", "items": limit_items})
@@ -843,6 +865,101 @@ def _analyze(req: dict[str, Any]) -> dict[str, Any]:
         "sections": sections,
         "notices": notices,
     }
+
+
+def find_extrema(f, v, crit, domain, ends, blowups, f1_varies, approx_note, pair, kind_label):
+    """
+    Local extremes are the critical points the f″ or sign test classified.
+    Absolute extremes compare every candidate (critical points and closed
+    domain endpoints) against how f behaves at the ends and near asymptotes:
+    if f blows up, or only approaches a value it never reaches, there isn't one.
+    """
+    items: list[Item] = []
+    children: list[Step] = []
+    local_max = [c for c in crit if c["kind"] == "max"]
+    local_min = [c for c in crit if c["kind"] == "min"]
+
+    for c in local_max + local_min:
+        items.append({
+            "id": f"ext-{c['kind']}-{id_num(c['x'])}", "label": kind_label[c["kind"]], "latex": pair(c["x"], c["y"]),
+            "note": approx_note(c["x"], c["y"]), "stepId": f"critical.{id_num(c['x'])}",
+            "marker": {"x": c["x"], "y": c["y"], "kind": c["kind"]},
+        })
+
+    if not f1_varies:
+        items.append({"id": "ext-constant", "label": "Constant function", "text": "Every point is both the maximum and the minimum.", "stepId": "extrema"})
+        return items, {
+            "id": "extrema", "title": "Maximums and minimums", "form": "original",
+            "detail": "f′ is constant, so f never turns around: there are no isolated peaks or valleys.",
+        }
+
+    # Every critical point is a candidate (a flat spot can still be the lowest
+    # point), plus endpoints the domain includes, like 0 for √x.
+    candidates = [(c["x"], c["y"]) for c in crit]
+    for iv in domain:
+        for end, closed in ((iv.lo, iv.lo_closed), (iv.hi, iv.hi_closed)):
+            if closed and isfinite(end) and isfinite(f(end)):
+                candidates.append((end, f(end)))
+
+    end_values = {side: lim.value for side, lim in ends}
+    oscillates = any(value.kind == "dne" for value in end_values.values())
+
+    def toward(side: int) -> str:
+        return f"as {v} → {'∞' if side > 0 else '−∞'}"
+
+    def decide(sign: int, word: str) -> None:
+        """sign = +1 for the maximum, -1 for the minimum."""
+        step_id = f"extrema.absolute-{word}"
+        label = f"Absolute {word}"
+        extreme = "highest" if sign > 0 else "lowest"
+        unbounded = [where for s, where in blowups if s == sign]
+        unbounded += [toward(side) for side, value in end_values.items() if value.kind == "inf" and value.sign == sign]
+        best = max(candidates, key=lambda p: sign * p[1], default=None)
+        # Values f approaches at the ends; if one is beyond every candidate, f never reaches it.
+        approached = [(side, value.value) for side, value in end_values.items() if value.kind == "finite"]
+        beyond = [(side, value) for side, value in approached if best is None or sign * value > sign * best[1] + 1e-6]
+        # The one furthest in this direction: for the minimum, the lowest value approached.
+        beyond.sort(key=lambda pair_: -sign * pair_[1])
+
+        if unbounded:
+            detail = f"f goes {'up' if sign > 0 else 'down'} without bound {unbounded[0]}, so no value is the {extreme}."
+            items.append({"id": f"ext-abs-{word}", "label": label, "text": "None",
+                          "note": f"f → {'+' if sign > 0 else '−'}∞ {unbounded[0]}", "stepId": step_id})
+        elif beyond:
+            side, value = beyond[0]
+            detail = f"f approaches {fmt(value)} {toward(side)} but never quite reaches it, so there's no {extreme} point."
+            items.append({"id": f"ext-abs-{word}", "label": label, "text": "None",
+                          "note": f"approaches {fmt(value)} {toward(side)}", "stepId": step_id})
+        elif best is None:
+            detail = "No candidate points were found on the scanned range."
+            items.append({"id": f"ext-abs-{word}", "label": label, "text": "None found", "stepId": step_id})
+        else:
+            x, y = best
+            # Ties: x⁴ - 2x² is lowest at both x = -1 and x = 1.
+            ties = sorted({px for px, py in candidates if abs(py - y) <= 1e-7 * (1 + abs(y)) and px != x})
+            scope = " on the scanned range (f oscillates, so the pattern repeats beyond it)" if oscillates else ""
+            endpoints = " and closed endpoint" if len(candidates) > len(crit) else ""
+            also = ""
+            if ties:
+                shown = ", ".join(fmt(t) for t in ties[:3]) + (f" and {len(ties) - 3} more" if len(ties) > 3 else "")
+                also = f", and also at {v} = {shown}"
+            detail = (f"Compared f at every critical point{endpoints} with how f behaves at the ends and near asymptotes. "
+                      f"The {extreme} value is {fmt(y)} at {v} = {fmt(x)}{also}{scope}.")
+            note = approx_note(x, y)
+            if ties:
+                tie_note = f"also at {v} = {', '.join(fmt(t) for t in ties[:3])}{' …' if len(ties) > 3 else ''}"
+                note = f"{note}; {tie_note}" if note else tie_note
+            items.append({"id": f"ext-abs-{word}", "label": label + (" (scanned range)" if oscillates else ""),
+                          "latex": pair(x, y), "note": note, "stepId": step_id,
+                          "marker": {"x": x, "y": y, "kind": "extreme"}})
+        children.append({"id": step_id, "title": label, "detail": detail})
+
+    decide(1, "maximum")
+    decide(-1, "minimum")
+
+    detail = (f"Local: each peak or valley among the critical points ({len(local_max)} max, {len(local_min)} min). "
+              "Absolute: the single highest and lowest values f ever reaches, if there are any.")
+    return items, {"id": "extrema", "title": "Maximums and minimums", "form": "original", "detail": detail, "children": children}
 
 
 def eval_limit_query(f: Compiled, q: dict[str, Any], v: str, allow_pi: bool) -> tuple[str, str | None, Step]:

@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useChat } from "../_hooks/useChat";
 import { api, errorMessage, textOn } from "../_lib/api";
 import { API } from "../_lib/config";
+import { normalizeLook } from "../_lib/look";
 import type { Avatar, ChatMessage, GlobalSettings, Stats, Status } from "../_lib/types";
 import AvatarIcon from "./AvatarIcon";
+import AvatarStage from "./look/AvatarStageClient";
+import type { Mood } from "./look/shared";
 import ThinkingBlock from "./ThinkingBlock";
 
 type Props = {
@@ -121,6 +124,13 @@ export default function ChatPanel({
   const worker = liveModel?.worker ?? status?.worker;
   const lastStats = [...messages].reverse().find((m) => m.role === "assistant" && m.stats)?.stats;
 
+  // The 3D avatar reacts to the reply: thinking until words arrive, then talking.
+  const look = useMemo(() => normalizeLook(avatar.look), [avatar.look]);
+  const last = messages[messages.length - 1];
+  const mood: Mood =
+    isStreaming && last?.role === "assistant" ? (last.content ? "talking" : "thinking") : "idle";
+  const backdrop = { background: `radial-gradient(circle at 50% 40%, ${avatar.color}66, ${avatar.color}22 70%)` };
+
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <header className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3">
@@ -131,7 +141,13 @@ export default function ChatPanel({
         >
           ☰
         </button>
-        <AvatarIcon name={avatar.name} emoji={avatar.emoji} color={avatar.color} />
+        {look.kind === "none" ? (
+          <AvatarIcon name={avatar.name} emoji={avatar.emoji} color={avatar.color} icon={avatar.icon} />
+        ) : (
+          <div className="size-11 shrink-0 overflow-hidden rounded-full" style={backdrop}>
+            <AvatarStage look={look} mood={mood} className="size-full" />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold leading-tight">{avatar.name}</h2>
           <p className="flex items-center gap-1.5 truncate text-xs text-zinc-400">
@@ -175,7 +191,13 @@ export default function ChatPanel({
             <p className="mt-16 text-center text-sm text-rose-400">{loadError}</p>
           ) : messages.length === 0 ? (
             <div className="mt-16 flex flex-col items-center gap-3 text-center">
-              <AvatarIcon name={avatar.name} emoji={avatar.emoji} color={avatar.color} size="lg" />
+              {look.kind === "none" ? (
+                <AvatarIcon name={avatar.name} emoji={avatar.emoji} color={avatar.color} icon={avatar.icon} size="lg" />
+              ) : (
+                <div className="size-44 overflow-hidden rounded-full" style={backdrop}>
+                  <AvatarStage look={look} className="size-full" />
+                </div>
+              )}
               <p className="text-sm text-zinc-300">Start a conversation with {avatar.name}.</p>
               {avatar.description && <p className="max-w-sm text-xs text-zinc-500">{avatar.description}</p>}
             </div>

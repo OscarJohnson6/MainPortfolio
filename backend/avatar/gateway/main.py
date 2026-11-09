@@ -29,7 +29,7 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse, StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 load_dotenv()
 
@@ -65,7 +65,9 @@ CREATE TABLE IF NOT EXISTS avatars (
     color       TEXT NOT NULL DEFAULT '#6366f1',
     settings    TEXT NOT NULL DEFAULT '{}',
     created_at  REAL NOT NULL,
-    updated_at  REAL NOT NULL
+    updated_at  REAL NOT NULL,
+    look        TEXT NOT NULL DEFAULT '{}',
+    icon        TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS conversations (
     id          TEXT PRIMARY KEY,
@@ -99,6 +101,29 @@ def new_id() -> str:
     return uuid.uuid4().hex[:12]
 
 
+# Columns added after the first release, with their definitions. Older
+# avatars.db files get them on startup; existing avatars keep their data.
+ADDED_AVATAR_COLUMNS = {
+    "look": "TEXT NOT NULL DEFAULT '{}'",   # the 3D character's settings (JSON)
+    "icon": "TEXT NOT NULL DEFAULT ''",     # PNG snapshot of the look, as a data URL
+}
+
+
+def migrate() -> None:
+    existing = {row["name"] for row in db.execute("PRAGMA table_info(avatars)")}
+    for column, definition in ADDED_AVATAR_COLUMNS.items():
+        if column not in existing:
+            db.execute(f"ALTER TABLE avatars ADD COLUMN {column} {definition}")
+    db.commit()
+
+
+def insert_avatar(values: dict[str, Any]) -> None:
+    """Insert by column name, so adding columns never shifts the values."""
+    columns = ", ".join(values)
+    placeholders = ", ".join("?" for _ in values)
+    db.execute(f"INSERT INTO avatars ({columns}) VALUES ({placeholders})", tuple(values.values()))
+
+
 def seed_default_avatar() -> None:
     if db.execute("SELECT COUNT(*) FROM avatars").fetchone()[0]:
         return
@@ -110,17 +135,28 @@ def seed_default_avatar() -> None:
     except FileNotFoundError:
         persona = "You are Nova, a friendly, curious companion."
     now = time.time()
-    db.execute(
-        "INSERT INTO avatars VALUES (?,?,?,?,?,?,?,?,?)",
-        (new_id(), "Nova", "Curious, warm, a little playful.", persona, "✨", "#6366f1",
-         json.dumps(AvatarSettings().model_dump()), now, now),
-    )
+    insert_avatar({
+        "id": new_id(), "name": "Nova", "description": "Curious, warm, a little playful.", "persona": persona,
+        "emoji": "✨", "color": "#6366f1", "settings": json.dumps(AvatarSettings().model_dump()),
+        "created_at": now, "updated_at": now,
+    })
     db.commit()
 
 
 # ==================================================================== models
 
 HEX_COLOR = r"^#[0-9a-fA-F]{6}$"
+# Snapshot icons are small PNG/WebP images, stored inline as data URLs.
+ICON_DATA_URL = r"^(data:image/(png|webp);base64,[A-Za-z0-9+/=]+)?$"
+ICON_MAX_CHARS = 200_000
+LOOK_MAX_CHARS = 4_000
+
+
+def check_look(look: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The look is the frontend's own format; the gateway only bounds its size."""
+    if look is not None and len(json.dumps(look)) > LOOK_MAX_CHARS:
+        raise ValueError("look is too large")
+    return look
 
 
 class AvatarSettings(BaseModel):
@@ -140,6 +176,10 @@ class AvatarIn(BaseModel):
     emoji: str = Field("", max_length=8)
     color: str = Field("#6366f1", pattern=HEX_COLOR)
     settings: AvatarSettings = AvatarSettings()
+    look: dict[str, Any] = Field(default_factory=dict)
+    icon: str = Field("", max_length=ICON_MAX_CHARS, pattern=ICON_DATA_URL)
+
+    look_size = field_validator("look")(check_look)
 
 
 class AvatarPatch(BaseModel):
@@ -149,6 +189,10 @@ class AvatarPatch(BaseModel):
     emoji: str | None = Field(None, max_length=8)
     color: str | None = Field(None, pattern=HEX_COLOR)
     settings: AvatarSettings | None = None
+    look: dict[str, Any] | None = None
+    icon: str | None = Field(None, max_length=ICON_MAX_CHARS, pattern=ICON_DATA_URL)
+
+    look_size = field_validator("look")(check_look)
 
 
 KEEP_ALIVE = {"5m": "5m", "30m": "30m", "2h": "2h", "forever": -1}
@@ -218,6 +262,8 @@ class ChatReq(BaseModel):
 def avatar_row(row: sqlite3.Row) -> dict[str, Any]:
     d = dict(row)
     d["settings"] = AvatarSettings(**json.loads(d["settings"] or "{}")).model_dump()
+    d["look"] = json.loads(d.get("look") or "{}")
+    d["icon"] = d.get("icon") or ""
     return d
 
 
@@ -243,6 +289,7 @@ async def lifespan(app: FastAPI):
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA foreign_keys = ON")
     db.executescript(SCHEMA)
+    migrate()
     seed_default_avatar()
     app.state.http = httpx.AsyncClient(
         timeout=httpx.Timeout(connect=3.0, read=300.0, write=30.0, pool=5.0)
@@ -433,11 +480,12 @@ async def list_avatars():
 async def create_avatar(body: AvatarIn):
     now = time.time()
     avatar_id = new_id()
-    db.execute(
-        "INSERT INTO avatars VALUES (?,?,?,?,?,?,?,?,?)",
-        (avatar_id, body.name.strip(), body.description.strip(), body.persona.strip(), body.emoji.strip(),
-         body.color, json.dumps(body.settings.model_dump()), now, now),
-    )
+    insert_avatar({
+        "id": avatar_id, "name": body.name.strip(), "description": body.description.strip(),
+        "persona": body.persona.strip(), "emoji": body.emoji.strip(), "color": body.color,
+        "settings": json.dumps(body.settings.model_dump()), "created_at": now, "updated_at": now,
+        "look": json.dumps(body.look), "icon": body.icon,
+    })
     db.commit()
     return get_avatar(avatar_id)
 
@@ -453,6 +501,8 @@ async def update_avatar(avatar_id: str, body: AvatarPatch):
     changes = body.model_dump(exclude_none=True)
     if "settings" in changes:
         changes["settings"] = json.dumps(changes["settings"])
+    if "look" in changes:
+        changes["look"] = json.dumps(changes["look"])
     for key in ("name", "description", "persona", "emoji"):
         if key in changes:
             changes[key] = changes[key].strip()

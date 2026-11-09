@@ -112,7 +112,7 @@ const projects: Project[] = [
     preview: "explain",
   },
   {
-    title: "Avatar Lab",
+    title: "AIvatar",
     why: "Wanted AI characters with real personalities, running on my own GPU instead of a paid API.",
     href: "/project/avatar",
     summary:

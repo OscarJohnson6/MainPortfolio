@@ -1,3 +1,5 @@
+import type { Look } from "./look";
+
 export type ThinkingMode = "auto" | "on" | "off";
 
 export type AvatarSettings = {
@@ -18,11 +20,16 @@ export type Avatar = {
   emoji: string;
   color: string;
   settings: AvatarSettings;
+  /** The 3D look as stored by the gateway; read it through normalizeLook() in _lib/look.ts. */
+  look: Record<string, unknown>;
+  /** Snapshot of the look as a PNG data URL, used as the icon ("" = emoji/initial circle). */
+  icon: string;
   created_at: number;
   updated_at: number;
 };
 
-export type AvatarDraft = Omit<Avatar, "id" | "created_at" | "updated_at">;
+/** What the editor works on: the look is already normalized into a Look. */
+export type AvatarDraft = Omit<Avatar, "id" | "created_at" | "updated_at" | "look"> & { look: Look };
 
 export type Conversation = {
   id: string;

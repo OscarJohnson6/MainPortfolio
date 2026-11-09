@@ -51,7 +51,7 @@ export default function Sidebar({
                   selected ? "bg-zinc-800/80" : "hover:bg-zinc-900"
                 }`}
               >
-                <AvatarIcon name={a.name} emoji={a.emoji} color={a.color} size="sm" />
+                <AvatarIcon name={a.name} emoji={a.emoji} color={a.color} icon={a.icon} size="sm" />
                 <span className="truncate text-sm">{a.name}</span>
               </button>
 

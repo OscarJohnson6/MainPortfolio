@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { api, streamApi, textOn } from "../_lib/api";
+import { DEFAULT_ORB, normalizeLook, type Look } from "../_lib/look";
 import { DEFAULT_SETTINGS, type Avatar, type AvatarDraft, type AvatarSettings, type ThinkingMode } from "../_lib/types";
 import AvatarIcon from "./AvatarIcon";
+import LookEditor from "./LookEditor";
+import type { CaptureFn } from "./look/AvatarStageClient";
 import InfoTip from "@/components/InfoTip";
 
 const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#ef4444", "#f59e0b", "#10b981", "#0ea5e9", "#64748b"];
@@ -39,9 +42,28 @@ type Props = {
 export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: Props) {
   const [draft, setDraft] = useState<AvatarDraft>(() =>
     avatar
-      ? { name: avatar.name, description: avatar.description, persona: avatar.persona, emoji: avatar.emoji, color: avatar.color, settings: { ...avatar.settings } }
-      : { name: "", description: "", persona: "", emoji: "", color: COLORS[0], settings: { ...DEFAULT_SETTINGS } },
+      ? {
+          name: avatar.name,
+          description: avatar.description,
+          persona: avatar.persona,
+          emoji: avatar.emoji,
+          color: avatar.color,
+          settings: { ...avatar.settings },
+          look: normalizeLook(avatar.look),
+          icon: avatar.icon,
+        }
+      : { name: "", description: "", persona: "", emoji: "", color: COLORS[0], settings: { ...DEFAULT_SETTINGS }, look: DEFAULT_ORB, icon: "" },
   );
+  // New avatars go Personality → Look; existing ones can switch freely.
+  const [step, setStep] = useState<"personality" | "look">("personality");
+  // Installed Ollama models, for the per-avatar model picker.
+  const [models, setModels] = useState<string[] | null>(null);
+  useEffect(() => {
+    api<{ models: string[] }>("/models")
+      .then((r) => setModels(r.models))
+      .catch(() => setModels([]));
+  }, []);
+  const captureRef = useRef<CaptureFn | null>(null);
   const [generating, setGenerating] = useState<"idle" | "thinking" | "writing">("idle");
   const [genStartedAt, setGenStartedAt] = useState(0);
   const [now, setNow] = useState(0);
@@ -96,18 +118,51 @@ export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: P
     setPreviousPersona(null);
   }
 
+  /** A fresh snapshot of the look for the icon ("" when there's no 3D look). */
+  async function snapshotIcon(look: Look): Promise<string> {
+    if (look.kind === "none") return "";
+    return (await captureRef.current?.()) ?? draft.icon;
+  }
+
+  // Keep the icon in step with the look while it's being edited, so saving
+  // from the other step still uses the latest look.
+  useEffect(() => {
+    if (step !== "look" || draft.look.kind === "none") return;
+    const timer = setTimeout(() => {
+      captureRef.current?.().then((icon) => setDraft((d) => ({ ...d, icon })));
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [step, draft.look]);
+
+  async function goToStep(next: "personality" | "look") {
+    if (next === step) return;
+    if (step === "look") {
+      const icon = await snapshotIcon(draft.look);
+      setDraft((d) => ({ ...d, icon }));
+    }
+    setStep(next);
+  }
+
   async function save(e: FormEvent) {
     e.preventDefault();
+    // Enter on the first step of a new avatar moves on instead of creating it.
+    if (!avatar && step === "personality") {
+      await goToStep("look");
+      return;
+    }
     if (!draft.persona.trim()) {
       setError("Write or generate a character sheet before saving.");
+      setStep("personality");
       return;
     }
     setSaving(true);
     setError(null);
     try {
+      const icon = step === "look" ? await snapshotIcon(draft.look) : draft.look.kind === "none" ? "" : draft.icon;
+      const body = JSON.stringify({ ...draft, icon });
       const saved = avatar
-        ? await api<Avatar>(`/avatars/${avatar.id}`, { method: "PATCH", body: JSON.stringify(draft) })
-        : await api<Avatar>("/avatars", { method: "POST", body: JSON.stringify(draft) });
+        ? await api<Avatar>(`/avatars/${avatar.id}`, { method: "PATCH", body })
+        : await api<Avatar>("/avatars", { method: "POST", body });
       onSaved(saved);
     } catch (err) {
       setError((err as Error).message);
@@ -143,7 +198,7 @@ export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: P
   return (
     <form onSubmit={save} className="flex min-w-0 flex-1 flex-col">
       <header className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3">
-        <AvatarIcon name={draft.name || "?"} emoji={draft.emoji} color={draft.color} />
+        <AvatarIcon name={draft.name || "?"} emoji={draft.emoji} color={draft.color} icon={draft.look.kind === "none" ? "" : draft.icon} />
         <h2 className="flex-1 truncate text-sm font-semibold">{avatar ? `Edit ${avatar.name}` : "Create an avatar"}</h2>
         <button type="button" onClick={onCancel} className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900">
           Cancel
@@ -154,14 +209,44 @@ export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: P
           className="rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-90 disabled:opacity-40"
           style={{ backgroundColor: draft.color, color: textOn(draft.color) }}
         >
-          {saving ? "Saving…" : avatar ? "Save changes" : "Create"}
+          {saving ? "Saving…" : avatar ? "Save changes" : step === "personality" ? "Next: Look →" : "Create"}
         </button>
       </header>
+
+      <nav className="flex gap-1 border-b border-zinc-800 px-4" aria-label="Editor steps">
+        {(["personality", "look"] as const).map((id, index) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => void goToStep(id)}
+            aria-current={step === id ? "step" : undefined}
+            className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition ${
+              step === id ? "border-current text-zinc-100" : "border-transparent text-zinc-500 hover:text-zinc-300"
+            }`}
+            style={step === id ? { color: draft.color } : undefined}
+          >
+            <span className={step === id ? "text-zinc-100" : ""}>
+              {index + 1} · {id === "personality" ? "Personality" : "Look"}
+            </span>
+          </button>
+        ))}
+      </nav>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-6">
           {error && <p className="rounded-lg border border-rose-900/60 bg-rose-950/40 px-3 py-2 text-sm text-rose-200">{error}</p>}
 
+          {step === "look" ? (
+            <LookEditor
+              look={draft.look}
+              onChange={(look) => set("look", look)}
+              name={draft.name}
+              emoji={draft.emoji}
+              color={draft.color}
+              captureRef={captureRef}
+            />
+          ) : (
+          <>
           {/* Identity */}
           <section className="grid gap-4 sm:grid-cols-[1fr_6rem]">
             <Field label="Name" info="What the avatar is called. It's also used when generating the character sheet.">
@@ -284,6 +369,36 @@ export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: P
           <section className="flex flex-col gap-4">
             <h3 className="text-xs font-medium uppercase tracking-wide text-zinc-400">Model behavior</h3>
             <Field
+              label="Model"
+              hint={
+                draft.settings.model
+                  ? "This avatar always uses this model, for both fast and thinking replies."
+                  : "Uses the fast and thinking models chosen in Settings."
+              }
+              info="Which Ollama model this avatar runs on. Leave it on Default to follow the global Settings, or pin one (any model you've pulled with `ollama pull`) to give this avatar its own. Switching models means the first reply waits a few seconds while it loads."
+            >
+              <select
+                value={draft.settings.model ?? ""}
+                onChange={(e) => setSetting("model", e.target.value || null)}
+                className={inputCls}
+              >
+                <option value="">{models === null ? "Default (from Settings) · loading models…" : "Default (from Settings)"}</option>
+                {[
+                  // Keep a pinned model visible even if it's been removed from Ollama.
+                  ...(draft.settings.model && models && !models.includes(draft.settings.model) ? [draft.settings.model] : []),
+                  ...(models ?? []),
+                ].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                    {models && !models.includes(m) ? " (not downloaded)" : ""}
+                  </option>
+                ))}
+              </select>
+              {models?.length === 0 && (
+                <p className="mt-1.5 text-[11px] text-zinc-600">Couldn&apos;t list models. Is the worker running?</p>
+              )}
+            </Field>
+            <Field
               label={`Creativity (temperature): ${draft.settings.temperature.toFixed(2)}`}
               hint="Lower = more predictable, higher = more surprising."
               info="How randomly the model picks each next word. 0.2–0.5: consistent and focused. 0.7–0.9: natural conversation. 1.0+: creative and surprising, but more likely to ramble or go off the rails."
@@ -322,6 +437,9 @@ export default function AvatarEditor({ avatar, onSaved, onDeleted, onCancel }: P
               <p className="mt-1.5 text-[11px] text-zinc-600">{THINKING.find((t) => t.value === (draft.settings.thinking === "on" ? "on" : "off"))?.hint}</p>
             </Field>
           </section>
+
+          </>
+          )}
 
           {avatar && (
             <section className="border-t border-zinc-800 pt-6">

@@ -283,6 +283,20 @@ pre,
   background: var(--surface);
 }
 
+/*
+ * A large panel that blends into the page: a shade off the page color (from
+ * the theme, so it follows light and dark) with a border that fades out
+ * toward the bottom instead of a hard box outline.
+ */
+.soft-panel {
+  --soft-panel-fill: color-mix(in srgb, var(--surface) 55%, var(--background));
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--soft-panel-fill), var(--soft-panel-fill)) padding-box,
+    linear-gradient(to bottom, var(--border-strong), color-mix(in srgb, var(--border) 45%, transparent) 55%, transparent 92%) border-box;
+  box-shadow: 0 30px 60px -45px var(--shadow);
+}
+
 .project-why {
   border-left: 2px solid var(--accent-soft);
   padding-left: 0.75rem;

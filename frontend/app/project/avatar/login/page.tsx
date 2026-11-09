@@ -69,7 +69,7 @@ export default function AvatarLogin() {
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl"
       >
-        <h1 className="text-lg font-semibold">Avatar Lab</h1>
+        <h1 className="text-lg font-semibold">AIvatar</h1>
         <p className="mt-1 text-sm leading-6 text-zinc-400">
           AI characters you design and chat with, running on a local model (Ollama) on my own GPU
           instead of a cloud API. It&apos;s private, so it needs an access code.

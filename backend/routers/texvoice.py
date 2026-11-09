@@ -268,6 +268,26 @@ def source_cache_key(source_path: Path, *settings: object) -> str:
     return digest.hexdigest()
 
 
+async def compile_pdf_cached(source_path: Path, pdf_path: Path) -> tuple[bool, str, bool]:
+    """
+    Compile a .tex file to pdf_path, reusing an earlier compile of identical
+    source. Returns (ok, message, reused). The preview and the audio job share
+    this cache, so uploading a file and then generating audio compiles once.
+
+    latexmk can take a minute; running it in a thread keeps the server
+    answering other requests (like job progress polls) meanwhile.
+    """
+    cached_pdf = TEXVOICE_CACHE_DIR / f"{source_cache_key(source_path, 'pdf')}.pdf"
+    if read_cache(cached_pdf):
+        shutil.copyfile(cached_pdf, pdf_path)
+        return True, "Reused the PDF compiled earlier from this same source.", True
+
+    ok, message = await asyncio.to_thread(compile_tex_to_pdf, source_path, pdf_path)
+    if ok:
+        shutil.copyfile(pdf_path, cached_pdf)
+    return ok, message, False
+
+
 def read_cache(cache_path: Path) -> bool:
     """True if the entry exists; touching it keeps the sweeper from deleting it while in use."""
     if not cache_path.is_file():
@@ -628,20 +648,11 @@ async def run_generation_job(
             raise ValueError("Only .tex, .md and .txt files are supported right now.")
 
         if suffix == ".tex":
-            cached_pdf = TEXVOICE_CACHE_DIR / f"{source_cache_key(upload_path, 'pdf')}.pdf"
+            update_job(job, "Preparing the LaTeX PDF.", status="formatting", progress=5)
+            write_log_file(log_path, job)
 
-            if read_cache(cached_pdf):
-                shutil.copyfile(cached_pdf, pdf_path)
-                pdf_ok = True
-                update_job(job, "Reused the PDF compiled earlier from this same source.", status="formatting", progress=7)
-            else:
-                update_job(job, "Compiling LaTeX PDF preview.", status="formatting", progress=5)
-                write_log_file(log_path, job)
-
-                pdf_ok, pdf_message = compile_tex_to_pdf(source_path, pdf_path)
-                update_job(job, pdf_message, progress=7)
-                if pdf_ok:
-                    shutil.copyfile(pdf_path, cached_pdf)
+            pdf_ok, pdf_message, _ = await compile_pdf_cached(source_path, pdf_path)
+            update_job(job, pdf_message, progress=7)
 
             if pdf_ok:
                 job.pdf_url = public_export_url(pdf_path)
@@ -861,7 +872,7 @@ async def create_pdf_preview_job(file: UploadFile = File(...)) -> dict:
     job.manifest_url = public_export_url(manifest_path)
 
     update_job(job, f"Created PDF preview job for {safe_name}.", status="formatting", progress=10)
-    pdf_ok, pdf_message = compile_tex_to_pdf(source_path, pdf_path)
+    pdf_ok, pdf_message, _ = await compile_pdf_cached(source_path, pdf_path)
 
     if pdf_ok:
         job.pdf_url = public_export_url(pdf_path)

@@ -233,6 +233,11 @@ export default function TexVoiceApp() {
   const [file, setFile] = useState<File | null>(null);
   // Markdown is previewed straight from the file in the browser; no PDF to compile.
   const [markdownSource, setMarkdownSource] = useState<string | null>(null);
+  // The PDF preview of an uploaded .tex file. Kept apart from the audio job so
+  // Generate works while it compiles and the preview stays up during generation.
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [previewState, setPreviewState] = useState<"idle" | "compiling" | "ready" | "failed">("idle");
+  const previewRequest = useRef(0);
   const [status, setStatus] = useState<JobStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Drop a .tex file to preview the PDF, or generate audio when ready.");
@@ -295,6 +300,10 @@ export default function TexVoiceApp() {
       return { kind: "generated", title: file.name };
     }
 
+    if (file && previewState !== "idle" && job?.status !== "done") {
+      return { kind: "generated", title: file.name, pdfUrl: previewPdfUrl };
+    }
+
     if (job?.status === "done" && (job.audio_url || job.pdf_url || job.source_url || job.script_url)) {
       return {
         kind: "generated",
@@ -303,14 +312,14 @@ export default function TexVoiceApp() {
         chaptersUrl: job.chapters_json_url,
         scriptUrl: job.script_url,
         logUrl: job.log_url,
-        pdfUrl: job.pdf_url,
+        pdfUrl: job.pdf_url ?? previewPdfUrl,
         sourceUrl: job.source_url,
         manifestUrl: job.manifest_url,
       };
     }
 
     return null;
-  }, [file, markdownSource, job, selectedLibraryItem]);
+  }, [file, markdownSource, previewPdfUrl, previewState, job, selectedLibraryItem]);
 
   const officialAudioUrl = selectedLibraryItem?.audioUrl ?? null;
   const generatedPreviewAudioUrl = selectedLibraryItem && job?.status === "done" ? job.audio_url ?? null : null;
@@ -475,6 +484,9 @@ export default function TexVoiceApp() {
   function resetForNewFile(nextFile: File) {
     setFile(nextFile);
     setMarkdownSource(null);
+    setPreviewPdfUrl(null);
+    setPreviewState("idle");
+    previewRequest.current += 1; // a still-running preview of the old file is ignored
     setStatus("idle");
     setProgress(0);
     setJob(null);
@@ -502,10 +514,9 @@ export default function TexVoiceApp() {
   async function previewUploadedTex(nextFile: File) {
     if (!nextFile.name.toLowerCase().endsWith(".tex")) return;
 
-    setStatus("formatting");
-    setProgress(10);
-    setError(null);
-    setStatusText("Uploading LaTeX source and compiling PDF preview...");
+    const request = ++previewRequest.current;
+    setPreviewState("compiling");
+    setStatusText("Compiling the PDF preview. You can generate audio already; it reuses this PDF.");
 
     const formData = new FormData();
     formData.append("file", nextFile);
@@ -522,15 +533,14 @@ export default function TexVoiceApp() {
       }
 
       const data = (await response.json()) as JobState;
-      setJob(data);
-      setStatus(data.status);
-      setProgress(data.progress);
-      setStatusText(data.pdf_url ? "PDF preview ready. Generate audio when you want it." : data.message);
+      if (request !== previewRequest.current) return; // a newer file was picked meanwhile
+      setPreviewPdfUrl(data.pdf_url ?? null);
+      setPreviewState(data.pdf_url ? "ready" : "failed");
+      if (!data.pdf_url) setError(data.error ?? data.message);
     } catch (err) {
-      setStatus("idle");
-      setProgress(0);
-      setError(getFriendlyError(err));
-      setStatusText("Could not compile PDF preview. You can still try generating audio.");
+      if (request !== previewRequest.current) return;
+      setPreviewState("failed");
+      setError(`Could not compile the PDF preview: ${getFriendlyError(err)} You can still generate audio.`);
     }
   }
 
@@ -696,6 +706,9 @@ export default function TexVoiceApp() {
   function selectLibraryItem(item: LibraryItem) {
     setSelectedLibraryItem(item);
     setMarkdownSource(null);
+    setPreviewPdfUrl(null);
+    setPreviewState("idle");
+    previewRequest.current += 1;
     setJob(null);
     setFile(null);
     setStatus("idle");
@@ -827,7 +840,7 @@ export default function TexVoiceApp() {
   const actualBytes = job?.actual_audio_bytes ?? 0;
 
   return (
-    <main id="main-content" className="rounded-4xl border border-zinc-800 bg-zinc-950 px-4 py-8 text-zinc-100 shadow-2xl shadow-black/30">
+    <main id="main-content" className="soft-panel rounded-4xl px-4 py-8 text-zinc-100">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="text-center">
           <p className="text-sm font-medium uppercase tracking-[0.3em] text-zinc-500">texvoice</p>
@@ -1306,6 +1319,10 @@ export default function TexVoiceApp() {
                         onSeek={seekTo}
                         onTextSelected={(text) => setStartAt(text)}
                       />
+                    ) : previewState === "compiling" ? (
+                      <p className="animate-pulse rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-400">
+                        Compiling the PDF preview… LaTeX can take up to a minute on large notes.
+                      </p>
                     ) : (
                       <p className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-500">
                         No PDF is available yet. Upload a .tex file to compile a preview or a .md file to see it rendered, or generate audio from plain text without a preview.
